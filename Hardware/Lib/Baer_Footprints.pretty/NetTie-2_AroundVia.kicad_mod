@@ -1,0 +1,18 @@
+(footprint "NetTie-2_AroundVia" (version 20221018) (generator pcbnew)
+  (layer "F.Cu")
+  (descr "Net tie, 2 pin, 2.0mm square SMD pads")
+  (tags "net tie")
+  (attr exclude_from_pos_files exclude_from_bom allow_missing_courtyard)
+  (net_tie_pad_groups "1, 2")
+  (fp_text reference "REF**" (at 0 -2) (layer "F.SilkS") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 358a0d4d-e950-478c-a062-d6618b86e29e)
+  )
+  (fp_text value "NetTie-2_AroundVia" (at 0 2) (layer "F.Fab") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 415e45b0-a0e9-4fc1-b940-0b7eb31df76f)
+  )
+  (pad "1" smd circle (at -2 0.6) (size 1.2 1.2) (layers "F.Cu")
+    (solder_mask_margin -0.1) (solder_paste_margin -0.1) (solder_paste_margin_ratio -0.001) (clearance -0.1) (tstamp af66b0b4-2e00-4b6f-bbcd-b16448d10250))
+  (pad "2" smd circle (at 0 0) (size 0.5 0.5) (layers "F.Cu") (tstamp b8997496-ea23-4628-9ad0-2c99abdfa640))
+)

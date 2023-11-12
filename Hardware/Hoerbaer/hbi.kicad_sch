@@ -4035,7 +4035,7 @@
   )
 
   (symbol (lib_id "Connector_Generic:Conn_02x12_Odd_Even") (at 72.39 139.7 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom yes) (on_board yes) (dnp yes)
     (uuid 182f8d64-a754-4504-966e-52b2938d73de)
     (property "Reference" "J9" (at 73.66 121.92 0)
       (effects (font (size 1.27 1.27)))
@@ -4111,7 +4111,7 @@
   )
 
   (symbol (lib_id "Connector_Generic:Conn_02x12_Odd_Even") (at 72.39 96.52 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom yes) (on_board yes) (dnp yes)
     (uuid 195471d7-299d-49b8-aa4a-1358c590d103)
     (property "Reference" "J8" (at 73.66 78.74 0)
       (effects (font (size 1.27 1.27)))
@@ -4867,7 +4867,7 @@
   )
 
   (symbol (lib_id "Connector_Generic:Conn_02x12_Odd_Even") (at 36.83 96.52 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom yes) (on_board yes) (dnp yes)
     (uuid 502833b1-6f1e-42a4-b5f9-0d81385ac464)
     (property "Reference" "J6" (at 38.1 78.74 0)
       (effects (font (size 1.27 1.27)))
@@ -6101,7 +6101,7 @@
   )
 
   (symbol (lib_id "Connector_Generic:Conn_02x12_Odd_Even") (at 36.83 139.7 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom yes) (on_board yes) (dnp yes)
     (uuid b650b14d-a31e-4c9f-82a4-4a5169bd60bd)
     (property "Reference" "J7" (at 38.1 121.92 0)
       (effects (font (size 1.27 1.27)))
