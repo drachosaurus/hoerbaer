@@ -1,4 +1,4 @@
-21868665182055750
+21873761162509343
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -14,6 +14,20 @@ audio belton reverb
 7
 7
 Baer_Footprints
+L_Murata_LQH3NPN
+CHIP COILS (CHIP INDUCTORS)
+chip coil inductor Murata LQH3NPN
+0
+2
+2
+Baer_Footprints
+L_TDK_SPM12565
+Inductor, TDK, SPM12565
+Inductor SPM12565
+0
+2
+2
+Baer_Footprints
 S54BF
 Diode SMB (DO-214AA)
 Diode SMB (DO-214AA)
@@ -26,6 +40,13 @@ SOT, 3 Pin (https://www.jedec.org/system/files/docs/to-236h.pdf variant AB), gen
 SOT TO_SOT_SMD
 0
 3
+2
+Baer_Footprints
+SW_ TS-1088-AR02016
+https://datasheet.lcsc.com/lcsc/2304140030_XUNPU-TS-1088-AR02016_C720477.pdf
+SMD SMT button
+0
+2
 2
 Baer_Footprints
 TDFN-8-1EP_MAXIM

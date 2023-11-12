@@ -110,6 +110,94 @@
         )
       )
     )
+    (symbol "Baer_Symbols:S8050_SOT23" (pin_names (offset 0) hide) (in_bom yes) (on_board yes)
+      (property "Reference" "Q" (at 5.08 1.905 0)
+        (effects (font (size 1.27 1.27)) (justify left))
+      )
+      (property "Value" "S8050" (at 5.08 0 0)
+        (effects (font (size 1.27 1.27)) (justify left))
+      )
+      (property "Footprint" "Package_TO_SOT_SMD:SOT-23" (at 5.08 -3.81 0)
+        (effects (font (size 1.27 1.27) italic) (justify left) hide)
+      )
+      (property "Datasheet" "https://datasheet.lcsc.com/lcsc/2205060945_Guangdong-Hottech-S8050_C181158.pdf" (at 5.08 -6.35 0)
+        (effects (font (size 1.27 1.27)) (justify left) hide)
+      )
+      (property "ki_keywords" "S8050 NPN Low Voltage High Current Transistor" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_description" "S8050 BIPOLAR TRANSISTOR (NPN)" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_fp_filters" "TO?92*" (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (symbol "S8050_SOT23_0_1"
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0.635 0)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy 0.635 0.635)
+            (xy 2.54 2.54)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy 0.635 -0.635)
+            (xy 2.54 -2.54)
+            (xy 2.54 -2.54)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy 0.635 1.905)
+            (xy 0.635 -1.905)
+            (xy 0.635 -1.905)
+          )
+          (stroke (width 0.508) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy 1.27 -1.778)
+            (xy 1.778 -1.27)
+            (xy 2.286 -2.286)
+            (xy 1.27 -1.778)
+            (xy 1.27 -1.778)
+          )
+          (stroke (width 0) (type default))
+          (fill (type outline))
+        )
+        (circle (center 1.27 0) (radius 2.8194)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+      )
+      (symbol "S8050_SOT23_1_1"
+        (pin input line (at -5.08 0 0) (length 5.08)
+          (name "B" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at 2.54 -5.08 90) (length 2.54)
+          (name "E" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at 2.54 5.08 270) (length 2.54)
+          (name "C" (effects (font (size 1.27 1.27))))
+          (number "3" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
     (symbol "Connector:TestPoint" (pin_numbers hide) (pin_names (offset 0.762) hide) (in_bom yes) (on_board yes)
       (property "Reference" "TP" (at 0 6.858 0)
         (effects (font (size 1.27 1.27)))
@@ -571,94 +659,6 @@
         )
       )
     )
-    (symbol "Transistor_BJT:S8050" (pin_names (offset 0) hide) (in_bom yes) (on_board yes)
-      (property "Reference" "Q" (at 5.08 1.905 0)
-        (effects (font (size 1.27 1.27)) (justify left))
-      )
-      (property "Value" "S8050" (at 5.08 0 0)
-        (effects (font (size 1.27 1.27)) (justify left))
-      )
-      (property "Footprint" "Package_TO_SOT_THT:TO-92_Inline" (at 5.08 -1.905 0)
-        (effects (font (size 1.27 1.27) italic) (justify left) hide)
-      )
-      (property "Datasheet" "http://www.unisonic.com.tw/datasheet/S8050.pdf" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) (justify left) hide)
-      )
-      (property "ki_keywords" "S8050 NPN Low Voltage High Current Transistor" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_description" "0.7A Ic, 20V Vce, Low Voltage High Current NPN Transistor, TO-92" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_fp_filters" "TO?92*" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (symbol "S8050_0_1"
-        (polyline
-          (pts
-            (xy 0 0)
-            (xy 0.635 0)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0.635 0.635)
-            (xy 2.54 2.54)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0.635 -0.635)
-            (xy 2.54 -2.54)
-            (xy 2.54 -2.54)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0.635 1.905)
-            (xy 0.635 -1.905)
-            (xy 0.635 -1.905)
-          )
-          (stroke (width 0.508) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 1.27 -1.778)
-            (xy 1.778 -1.27)
-            (xy 2.286 -2.286)
-            (xy 1.27 -1.778)
-            (xy 1.27 -1.778)
-          )
-          (stroke (width 0) (type default))
-          (fill (type outline))
-        )
-        (circle (center 1.27 0) (radius 2.8194)
-          (stroke (width 0.254) (type default))
-          (fill (type none))
-        )
-      )
-      (symbol "S8050_1_1"
-        (pin passive line (at 2.54 -5.08 90) (length 2.54)
-          (name "E" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27))))
-        )
-        (pin input line (at -5.08 0 0) (length 5.08)
-          (name "B" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27))))
-        )
-        (pin passive line (at 2.54 5.08 270) (length 2.54)
-          (name "C" (effects (font (size 1.27 1.27))))
-          (number "3" (effects (font (size 1.27 1.27))))
-        )
-      )
-    )
     (symbol "power:GND" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
       (property "Reference" "#PWR" (at 0 -6.35 0)
         (effects (font (size 1.27 1.27)) hide)
@@ -1047,8 +1047,8 @@
     (property "MPN" "LESD5D5.0CT1G" (at 100.33 87.63 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 5fed595b-7f70-4c66-acd3-6a23b88c5245))
-    (pin "2" (uuid bb79dab4-e3f1-488c-990c-405100a52fd4))
+    (pin "1" (uuid 2368ef78-ec1b-4b9b-b4a4-e67fe22a2d16))
+    (pin "2" (uuid b1d184ed-ae40-4a66-9cd7-ef4c94b8f03f))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1082,8 +1082,8 @@
     (property "MPN" "LESD5D5.0CT1G" (at 105.41 69.85 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 96235d61-062e-4c15-a8b8-a55bf25d997b))
-    (pin "2" (uuid c9a854b0-e11d-4485-ade9-dc10c311d5f1))
+    (pin "1" (uuid 0419d220-0ff2-44f6-9ddf-e95262c5f670))
+    (pin "2" (uuid 7cde6fad-4113-4afa-a4aa-3840497f8cdf))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1105,14 +1105,14 @@
     (property "Value" "10kΩ" (at 199.39 107.95 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 199.39 102.362 90)
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 199.39 102.362 90)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 199.39 104.14 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 056ed565-ad54-4684-af80-2bfb1066151b))
-    (pin "2" (uuid 12884b39-98f6-40db-86ee-cdb3bd057c66))
+    (pin "1" (uuid 147bfb98-40c3-4917-82e4-c04edcd5c667))
+    (pin "2" (uuid d7b6955e-7d83-4246-bd87-38a7b740d666))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b/977d0010-d22b-463b-9672-6115e3e2a185"
@@ -1137,7 +1137,7 @@
     (property "Datasheet" "" (at 137.16 110.49 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 2ea22a46-1369-4043-9739-acf6c736bd98))
+    (pin "1" (uuid c3b98b7c-9099-4ea7-9437-022e150797f5))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1165,7 +1165,7 @@
     (property "Datasheet" "" (at 100.33 91.44 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid cbc45518-afad-4d59-a342-4acbf757457c))
+    (pin "1" (uuid 5a07de40-3034-48fd-a3a6-06e5c3ca52cf))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1193,7 +1193,7 @@
     (property "Datasheet" "~" (at 180.34 78.74 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid dcd40a5b-8cc0-4144-afb6-1ae977bdb26d))
+    (pin "1" (uuid 0c6ada8f-24c9-4a94-bbbf-48287aaaf768))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b/977d0010-d22b-463b-9672-6115e3e2a185"
@@ -1218,7 +1218,7 @@
     (property "Datasheet" "" (at 114.3 110.49 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid c89c0f56-dc01-4f37-8f2a-eb2ea29ea743))
+    (pin "1" (uuid 47b067d3-45ca-4fc7-9bfc-e5fd0bab364c))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1246,7 +1246,7 @@
     (property "Datasheet" "" (at 153.67 110.49 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid b0707f1a-5903-42c4-8b13-d2ec8f25e09f))
+    (pin "1" (uuid ad4ddc37-7070-4cb3-aac4-6b364520a603))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1259,7 +1259,7 @@
     )
   )
 
-  (symbol (lib_id "Transistor_BJT:S8050") (at 210.82 86.36 0) (unit 1)
+  (symbol (lib_id "Baer_Symbols:S8050_SOT23") (at 210.82 86.36 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 79688d1e-dba8-400e-a642-aed61e36502c)
     (property "Reference" "Q5" (at 215.9 85.09 0)
@@ -1268,15 +1268,21 @@
     (property "Value" "S8050" (at 215.9 87.63 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Package_TO_SOT_THT:TO-92_Inline" (at 215.9 88.265 0)
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-23" (at 215.9 90.17 0)
       (effects (font (size 1.27 1.27) italic) (justify left) hide)
     )
-    (property "Datasheet" "http://www.unisonic.com.tw/datasheet/S8050.pdf" (at 210.82 86.36 0)
+    (property "Datasheet" "https://datasheet.lcsc.com/lcsc/2205060945_Guangdong-Hottech-S8050_C181158.pdf" (at 215.9 92.71 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid c3c98839-a408-4082-9eae-7116e3842230))
-    (pin "2" (uuid 0eff818e-3dc1-4180-95bb-731a84af34b1))
-    (pin "3" (uuid 857ff44d-9561-446d-9b62-f5e797be7abb))
+    (property "JLCPCB" "C2150" (at 210.82 86.36 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "MPN" "SS8050" (at 210.82 86.36 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 0022c5ac-f0e9-4b8a-9ced-c683c346499c))
+    (pin "2" (uuid e6a20f94-1880-4358-a6a4-ed9fe7023d07))
+    (pin "3" (uuid 789021dc-69af-47e8-80e8-59a2eb3895b7))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b/977d0010-d22b-463b-9672-6115e3e2a185"
@@ -1295,14 +1301,14 @@
     (property "Value" "100nF" (at 139.7 109.2263 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 137.16 107.95 0)
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 137.16 107.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 137.16 107.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 70eee937-56f7-444a-9098-2417f5cf174b))
-    (pin "2" (uuid 1b48bf6c-0f22-4987-bf26-33db87cfb4a1))
+    (pin "1" (uuid 37467572-6b1e-49aa-b2d2-990a729fc127))
+    (pin "2" (uuid 4f118850-392a-4e2f-9822-97426dd601c5))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b/977d0010-d22b-463b-9672-6115e3e2a185"
@@ -1327,7 +1333,7 @@
     (property "Datasheet" "" (at 96.52 73.66 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid b315129b-5fd6-4145-ba28-7c92db802ead))
+    (pin "1" (uuid 275d02f0-cbd3-488d-81ed-0f60334d1002))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1349,14 +1355,14 @@
     (property "Value" "5.1kΩ" (at 95.25 73.66 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 86.36 72.39 0)
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 86.36 72.39 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 86.36 72.39 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 8836cbab-a7ca-438d-bea9-9a83ba773180))
-    (pin "2" (uuid 19e519e7-13ee-4c62-8bc7-a1bf898b4ad1))
+    (pin "1" (uuid 8d7bfbc2-3858-4552-a5f8-bfef167c8c61))
+    (pin "2" (uuid a89dcf68-16f2-4ed5-81ac-de8441eb6e26))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1384,7 +1390,7 @@
     (property "Datasheet" "~" (at 175.26 78.74 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 435240c5-bde9-4395-825c-f13d1e08a715))
+    (pin "1" (uuid f75b6c65-c575-45c5-a67a-f57c782a76ce))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b/977d0010-d22b-463b-9672-6115e3e2a185"
@@ -1415,23 +1421,23 @@
     (property "MPN" "TYPE-C 16PIN 2MD(073) Copy" (at 63.5 80.01 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "A1" (uuid 320d1c58-c16e-4753-a5d7-5cc31124f237))
-    (pin "A12" (uuid c6d2adc5-4271-4a94-8a93-f95bd250b6d5))
-    (pin "A4" (uuid 7f39562d-a989-4fe4-b372-3d007bf026e1))
-    (pin "A5" (uuid e2b33073-931e-4a2e-9d0b-cd5f1fd5b2d4))
-    (pin "A6" (uuid 7e343046-70a5-41a3-b2e3-a0ab6f97572b))
-    (pin "A7" (uuid c5adedbb-e9d3-4a3d-b678-d90422118e4e))
-    (pin "A8" (uuid d8727092-0b12-4428-8d4d-4581e3041a18))
-    (pin "A9" (uuid 284f4f17-72cb-4df8-b86f-6f94fa9592f6))
-    (pin "B1" (uuid aaa6099a-0487-4a5c-9302-6f65dd7323e5))
-    (pin "B12" (uuid 7cf0252d-cbc5-455c-87b6-1c66f6ea15b8))
-    (pin "B4" (uuid c09595dc-9d40-4d2c-9840-cd615cfca00d))
-    (pin "B5" (uuid 8f851c99-23e8-42eb-bb51-db0a4a82cf43))
-    (pin "B6" (uuid 88c09736-58c6-4cf7-86bb-b6c882271e20))
-    (pin "B7" (uuid 56121dbc-3f00-48cf-af8e-44c3df348043))
-    (pin "B8" (uuid 31cd1974-c478-4678-9248-cd43a56c4d77))
-    (pin "B9" (uuid 074ee272-d88f-4b5f-b5bc-aef5e7ac8147))
-    (pin "S1" (uuid 5528faa1-58ea-4109-9ac3-a0e58ceac225))
+    (pin "A1" (uuid e6241b99-c86e-4fcb-a46e-9b45c6d77242))
+    (pin "A12" (uuid 6b4d332c-7fef-458e-8578-3789e5f667c8))
+    (pin "A4" (uuid ad66eec4-ba88-4ab8-a211-c25ddfc69785))
+    (pin "A5" (uuid d412a139-69a9-4039-87ad-2f982f16203b))
+    (pin "A6" (uuid 9ad77f1d-1a91-4fd7-b671-bb4c71653050))
+    (pin "A7" (uuid 266b2ad0-fc97-4348-82e0-c232b3dcda9e))
+    (pin "A8" (uuid cb31b798-bd84-4a4e-a5d9-0b04eacfaa41))
+    (pin "A9" (uuid 383f5be8-19aa-4789-9d19-d97114a1c8ee))
+    (pin "B1" (uuid 9900755a-ba5a-4405-8b11-80dea1788340))
+    (pin "B12" (uuid 554f58a8-e5d6-4966-872f-0c4a8f6e0ae4))
+    (pin "B4" (uuid 2c474a53-16e7-4dcc-ab40-070325438973))
+    (pin "B5" (uuid f1fe3414-d25a-48c5-a6d4-94b94d5d30ef))
+    (pin "B6" (uuid cfb03cbb-c811-490c-a42e-1f42e8fad836))
+    (pin "B7" (uuid fc300b67-427b-49c8-94db-43cd1b314c9d))
+    (pin "B8" (uuid d7d11bb3-dc3c-4c0a-b6c9-992ff559bb39))
+    (pin "B9" (uuid 8588dc1a-ef15-41ad-9316-66c1a2e3a5f3))
+    (pin "S1" (uuid 1dbded58-84f4-4909-a413-b85fd138af55))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1444,7 +1450,7 @@
     )
   )
 
-  (symbol (lib_id "Transistor_BJT:S8050") (at 210.82 104.14 0) (mirror x) (unit 1)
+  (symbol (lib_id "Baer_Symbols:S8050_SOT23") (at 210.82 104.14 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid bb73baa4-024a-4e87-9e0b-5717dcc714ed)
     (property "Reference" "Q6" (at 215.9 105.41 0)
@@ -1453,15 +1459,21 @@
     (property "Value" "S8050" (at 215.9 102.87 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Package_TO_SOT_THT:TO-92_Inline" (at 215.9 102.235 0)
+    (property "Footprint" "Package_TO_SOT_SMD:SOT-23" (at 215.9 100.33 0)
       (effects (font (size 1.27 1.27) italic) (justify left) hide)
     )
-    (property "Datasheet" "http://www.unisonic.com.tw/datasheet/S8050.pdf" (at 210.82 104.14 0)
+    (property "Datasheet" "https://datasheet.lcsc.com/lcsc/2205060945_Guangdong-Hottech-S8050_C181158.pdf" (at 215.9 97.79 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid fcacc882-43dc-4fa1-a9b6-8ccf3c138339))
-    (pin "2" (uuid 7e26d82b-acaf-45a5-a889-6ff8339bcc40))
-    (pin "3" (uuid 6af7d61a-0918-464d-b309-389d9b91f74d))
+    (property "JLCPCB" "C2150" (at 210.82 104.14 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "MPN" "SS8050" (at 210.82 104.14 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid f2eb6ca1-6369-44e3-ab9f-d35166d031fa))
+    (pin "2" (uuid 1cd03cb8-a115-4daa-a9be-f51a92a6fe3f))
+    (pin "3" (uuid e1df1fe1-3235-4e1b-9883-573cd10b0e5a))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b/977d0010-d22b-463b-9672-6115e3e2a185"
@@ -1486,7 +1498,7 @@
     (property "Datasheet" "" (at 125.73 110.49 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid a2b819c0-374a-4300-8fdb-ef06c1927f56))
+    (pin "1" (uuid 727dd96e-c159-4b51-bcb4-a1420892d381))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1508,14 +1520,14 @@
     (property "Value" "5.1kΩ" (at 95.25 71.12 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 86.36 69.85 0)
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 86.36 69.85 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 86.36 69.85 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 0a92687f-8a53-4d37-a226-c175ec94fcc7))
-    (pin "2" (uuid c4c7cb64-613b-46c5-9c75-f5e304c78d15))
+    (pin "1" (uuid a3d597e1-2dcd-41d2-b646-0e687234138c))
+    (pin "2" (uuid 2daeb85f-d0ab-4810-a1d7-495bbf153189))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1543,7 +1555,7 @@
     (property "Datasheet" "" (at 55.88 102.87 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid fbc8a65b-1129-4a73-8309-35f876ddd591))
+    (pin "1" (uuid 0e780ac7-c66c-49f7-9629-349c25270a2c))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1565,14 +1577,14 @@
     (property "Value" "100nF" (at 116.84 109.2263 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 114.3 107.95 0)
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 114.3 107.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 114.3 107.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 4ec812a9-b09a-4544-9b5c-816a1e422f35))
-    (pin "2" (uuid 68e2fd93-bf7f-4380-9623-564be89a2d78))
+    (pin "1" (uuid ce25ebda-fcb3-426f-a23b-0007cd8c9ba1))
+    (pin "2" (uuid eb176b6f-ba97-48dd-a9fd-c5e097417418))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b/977d0010-d22b-463b-9672-6115e3e2a185"
@@ -1597,7 +1609,7 @@
     (property "Datasheet" "" (at 105.41 73.66 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid d92dba90-2aa4-49cb-adac-c744d7e5fd0f))
+    (pin "1" (uuid f7745aff-4419-445c-84cc-cd3a3fdf202f))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1625,7 +1637,7 @@
     (property "Datasheet" "" (at 63.5 102.87 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid c94d11f7-9214-4a58-8a80-2514b34a5271))
+    (pin "1" (uuid 2c5fa1e6-3597-4170-8f55-e274267bb6e2))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1647,14 +1659,14 @@
     (property "Value" "100nF" (at 128.27 109.2263 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 125.73 107.95 0)
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 125.73 107.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 125.73 107.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid d4d93782-369e-477d-a07a-d411645571c1))
-    (pin "2" (uuid 50c77ea4-c402-4efd-b650-5bfaa6440174))
+    (pin "1" (uuid 2994edc8-af3f-412d-a7eb-dc8f755cff75))
+    (pin "2" (uuid ecd503eb-fb88-4b4d-84b3-fe795dfaea31))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b/977d0010-d22b-463b-9672-6115e3e2a185"
@@ -1673,14 +1685,14 @@
     (property "Value" "10kΩ" (at 199.39 82.55 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 199.39 88.138 90)
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 199.39 88.138 90)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 199.39 86.36 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 69ea1f02-d268-41da-8ee3-d79377bf722f))
-    (pin "2" (uuid 084626a3-4e92-48a9-9bde-8d8ea612eba9))
+    (pin "1" (uuid f5b8e44a-5149-4d7f-8613-ccc2a95de38d))
+    (pin "2" (uuid f38b160a-8200-410c-be20-a05e010dd103))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b/977d0010-d22b-463b-9672-6115e3e2a185"
@@ -1711,23 +1723,23 @@
     (property "JLCPCB" "C2846043" (at 153.67 125.73 0) (show_name)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 14b867c8-0e89-48cb-a68a-8bb54ba748a5))
-    (pin "10" (uuid 5c47875d-a06e-4017-a905-8503fef6cfc8))
-    (pin "11" (uuid f5eddf23-fc77-422e-8b60-1c61feec0474))
-    (pin "12" (uuid b3335ee6-cd55-4070-bc6e-6ae9a9e144f0))
-    (pin "13" (uuid 8e8894da-cfb6-4d82-b6b7-056622199cfb))
-    (pin "14" (uuid 52b9df07-fd90-4671-8c25-d4a9ce9d9bf6))
-    (pin "15" (uuid c69f6fef-da4f-4a30-9615-96edc0f49dcd))
-    (pin "16" (uuid ca256ed0-a651-4df4-897c-0ea30bc1f030))
-    (pin "17" (uuid ce72d8d1-11fc-464c-85f4-5a5564743b9b))
-    (pin "2" (uuid 559ef4ef-3094-4290-ae82-2b47f05ded91))
-    (pin "3" (uuid c2043aa5-149c-4bf8-81b5-3656b64b9dde))
-    (pin "4" (uuid e126d22b-5289-42cd-9094-e7fd60410e4b))
-    (pin "5" (uuid abea6661-f431-44a8-9a59-b997b5343549))
-    (pin "6" (uuid 1f33fb8f-7133-4abc-9880-4ae5d41d0ffd))
-    (pin "7" (uuid b7952973-e6e5-4809-a273-b80671574584))
-    (pin "8" (uuid cc6c4075-e3b1-44fd-bc7e-2646d392fcd1))
-    (pin "9" (uuid 6c1b2d1f-1ad2-4d2f-acca-ba384946247e))
+    (pin "1" (uuid bc24bd28-c4db-4a0f-893c-d3605416a261))
+    (pin "10" (uuid 298cdaa4-12a7-45c3-809d-0433f655d37e))
+    (pin "11" (uuid a3e960ac-3c67-4e3b-8625-3629428ee55b))
+    (pin "12" (uuid f8b832e7-ec46-45fc-8429-6fa8c57e5cc9))
+    (pin "13" (uuid ef4535a7-d115-42c1-8e5e-4780e425a79f))
+    (pin "14" (uuid dea174d5-5225-4c1b-ac8a-58c103b13d08))
+    (pin "15" (uuid a352ce94-deb2-4183-8a1b-cdeecdd3ab97))
+    (pin "16" (uuid bbad630b-de7c-402f-bb81-a153999a62ea))
+    (pin "17" (uuid ee3f1af8-ed46-45b8-82d9-92a9013d6fcc))
+    (pin "2" (uuid e4051ceb-b8ce-4820-acef-5f8319b9ad95))
+    (pin "3" (uuid f87b13f1-1bb6-41c5-a8a6-6a6314765682))
+    (pin "4" (uuid 4e0a919d-4bc8-44bb-957d-10ffc72fe41f))
+    (pin "5" (uuid c3196b39-943b-4d1c-8bd5-356d94ee6214))
+    (pin "6" (uuid 64adb0c8-96f1-4acc-ad52-72e3e0ebc3f8))
+    (pin "7" (uuid 8798e617-81ef-4c8f-8eb8-f25e8fb655a8))
+    (pin "8" (uuid 0c60d0a5-8cad-4b3c-8279-8a14f243aca8))
+    (pin "9" (uuid 1104ea9c-82f7-4bbd-8035-3f8b3e2ed36b))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b/977d0010-d22b-463b-9672-6115e3e2a185"
@@ -1752,7 +1764,7 @@
     (property "Datasheet" "" (at 105.41 91.44 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 3dda0a2a-9af3-47ff-a20e-9cae68083f52))
+    (pin "1" (uuid 1345dd7a-1d10-4c3d-9fa2-cbabaf86c977))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
@@ -1786,8 +1798,8 @@
     (property "MPN" "LESD5D5.0CT1G" (at 105.41 87.63 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid d62d4184-40ad-4cef-8410-c584db2ce7e8))
-    (pin "2" (uuid 5959636f-d745-4f82-ab91-3c9a419be4c5))
+    (pin "1" (uuid 8e9b8279-5dc1-457c-846a-848a43887413))
+    (pin "2" (uuid 3ef930d9-799a-4d7a-9869-be0a29fe3ba3))
     (instances
       (project "Hoerbaer"
         (path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
