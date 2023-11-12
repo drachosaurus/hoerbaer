@@ -1,4 +1,4 @@
-21865267986456769
+21868665182055750
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -14,12 +14,26 @@ audio belton reverb
 7
 7
 Baer_Footprints
+S54BF
+Diode SMB (DO-214AA)
+Diode SMB (DO-214AA)
+0
+2
+2
+Baer_Footprints
 SOT-23-D-ANK
 SOT, 3 Pin (https://www.jedec.org/system/files/docs/to-236h.pdf variant AB), generated with kicad-footprint-generator ipc_gullwing_generator.py
 SOT TO_SOT_SMD
 0
 3
 2
+Baer_Footprints
+TDFN-8-1EP_MAXIM
+TDFN, 8 Pin (https://pdfserv.maximintegrated.com/package_dwgs/21-0168.PDF), generated with kicad-footprint-generator ipc_noLead_generator.py
+TDFN NoLead
+0
+13
+9
 Baer_Footprints
 XCVR_ESP32-S3-MINI-1-N8
 

@@ -4,6 +4,12 @@
 
   (paper "A4")
 
+  (title_block
+    (title "Hör Bär main")
+    (rev "1.0")
+    (company "Drachosaurus Designs")
+  )
+
   (lib_symbols
     (symbol "Baer_Symbols:CH343P" (in_bom yes) (on_board yes)
       (property "Reference" "U" (at 7.62 -13.97 0)
@@ -1181,7 +1187,7 @@
     (property "Value" "TestPoint" (at 172.72 71.12 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (property "Footprint" "" (at 180.34 78.74 0)
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm" (at 180.34 78.74 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 180.34 78.74 0)
@@ -1372,7 +1378,7 @@
     (property "Value" "TestPoint" (at 167.64 71.12 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (property "Footprint" "" (at 175.26 78.74 0)
+    (property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm" (at 175.26 78.74 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 175.26 78.74 0)
