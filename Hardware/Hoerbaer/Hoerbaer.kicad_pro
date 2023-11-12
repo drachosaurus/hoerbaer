@@ -34,9 +34,9 @@
         "other_text_thickness": 0.15,
         "other_text_upright": false,
         "pads": {
-          "drill": 0.762,
-          "height": 1.524,
-          "width": 1.524
+          "drill": 0.3,
+          "height": 0.8,
+          "width": 0.8
         },
         "silk_line_width": 0.15,
         "silk_text_italic": false,
@@ -190,7 +190,12 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [],
+    "erc_exclusions": [
+      "lib_symbol_issues|469900|1701800|8a654343-484e-447c-ba22-a89c4fcc306b|00000000-0000-0000-0000-000000000000|||",
+      "lib_symbol_issues|635000|800100|b8731bb1-fa44-4962-9183-9a562d71ead2|00000000-0000-0000-0000-000000000000|||",
+      "lib_symbol_issues|660400|889000|bd4a9f19-2706-434d-a81f-3649b88ba607|00000000-0000-0000-0000-000000000000|||",
+      "power_pin_not_driven|1892300|1041400|412afec2-56cd-48f9-b325-7c64816494da|00000000-0000-0000-0000-000000000000|||"
+    ],
     "meta": {
       "version": 0
     },
@@ -436,12 +441,46 @@
         "line_style": 0,
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
+        "name": "LED",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.4,
+        "via_diameter": 1.0,
+        "via_drill": 0.6,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
         "name": "PWR",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.5,
-        "via_diameter": 0.8,
-        "via_drill": 0.4,
+        "via_diameter": 1.0,
+        "via_drill": 0.6,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "SPEAKER",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.4,
+        "via_diameter": 1.0,
+        "via_drill": 0.6,
         "wire_width": 6
       }
     ],
@@ -449,7 +488,44 @@
       "version": 3
     },
     "net_colors": null,
-    "netclass_assignments": null,
+    "netclass_assignments": {
+      "/Audio/AMP_OUT_A+": "SPEAKER",
+      "/Audio/AMP_OUT_A-": "SPEAKER",
+      "/Audio/AMP_OUT_B+": "SPEAKER",
+      "/Audio/AMP_OUT_B-": "SPEAKER",
+      "/Audio/SPEAKER_A+": "SPEAKER",
+      "/Audio/SPEAKER_A-": "SPEAKER",
+      "/Audio/SPEAKER_B+": "SPEAKER",
+      "/Audio/SPEAKER_B-": "SPEAKER",
+      "/HBI/PAW_A_D1": "LED",
+      "/HBI/PAW_A_D2": "LED",
+      "/HBI/PAW_A_D3": "LED",
+      "/HBI/PAW_A_D4": "LED",
+      "/HBI/PAW_A_D5": "LED",
+      "/HBI/PAW_A_D6": "LED",
+      "/HBI/PAW_B_D1": "LED",
+      "/HBI/PAW_B_D2": "LED",
+      "/HBI/PAW_B_D3": "LED",
+      "/HBI/PAW_B_D4": "LED",
+      "/HBI/PAW_B_D5": "LED",
+      "/HBI/PAW_B_D6": "LED",
+      "/HBI/PAW_C_D1": "LED",
+      "/HBI/PAW_C_D2": "LED",
+      "/HBI/PAW_C_D3": "LED",
+      "/HBI/PAW_C_D4": "LED",
+      "/HBI/PAW_C_D5": "LED",
+      "/HBI/PAW_C_D6": "LED",
+      "/HBI/PAW_D_D1": "LED",
+      "/HBI/PAW_D_D2": "LED",
+      "/HBI/PAW_D_D3": "LED",
+      "/HBI/PAW_D_D4": "LED",
+      "/HBI/PAW_D_D5": "LED",
+      "/HBI/PAW_D_D6": "LED",
+      "Net-(U10-BST_A+)": "SPEAKER",
+      "Net-(U10-BST_A-)": "SPEAKER",
+      "Net-(U10-BST_B+)": "SPEAKER",
+      "Net-(U10-BST_B-)": "SPEAKER"
+    },
     "netclass_patterns": [
       {
         "netclass": "PWR",
