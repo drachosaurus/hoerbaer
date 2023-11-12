@@ -1,0 +1,29 @@
+(footprint "NetTie-2_Via" (version 20221018) (generator pcbnew)
+  (layer "F.Cu")
+  (descr "Net tie, 2 pin, 0.3mm round THT pads")
+  (tags "net tie")
+  (attr exclude_from_pos_files exclude_from_bom allow_missing_courtyard)
+  (net_tie_pad_groups "1, 2")
+  (fp_text reference "REF**" (at 0.6 -1.3) (layer "F.SilkS") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 455e361b-82d8-43a4-ae96-25ba72dca5b6)
+  )
+  (fp_text value "NetTie-2_Via" (at 0.6 1.3) (layer "F.Fab") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 1e38ba8a-f6c4-4bcc-93ef-0f245b28d883)
+  )
+  (fp_poly
+    (pts
+      (xy -0.8 -0.8)
+      (xy 0.8 -0.8)
+      (xy 0.8 0.8)
+      (xy -0.8 0.8)
+    )
+
+    (stroke (width 0) (type solid)) (fill solid) (layer "B.Cu") (tstamp 96de1fc5-cda6-41b0-9b50-57dba9d57f46))
+  (pad "1" thru_hole circle (at 0 0) (size 0.6 0.6) (drill 0.3) (layers "*.Cu") (tstamp 7e1c1883-1c61-4cf1-ab72-58c5dac4142e))
+  (pad "2" smd rect (at -0.7 0) (size 0.2 1.6) (layers "B.Cu") (tstamp ddcac77e-9c10-4fb9-aeb0-7c92c77a8a4f))
+  (pad "2" smd rect (at 0 -0.7 90) (size 0.2 1.6) (layers "B.Cu") (tstamp 6bb6cb4b-0c01-44d1-9494-e730546a726d))
+  (pad "2" smd rect (at 0 0.7 90) (size 0.2 1.6) (layers "B.Cu") (tstamp 4d343fca-cbd9-4b28-b1b5-d85f79317701))
+  (pad "2" smd rect (at 0.7 0) (size 0.2 1.6) (layers "B.Cu") (tstamp 37ae583d-9d15-4463-aa01-36554928a499))
+)
