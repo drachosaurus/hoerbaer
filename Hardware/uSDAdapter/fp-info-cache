@@ -1,4 +1,4 @@
-22085472246789903
+22066772344346431
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -13,83 +13,6 @@ audio belton reverb
 0
 7
 7
-Baer_Footprints
-L_Murata_LQH3NPN
-CHIP COILS (CHIP INDUCTORS)
-chip coil inductor Murata LQH3NPN
-0
-2
-2
-Baer_Footprints
-L_TDK_SPM12565
-Inductor, TDK, SPM12565
-Inductor SPM12565
-0
-2
-2
-Baer_Footprints
-NetTie-2_1206Pad
-Net tie, 2 pin, 2.0mm square SMD pads
-net tie
-0
-2
-2
-Baer_Footprints
-NetTie-2_AroundVia
-Net tie, 2 pin, 2.0mm square SMD pads
-net tie
-0
-2
-2
-Baer_Footprints
-NetTie-2_Via
-Net tie, 2 pin, 0.3mm round THT pads
-net tie
-0
-5
-2
-Baer_Footprints
-S54BF
-Diode SMB (DO-214AA)
-Diode SMB (DO-214AA)
-0
-2
-2
-Baer_Footprints
-SOT-23-D-ANK
-SOT, 3 Pin (https://www.jedec.org/system/files/docs/to-236h.pdf variant AB), generated with kicad-footprint-generator ipc_gullwing_generator.py
-SOT TO_SOT_SMD
-0
-3
-2
-Baer_Footprints
-SW_ TS-1088-AR02016
-https://datasheet.lcsc.com/lcsc/2304140030_XUNPU-TS-1088-AR02016_C720477.pdf
-SMD SMT button
-0
-2
-2
-Baer_Footprints
-TDFN-8-1EP_MAXIM
-TDFN, 8 Pin (https://pdfserv.maximintegrated.com/package_dwgs/21-0168.PDF), generated with kicad-footprint-generator ipc_noLead_generator.py
-TDFN NoLead
-0
-13
-9
-Baer_Footprints
-XCVR_ESP32-S3-MINI-1-N8
-
-
-0
-73
-73
-Baer_Footprints
-microSD_HC_Molex_104031-0811_MIRRORED
-1.10mm Pitch microSD Memory Card Connector, Surface Mount, Push-Pull Type, 1.42mm Height, with Detect Switch (https://www.molex.com/pdm_docs/sd/1040310811_sd.pdf)
-microSD SD molex
-0
-14
-11
 Battery
 BatteryClip_Keystone_54_D16-19mm
 Battery clip for batteries with a diameter between 16-19 mm: https://www.keyelco.com/product.cfm/product_id/826

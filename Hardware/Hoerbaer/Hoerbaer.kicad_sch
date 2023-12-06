@@ -4027,7 +4027,7 @@
     (property "Reference" "J3" (at 46.355 148.59 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "Micro_SD_Card_Det1" (at 46.355 151.13 0)
+    (property "Value" "uSD" (at 46.355 151.13 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "Connector_Card:microSD_HC_Molex_104031-0811" (at -5.08 152.4 0)
