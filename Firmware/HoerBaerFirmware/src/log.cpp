@@ -10,10 +10,10 @@ void Log::init()
 #endif
 }
 
-void Log::println(const char * fmt) 
-{
-    Serial.println(fmt);
-}
+// void Log::println(const char * fmt) 
+// {
+//     Serial.println(fmt);
+// }
 
 void Log::println(const char * fmt, ...) 
 {

@@ -21,6 +21,7 @@
 #define TLC59108_H
 
 #include <Arduino.h>
+#include <memory>
 #include "Wire.h"
 
 class TLC59108
@@ -183,14 +184,9 @@ public:
 	};
 
 public:
-	// sets default I2C interface for pre-initialization commands (e.g., subaddress setting)
-	static void setDefaultI2C(TwoWire i2c_default);
 
 	// creates an instance managing drivers on the specified interface and address
-	TLC59108(TwoWire i2c, const byte i2c_address);
-
-	// creates an instance managing drivers on the specified address with the default interface
-	TLC59108(const byte i2c_address);
+	TLC59108(std::shared_ptr<TwoWire> i2c, const byte i2c_address);
 
 	// initializes the driver by performing a hardware reset (if pin is specified) and enabling the oscillator
 	uint8_t init(const uint8_t hwResetPin = 0);
@@ -222,10 +218,8 @@ public:
 	uint8_t setLedOutputMode(const uint8_t outputMode);
 
 private:
-	static TwoWire i2c_default;
-	mutable TwoWire i2c;
+	std::shared_ptr<TwoWire> i2c;
 	byte addr;
-
 };
 
 #endif // TLC59108_H

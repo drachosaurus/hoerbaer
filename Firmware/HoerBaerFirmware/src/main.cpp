@@ -31,7 +31,7 @@ void setup() {
   Log::println("Hello Bear! Main runs on core: %d", xPortGetCoreID());
 
   hbi = make_unique<HBI>(i2c, i2cSema);
-  hbi->startInputListener();
+  hbi->start();
 
   // Serial.setDebugOutput(true);
   // Serial.println("Start i2c...");
