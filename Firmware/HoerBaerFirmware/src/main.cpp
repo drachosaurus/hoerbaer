@@ -33,22 +33,18 @@ void setup() {
   hbi = make_unique<HBI>(i2c, i2cSema);
   hbi->start();
 
-  // Serial.setDebugOutput(true);
-  // Serial.println("Start i2c...");
-  // i2c.begin(GPIO_I2C_SDA, GPIO_I2C_SCL, 100000);
-
 
   // Serial.println("Scanning...");
 
-  // byte error, address;
+  // uint8_t error, address;
   // int nDevices = 0;
   // for(address = 1; address < 127; address++ ) 
   // {
   //   // The i2c_scanner uses the return value of
   //   // the Write.endTransmisstion to see if
   //   // a device did acknowledge to the address.
-  //   i2c.beginTransmission(address);
-  //   error = i2c.endTransmission();
+  //   i2c->beginTransmission(address);
+  //   error = i2c->endTransmission();
 
   //   if (error == 0)
   //   {
@@ -92,5 +88,6 @@ void loop() {
   // put your main code here, to run repeatedly
   // Serial.println(".");
   sleep(1);
+  hbi->test();
 }
 // #endif /* ARDUINO_USB_MODE */

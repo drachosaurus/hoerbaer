@@ -11,6 +11,8 @@ HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema)
     this->ledDriver1 = make_unique<TLC59108>(i2c, I2C_ADDR_LED_DRIVER1);
     this->ledDriver2 = make_unique<TLC59108>(i2c, I2C_ADDR_LED_DRIVER2);
     this->ledDriver3 = make_unique<TLC59108>(i2c, I2C_ADDR_LED_DRIVER3);
+
+    this->ioExpander1 = make_unique<PCF8574>(i2c, I2C_ADDR_IO_EXPANDER1);
 }
 
 // void InputListenerTask( void * parameter ) 
@@ -44,5 +46,10 @@ void HBI::start()
     Log::println("HBI: Lights on!");
     
     // xTaskCreate(InputListenerTask, "hbi_input", 100, NULL, TASK_PRIO_HBI_INPUT_LISTENER, this->listenerTaskHandle);
+}
+
+void HBI::test() {
+    uint8_t io1 = this->ioExpander1->read8();
+    Log::println("IO1: %d", io1);
 }
 
