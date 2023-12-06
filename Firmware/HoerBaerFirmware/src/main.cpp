@@ -19,7 +19,8 @@ void setup() {
 
   i2c = make_shared<TwoWire>(0);
   i2cSema = xSemaphoreCreateBinary();
-
+  xSemaphoreGive(i2cSema);
+  
   // First (has to be first!), disable 3V3 ~PSAVE
   power = make_unique<Power>();
   power->DisableVCCPowerSave();

@@ -13,6 +13,8 @@ HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema)
     this->ledDriver3 = make_unique<TLC59108>(i2c, I2C_ADDR_LED_DRIVER3);
 
     this->ioExpander1 = make_unique<PCF8574>(i2c, I2C_ADDR_IO_EXPANDER1);
+    this->ioExpander2 = make_unique<PCF8574>(i2c, I2C_ADDR_IO_EXPANDER2);
+    this->ioExpander3 = make_unique<PCF8574>(i2c, I2C_ADDR_IO_EXPANDER3);
 }
 
 // void InputListenerTask( void * parameter ) 
@@ -28,7 +30,7 @@ void HBI::start()
         Log::println("HBI interrupt");
     }, FALLING);
 
-    sleep(1);
+    xSemaphoreTake(this->i2cSema, portMAX_DELAY);
 
     this->ledDriver1->init(GPIO_HBI_LEDDRIVER_RST);
     this->ledDriver2->init();
@@ -44,12 +46,19 @@ void HBI::start()
     this->ledDriver2->setAllBrightness(0xC0);
     this->ledDriver3->setAllBrightness(0xC0);
     Log::println("HBI: Lights on!");
+
+    xSemaphoreGive(this->i2cSema);
+
     
     // xTaskCreate(InputListenerTask, "hbi_input", 100, NULL, TASK_PRIO_HBI_INPUT_LISTENER, this->listenerTaskHandle);
 }
 
 void HBI::test() {
+    xSemaphoreTake(this->i2cSema, portMAX_DELAY);
     uint8_t io1 = this->ioExpander1->read8();
-    Log::println("IO1: %d", io1);
+    uint8_t io2 = this->ioExpander2->read8();
+    uint8_t io3 = this->ioExpander3->read8();
+    Log::println("IO1: %d | IO2: %d | IO3: %d ", io1, io2, io3);
+    xSemaphoreGive(this->i2cSema);
 }
 
