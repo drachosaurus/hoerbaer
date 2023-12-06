@@ -1,0 +1,24 @@
+{
+  "name": "TLC 59108",
+  "version": "0.1.2",
+  "description": "Driver for TLC 59108 multi-channel PWM controller",
+  "keywords": "Multichannel, PWM",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TechnocultureResearch/tlc59108"
+  },
+  "authors": [
+    {
+      "name": "Christopher Smith"
+    },
+    {
+      "name": "Satyam Tiwary",
+      "email": "satyam@technocultureresearch.org",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/TechnocultureResearch/tlc59108",
+  "frameworks": "Arduino",
+  "platforms": ["atmelavr"]
+}

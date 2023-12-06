@@ -1,80 +1,85 @@
 #include <Arduino.h>
+#include <Wire.h>
+#include <memory>
 
-// #ifndef ARDUINO_USB_MODE
-// #error This ESP32 SoC has no Native USB interface
-// #elif ARDUINO_USB_MODE == 1
-// #warning This sketch should be used when USB is in OTG mode
-// void setup(){
-//   Serial.begin(115200);
-//   Serial.setDebugOutput(true);
-//   Serial.println("Running in OTG mode");
-// }
-// void loop(){}
-// #else
-// #include "USB.h"
-// #include "FirmwareMSC.h"
-// #include "usb_msc.h"
+#include "log.h"
+#include "power.h"
+#include "hbi.h"
+#include "config.h"
 
-// #if !ARDUINO_USB_MSC_ON_BOOT
-// FirmwareMSC MSC_Update;
-// #endif
+using namespace std;
 
-// static void usbEventCallback(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data){
-//   if(event_base == ARDUINO_USB_EVENTS){
-//     arduino_usb_event_data_t * data = (arduino_usb_event_data_t*)event_data;
-//     switch (event_id){
-//       case ARDUINO_USB_STARTED_EVENT:
-//         Serial.println("USB PLUGGED");
-//         break;
-//       case ARDUINO_USB_STOPPED_EVENT:
-//         Serial.println("USB UNPLUGGED");
-//         break;
-//       case ARDUINO_USB_SUSPEND_EVENT:
-//         Serial.printf("USB SUSPENDED: remote_wakeup_en: %u\n", data->suspend.remote_wakeup_en);
-//         break;
-//       case ARDUINO_USB_RESUME_EVENT:
-//         Serial.println("USB RESUMED");
-//         break;
-      
-//       default:
-//         break;
-//     }
-//   } else if(event_base == ARDUINO_FIRMWARE_MSC_EVENTS){
-//     arduino_firmware_msc_event_data_t * data = (arduino_firmware_msc_event_data_t*)event_data;
-//     switch (event_id){
-//       case ARDUINO_FIRMWARE_MSC_START_EVENT:
-//         Serial.println("MSC Update Start");
-//         break;
-//       case ARDUINO_FIRMWARE_MSC_WRITE_EVENT:
-//         //Serial.printf("MSC Update Write %u bytes at offset %u\n", data->write.size, data->write.offset);
-//         Serial.print(".");
-//         break;
-//       case ARDUINO_FIRMWARE_MSC_END_EVENT:
-//         Serial.printf("\nMSC Update End: %u bytes\n", data->end.size);
-//         break;
-//       case ARDUINO_FIRMWARE_MSC_ERROR_EVENT:
-//         Serial.printf("MSC Update ERROR! Progress: %u bytes\n", data->error.size);
-//         break;
-//       case ARDUINO_FIRMWARE_MSC_POWER_EVENT:
-//         Serial.printf("MSC Update Power: power: %u, start: %u, eject: %u", data->power.power_condition, data->power.start, data->power.load_eject);
-//         break;
-      
-//       default:
-//         break;
-//     }
-//   }
-// }
+shared_ptr<TwoWire> i2c;
+SemaphoreHandle_t i2cSema;
+
+unique_ptr<Power> power;
+unique_ptr<HBI> hbi;
 
 void setup() {
 
-  // 3V3 ~PSAVE
-  pinMode(46, OUTPUT);
-  digitalWrite(46, HIGH);
+  i2c = make_shared<TwoWire>(0);
+  i2cSema = xSemaphoreCreateBinary();
+
+  // First (has to be first!), disable 3V3 ~PSAVE
+  power = make_unique<Power>();
+  power->DisableVCCPowerSave();
+
+  i2c->begin(GPIO_I2C_SDA, GPIO_I2C_SCL, 100000);
+  power->EnableAudioVoltage();
+
+  Log::init();
+  Log::println("Hello Bear! Main runs on core: %d", xPortGetCoreID());
+
+  hbi = make_unique<HBI>(i2c, i2cSema);
+  hbi->startInputListener();
+
+  // Serial.setDebugOutput(true);
+  // Serial.println("Start i2c...");
+  // i2c.begin(GPIO_I2C_SDA, GPIO_I2C_SCL, 100000);
 
 
-  Serial.begin(115200);
-  Serial.setDebugOutput(true);
-  Serial.println("Hallo Baer!");
+  // Serial.println("Scanning...");
+
+  // byte error, address;
+  // int nDevices = 0;
+  // for(address = 1; address < 127; address++ ) 
+  // {
+  //   // The i2c_scanner uses the return value of
+  //   // the Write.endTransmisstion to see if
+  //   // a device did acknowledge to the address.
+  //   i2c.beginTransmission(address);
+  //   error = i2c.endTransmission();
+
+  //   if (error == 0)
+  //   {
+  //     Serial.print("I2C device found at address 0x");
+  //     if (address<16) 
+  //       Serial.print("0");
+  //     Serial.print(address, HEX);
+  //     Serial.println("  !");
+
+  //     nDevices++;
+  //   }
+  //   else if (error==4) 
+  //   {
+  //     Serial.print("Unknown error at address 0x");
+  //     if (address<16) 
+  //       Serial.print("0");
+  //     Serial.println(address,HEX);
+  //   }    
+  // }
+  // if (nDevices == 0)
+  //   Serial.println("No I2C devices found\n");
+  // else
+  //   Serial.println("done\n");
+
+
+
+
+
+
+
+
 
   // USB.onEvent(usbEventCallback);
   // MSC_Update.onEvent(usbEventCallback);
@@ -85,7 +90,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly
-  Serial.println("Hallo Baer!");
+  // Serial.println(".");
   sleep(1);
 }
 // #endif /* ARDUINO_USB_MODE */
