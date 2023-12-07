@@ -4709,7 +4709,7 @@
     (property "Value" "USB1" (at 59.69 73.66 0)
       (effects (font (size 1.27 1.27) bold))
     )
-    (property "Footprint" "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12" (at 69.85 88.9 0)
+    (property "Footprint" "Baer_Footprints:USB_C_Receptacle_HRO_TYPE-C-31-M-12" (at 69.85 88.9 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "https://www.usb.org/sites/default/files/documents/usb_type-c.zip" (at 69.85 88.9 0)
