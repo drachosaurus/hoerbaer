@@ -10,13 +10,10 @@ void Log::init()
 #endif
 }
 
-// void Log::println(const char * fmt) 
-// {
-//     Serial.println(fmt);
-// }
-
-void Log::println(const char * fmt, ...) 
+void Log::println(const char * module, const char * fmt, ...) 
 {
+    Serial.print(module);
+    Serial.print("\t");
     va_list va;
     va_start (va, fmt);
     char buf[255];

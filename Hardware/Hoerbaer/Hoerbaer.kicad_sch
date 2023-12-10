@@ -2363,7 +2363,7 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 1d7f7637-83c5-48ac-8043-14a408bd57d1)
   )
-  (text "I2C Addresses\n\n0x38 U2 (HBI In A, ${da1c4912-c64a-426f-8400-44eb980a9707:VALUE})\n0x39 U3 (HBI In B, ${1c7740d6-387e-4f6e-9850-ccb0e0833c17:VALUE})\n0x3A U4 (HBI In C, ${14ee67c0-f9a3-4c90-ab74-40511cc7d479:VALUE})\n0x40 U5 (HBI Out A, ${68540864-29d6-4606-93dd-ddcf442d1293:VALUE})\n0x42 U6 (HBI Out A, ${bdf53cb4-7d28-47d9-ac0b-3dcffae88679:VALUE})\n0x44 U7 (HBI Out A, ${2f7cb08b-0743-4b85-801c-41fe92d404ec:VALUE})\n0x58 U10 (Audio Amplifier, ${d0939b7f-99a2-4b76-8cbf-2b9cea7f7018:VALUE})\n0x6C U12 (Fuel Gauge, ${44d90dd1-9a68-4bb1-bfde-23057477c551:VALUE})"
+  (text "I2C Addresses: [7b (R/W)]\n\n0x38 (0x71/0x70) U2 (HBI In A, ${da1c4912-c64a-426f-8400-44eb980a9707:VALUE})\n0x39 (0x73/0x72) U3 (HBI In B, ${1c7740d6-387e-4f6e-9850-ccb0e0833c17:VALUE})\n0x3A (0x75/0x74) U4 (HBI In C, ${14ee67c0-f9a3-4c90-ab74-40511cc7d479:VALUE})\n0x40 (0x81/0x80) U5 (HBI Out A, ${68540864-29d6-4606-93dd-ddcf442d1293:VALUE})\n0x41 (0x83/0x82) U6 (HBI Out A, ${bdf53cb4-7d28-47d9-ac0b-3dcffae88679:VALUE})\n0x42 (0x85/0x84) U7 (HBI Out A, ${2f7cb08b-0743-4b85-801c-41fe92d404ec:VALUE})\n0x2C (0x59/0x58) U10 (Audio Amplifier, ${d0939b7f-99a2-4b76-8cbf-2b9cea7f7018:VALUE})\n0x36 (0x6d/0x6c) U12 (Fuel Gauge, ${44d90dd1-9a68-4bb1-bfde-23057477c551:VALUE})"
     (at 27.94 63.5 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 4997fb18-fd15-4a9b-87c7-8555e4632987)
