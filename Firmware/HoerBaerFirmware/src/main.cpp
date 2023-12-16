@@ -9,6 +9,7 @@
 #include "audioplayer.h"
 #include "config.h"
 #include "utils.h"
+#include "sdcard.h"
 
 using namespace std;
 
@@ -18,6 +19,7 @@ SemaphoreHandle_t i2cSema;
 unique_ptr<Power> power;
 unique_ptr<HBI> hbi;
 unique_ptr<AudioPlayer> audioPlayer;
+unique_ptr<SDCard> sdCard;
 
 void setup()
 {
@@ -51,6 +53,8 @@ void setup()
     delay(500);
   Log::println("MAIN", "WiFi connected");
 
+  sdCard = make_unique<SDCard>();
+  sdCard->listFiles();
 
   audioPlayer->test();
 

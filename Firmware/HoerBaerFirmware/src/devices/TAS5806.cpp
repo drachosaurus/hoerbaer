@@ -19,20 +19,20 @@ void TAS5806::resetChip()
     //                           |   reset all registers
     //                           reset module
     auto err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
-    if(err)
+    if (err)
         Log::println("TAS5806", "ERROR! Reset chip failed: %d", err);
 
-    // 7.6.1.2 DEVICE_CTRL_1 Register (Offset = 2h) [reset = 0x00]
-    registerAddress = 0x02;
-    registerValue = 0b0000000;
-    //                 |˩˩||˩
-    //                 |  |00 => BD Mode
-    //                 |  0 => BTL Mode
-    //                 000 => 768K    
+    // // 7.6.1.2 DEVICE_CTRL_1 Register (Offset = 2h) [reset = 0x00]
+    // registerAddress = 0x02;
+    // registerValue = 0b0000000;
+    // //                 |˩˩||˩
+    // //                 |  |00 => BD Mode
+    // //                 |  0 => BTL Mode
+    // //                 000 => 768K
 
-    err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
-    if(err)
-        Log::println("TAS5806", "ERROR! Set DEVICE_CTRL_1 register failed: %d", err);
+    // err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
+    // if(err)
+    //     Log::println("TAS5806", "ERROR! Set DEVICE_CTRL_1 register failed: %d", err);
 }
 
 void TAS5806::setParamsAndHighZ()
@@ -48,28 +48,28 @@ void TAS5806::setParamsAndHighZ()
     //                           0 => DSP to "normal operation"
 
     auto err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
-    if(err)
+    if (err)
         Log::println("TAS5806", "ERROR! Set DEVICE_CTRL_2 register failed: %d", err);
 
     // 7.6.1.5 SIG_CH_CTRL Register (Offset = 28h) [reset = 0x00]
     registerAddress = 0x28;
     registerValue = 0b00110000;
     //                |˩˩˩|˩˩˩
-    //                |   0000 => Auto Detection
-    //                0011 => 32FS    
+    //                |   0000 => Auto sample rate detection
+    //                0011 => 32FS
 
     err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
-    if(err)
+    if (err)
         Log::println("TAS5806", "ERROR! Set SIG_CH_CTRL register failed: %d", err);
 
     // 7.6.1.9 SAP_CTRL1 Register (Offset = 33h) [reset = 0x02]
     registerAddress = 0x33;
-    registerValue = 0b00110000;
+    registerValue = 0b00000000;
     //                | |˩|˩|˩
     //                | | | 00 => Word length 16bits
     //                | | 00 => LRCLK pulse normal
-    //                | 00 => Data format Left justified
-    //                1 => I2S shift MSB   
+    //                | 00 => Data format I2S
+    //                0 => I2S shift MSB
 
     // err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
     // if(err)
@@ -82,10 +82,8 @@ void TAS5806::setParamsAndHighZ()
     //                         1100 => -6dB
 
     err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
-    if(err)
+    if (err)
         Log::println("TAS5806", "ERROR! Set AGAIN register failed: %d", err);
-
-
 
     // 7.6.1.18 AUTO_MUTE_CTRL Register (Offset = 50h) [reset = 0x07]
     registerAddress = 0x50;
@@ -96,7 +94,7 @@ void TAS5806::setParamsAndHighZ()
     //                     0: Auto mute left channel and right channel independently
 
     err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
-    if(err)
+    if (err)
         Log::println("TAS5806", "ERROR! Set AUTO_MUTE_CTRL register failed: %d", err);
 }
 
@@ -111,7 +109,7 @@ void TAS5806::setModePlay()
     //                           0 => Dont Reset DSP
 
     auto err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
-    if(err)
+    if (err)
         Log::println("TAS5806", "ERROR! Set DEVICE_CTRL_2 register failed: %d", err);
 }
 
@@ -120,7 +118,7 @@ void TAS5806::setVolume(uint8_t volume)
     // 7.6.1.15 DIG_VOL_CTL Register (Offset = 4Ch) [reset = 30h]
     uint8_t registerAddress = 0x4C;
     uint8_t registerValue = 188; // 188 => +24 - (188 / 2) = -70dB
-    // These bits control both left and right channel digital volume. The 
+    // These bits control both left and right channel digital volume. The
     // digital volume is 24 dB to -103 dB in -0.5 dB step.
     // 00000000: +24.0 dB
     // 00000001: +23.5 dB
@@ -133,19 +131,20 @@ void TAS5806::setVolume(uint8_t volume)
     // 11111111: Mute
 
     auto err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
-    if(err)
+    if (err)
         Log::println("TAS5806", "ERROR! Set DIG_VOL_CTL register failed: %d", err);
 }
 
-void TAS5806::readPrintBinaryRegister(uint8_t addr, const char * name, uint8_t expected) 
+void TAS5806::readPrintBinaryRegister(uint8_t addr, const char *name, uint8_t expected)
 {
     uint8_t buffer[1];
     char bufferBin[9];
     auto err = Utils::readI2CRegister(this->wire, this->deviceAddress, addr, buffer, 1);
 
-    if(err)
+    if (err)
         Log::println("TAS5806", "ERROR READING %s [0x%02X], err: %d", name, addr, err);
-    else if(buffer[0] != expected) {
+    else if (buffer[0] != expected)
+    {
         itoa(buffer[0], bufferBin, 2);
         Log::println("TAS5806", "%s [0x%02X] NOT EXPECTED: %s", name, addr, bufferBin);
     }
@@ -153,22 +152,22 @@ void TAS5806::readPrintBinaryRegister(uint8_t addr, const char * name, uint8_t e
         Log::println("TAS5806", "%s [0x%02X] OK", name, addr);
 }
 
-void TAS5806::readPrintValueRegister(uint8_t addr, const char * name, uint8_t expected) 
+void TAS5806::readPrintValueRegister(uint8_t addr, const char *name, uint8_t expected)
 {
     uint8_t buffer[1];
     auto err = Utils::readI2CRegister(this->wire, this->deviceAddress, addr, buffer, 1);
-    if(err)
+    if (err)
         Log::println("TAS5806", "ERROR READING %s [0x%02X], err: %d", name, addr, err);
-    else if(buffer[0] != expected)
+    else if (buffer[0] != expected)
         Log::println("TAS5806", "%s [0x%02X] NOT EXPECTED: %d", name, addr, buffer[0]);
     else
         Log::println("TAS5806", "%s [0x%02X] OK", name, addr);
 }
 
-void TAS5806::printMonRegisters() 
+void TAS5806::printMonRegisters()
 {
     // 7.6.1.12 FS_MON Register (Offset = 37h) [reset = 0x00]
-    this->readPrintBinaryRegister(0x37, "FS_MON", 0b00000100); // expected 16KHz
+    this->readPrintBinaryRegister(0x37, "FS_MON", 0b00000110); // expected 32KHz
 
     // 7.6.1.13 BCK_MON Register (Offset = 38h) [reset = 0x00]
     this->readPrintValueRegister(0x38, "BCK_MON", 32); // expected 32FS

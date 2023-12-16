@@ -35,3 +35,9 @@
 #define GPIO_AUDIO_LRCLK 3
 #define GPIO_AUDIO_DOUT 4
 #define GPIO_AUDIO_CODEC_NPDN 1
+
+// SD card pins
+#define GPIO_SD_SCK 36
+#define GPIO_SD_DO 37
+#define GPIO_SD_DI 35
+#define GPIO_SD_CS 34
