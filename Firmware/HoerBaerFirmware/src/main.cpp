@@ -10,16 +10,19 @@
 #include "config.h"
 #include "utils.h"
 #include "sdcard.h"
+#include "userconfig.h"
 
 using namespace std;
 
 shared_ptr<TwoWire> i2c;
 SemaphoreHandle_t i2cSema;
 
+shared_ptr<UserConfig> userConfig;
+shared_ptr<SDCard> sdCard;
+
 unique_ptr<Power> power;
 unique_ptr<HBI> hbi;
 unique_ptr<AudioPlayer> audioPlayer;
-unique_ptr<SDCard> sdCard;
 
 void setup()
 {
@@ -36,72 +39,36 @@ void setup()
   Log::init();
   Log::println("MAIN", "Hello Bear! Main runs on core: %d", xPortGetCoreID());
 
+  sdCard = make_shared<SDCard>();
+  userConfig = make_shared<UserConfig>(sdCard);
+  userConfig->initializeFromSdCard();
+
   power->EnableAudioVoltage();
   power->InitializeChargerAndGauge();
   power->CheckBatteryVoltage();
-
-  hbi = make_unique<HBI>(i2c, i2cSema);
-  hbi->start();
 
   audioPlayer = make_unique<AudioPlayer>(i2c, i2cSema);
   audioPlayer->initialize();
 
   WiFi.disconnect();
-  WiFi.mode(WIFI_STA);
-  WiFi.begin("Kiva", "pandabaer");
-  while (WiFi.status() != WL_CONNECTED)
-    delay(500);
-  Log::println("MAIN", "WiFi connected");
+  if (userConfig->getWifiEnabled())
+  {
+    Log::println("MAIN", "WiFi connecting to SSID: %s", userConfig->getWifiSSID().c_str());
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(userConfig->getWifiSSID().c_str(), userConfig->getWifiPassword().c_str());
+    while (WiFi.status() != WL_CONNECTED)
+      delay(500);
+    Log::println("MAIN", "WiFi connected to SSID: %s", userConfig->getWifiSSID().c_str());
+  }
+  else
+    Log::println("MAIN", "WiFi disabled");
 
-  sdCard = make_unique<SDCard>();
-  sdCard->listFiles();
+  hbi = make_unique<HBI>(i2c, i2cSema);
+  hbi->start();
 
-  audioPlayer->test();
+  hbi->enableVegas();
 
-  // xSemaphoreTake(i2cSema, portMAX_DELAY);
-  // Utils::scanI2CBus(i2c);
-  // xSemaphoreGive(i2cSema);
-
-  // Serial.println("Scanning...");
-
-  // uint8_t error, address;
-  // int nDevices = 0;
-  // for(address = 1; address < 127; address++ )
-  // {
-  //   // The i2c_scanner uses the return value of
-  //   // the Write.endTransmisstion to see if
-  //   // a device did acknowledge to the address.
-  //   i2c->beginTransmission(address);
-  //   error = i2c->endTransmission();
-
-  //   if (error == 0)
-  //   {
-  //     Serial.print("I2C device found at address 0x");
-  //     if (address<16)
-  //       Serial.print("0");
-  //     Serial.print(address, HEX);
-  //     Serial.println("  !");
-
-  //     nDevices++;
-  //   }
-  //   else if (error==4)
-  //   {
-  //     Serial.print("Unknown error at address 0x");
-  //     if (address<16)
-  //       Serial.print("0");
-  //     Serial.println(address,HEX);
-  //   }
-  // }
-  // if (nDevices == 0)
-  //   Serial.println("No I2C devices found\n");
-  // else
-  //   Serial.println("done\n");
-
-  // USB.onEvent(usbEventCallback);
-  // MSC_Update.onEvent(usbEventCallback);
-  // MSC_Update.begin();
-  // USBSerial.begin();
-  // USB.begin();
+  // audioPlayer->test();
 }
 
 void loop()

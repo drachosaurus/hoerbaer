@@ -4,6 +4,9 @@
 #define TASK_PRIO_HBI_WORKER 1
 #define TASK_STACK_SIZE_HBI_WORKER 10000
 
+// Well known SDCARD files
+#define SDCARD_FILE_WIFI_CONFIG "/wifi.json"
+
 // I2C pins
 #define GPIO_I2C_SDA 10
 #define GPIO_I2C_SCL 11
@@ -41,3 +44,4 @@
 #define GPIO_SD_DO 37
 #define GPIO_SD_DI 35
 #define GPIO_SD_CS 34
+#define GPIO_SD_DETECT 26

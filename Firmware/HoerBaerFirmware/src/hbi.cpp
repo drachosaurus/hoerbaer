@@ -22,6 +22,8 @@ HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema)
     this->ioExpander1 = make_unique<PCF8574>(i2c, I2C_ADDR_IO_EXPANDER1);
     this->ioExpander2 = make_unique<PCF8574>(i2c, I2C_ADDR_IO_EXPANDER2);
     this->ioExpander3 = make_unique<PCF8574>(i2c, I2C_ADDR_IO_EXPANDER3);
+
+    this->lastKnownButtonMask = 0x00FFFFFF;
 }
 
 void VegasStep(HBI* hbi) 
@@ -63,13 +65,12 @@ void HBIWorkerTask(void * param)
         {
             case QUEUE_CMD_INPUT_INTERRUPT: 
             {
-                Log::println("HBI", "Input interrupt, read ios");
                 xSemaphoreTake(hbi->i2cSema, portMAX_DELAY);
                 uint8_t io1 = hbi->ioExpander1->read8();
                 uint8_t io2 = hbi->ioExpander2->read8();
                 uint8_t io3 = hbi->ioExpander3->read8();
                 xSemaphoreGive(hbi->i2cSema);
-                Log::println("IO1", "%d | IO2: %d | IO3: %d ", io1, io2, io3);
+                hbi->dispatchButtonInput(io1 | (io2 << 8) | (io3 << 16));
                 break;
             }
             case QUEUE_CMD_CLEAR: 
@@ -141,4 +142,16 @@ void HBI::disableVegas()
     uint8_t command = QUEUE_CMD_CLEAR;
     xQueueSend(hbiWorkerInputQueue, &command, portMAX_DELAY);
     Log::println("HBI", "Vegas disabled");
+}
+
+void HBI::dispatchButtonInput(uint32_t buttonMask)
+{
+    auto diff = buttonMask ^ this->lastKnownButtonMask;
+    if(diff == 0)
+        return;
+    bool up = (diff & buttonMask) != 0;
+
+    Log::println("HBI", "Button: %d %s", diff, (up ? "up" : "down"));
+
+    this->lastKnownButtonMask = buttonMask;
 }

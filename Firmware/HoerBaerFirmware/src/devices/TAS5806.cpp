@@ -117,7 +117,7 @@ void TAS5806::setVolume(uint8_t volume)
 {
     // 7.6.1.15 DIG_VOL_CTL Register (Offset = 4Ch) [reset = 30h]
     uint8_t registerAddress = 0x4C;
-    uint8_t registerValue = 188; // 188 => +24 - (188 / 2) = -70dB
+    uint8_t registerValue = 254 - volume; // 254 - volume => 0 = mute, 254 = max volume
     // These bits control both left and right channel digital volume. The
     // digital volume is 24 dB to -103 dB in -0.5 dB step.
     // 00000000: +24.0 dB
@@ -133,6 +133,9 @@ void TAS5806::setVolume(uint8_t volume)
     auto err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
     if (err)
         Log::println("TAS5806", "ERROR! Set DIG_VOL_CTL register failed: %d", err);
+    else
+        Log::println("TAS5806", "DIG_VOL_CTL set to: %X02", registerValue);
+
 }
 
 void TAS5806::readPrintBinaryRegister(uint8_t addr, const char *name, uint8_t expected)
@@ -160,20 +163,21 @@ void TAS5806::readPrintValueRegister(uint8_t addr, const char *name, uint8_t exp
         Log::println("TAS5806", "ERROR READING %s [0x%02X], err: %d", name, addr, err);
     else if (buffer[0] != expected)
         Log::println("TAS5806", "%s [0x%02X] NOT EXPECTED: %d", name, addr, buffer[0]);
-    else
-        Log::println("TAS5806", "%s [0x%02X] OK", name, addr);
+    // else
+    //     Log::println("TAS5806", "%s [0x%02X] OK", name, addr);
 }
 
 void TAS5806::printMonRegisters()
 {
-    // 7.6.1.12 FS_MON Register (Offset = 37h) [reset = 0x00]
-    this->readPrintBinaryRegister(0x37, "FS_MON", 0b00000110); // expected 32KHz
+    // FS Mon depends on sample rate
+    // // 7.6.1.12 FS_MON Register (Offset = 37h) [reset = 0x00]
+    // this->readPrintBinaryRegister(0x37, "FS_MON", 0b00000110); // expected 32KHz
 
     // 7.6.1.13 BCK_MON Register (Offset = 38h) [reset = 0x00]
     this->readPrintValueRegister(0x38, "BCK_MON", 32); // expected 32FS
 
     // 7.6.1.14 CLKDET_STATUS Register (Offset = 39h) [reset = 0x00]
-    this->readPrintBinaryRegister(0x39, "CLKDET_STATUS", 0b00001010); // PLL locked, BCK valid, rest 0
+    this->readPrintBinaryRegister(0x39, "CLKDET_STATUS", 0b00001000); // PLL locked, others 0
 
     // 7.6.1.15 DIG_VOL_CTL Register (Offset = 4Ch) [reset = 30h]
     this->readPrintBinaryRegister(0x4C, "DIG_VOL_CTL", 0b00001000);
