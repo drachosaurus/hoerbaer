@@ -24,10 +24,12 @@ class HBI {
         unique_ptr<PCF8574> ioExpander2;
         unique_ptr<PCF8574> ioExpander3;
         shared_ptr<AudioPlayer> audioPlayer;
+        void checkLongPressState();
+        void setLedState();
+        void dispatchButtonInput(uint32_t buttonMask);
     public:
         HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfig> hbiConfig, shared_ptr<AudioPlayer> audioPlayer);
         ~HBI();
         void start();
-        void dispatchButtonInput(uint32_t buttonMask);
         void runWorkerTask();
 };

@@ -8,7 +8,6 @@
 #define QUEUE_CMD_ENCODER_R 0xB1
 #define QUEUE_CMD_ENCODER_BTN_SHORT 0xB2
 #define QUEUE_CMD_ENCODER_BTN_LONG 0xB3
-#define QUEUE_CMD_CLEAR 0xC1
 #define QUEUE_CMD_SHUTDOWN 0xFF
 
 #define ENCODER_DEBOUNCE_MS 10
@@ -70,58 +69,39 @@ void HBI::runWorkerTask()
                     this->dispatchButtonInput(io1 | (io2 << 8) | (io3 << 16));
                     break;
                 }
-                case QUEUE_CMD_CLEAR: 
-                    xSemaphoreTake(this->i2cSema, portMAX_DELAY);
-                    this->ledDriver1->setAllBrightness((uint8_t)0x00);
-                    this->ledDriver2->setAllBrightness((uint8_t)0x00);
-                    this->ledDriver3->setAllBrightness((uint8_t)0x00);
-                    xSemaphoreGive(this->i2cSema);
-                    break;
                 case QUEUE_CMD_ENCODER_L:
+                {
                     Log::println("HBI", "Encoder left");
                     this->audioPlayer->volumeDown();
                     break;
+                }
                 case QUEUE_CMD_ENCODER_R:
+                {
                     Log::println("HBI", "Encoder right");
                     this->audioPlayer->volumeUp();
                     break;
+                }
                 case QUEUE_CMD_ENCODER_BTN_SHORT:
+                {
                     Log::println("HBI", "Encoder button short");
                     break;
+                }
                 case QUEUE_CMD_SHUTDOWN:
+                {
                     Log::println("HBI", "Shutdown");
                     vTaskDelete(NULL);
                     break;
+                }
                 default:
+                {
                     Log::println("HBI", "Unknown command: %d", command);
                     break;
+                }
             }
         }
 
-        // check long press timeout
-        auto encBtn = digitalRead(GPIO_HBI_ENCODER_BTN);
-        auto ticks = xTaskGetTickCount();
-        auto diff = ticks - encButtonDownTicks;
-        if(encButtonDownTicks != ENCODER_BUTTON_DOWN_TICKS_NOT_STARTED && encButtonDownTicks != ENCODER_BUTTON_DOWN_TICKS_LONG_DONE && diff > pdMS_TO_TICKS(ENCODER_BUTTON_LONG_MS)) 
-        {
-            Log::println("HBI", "Encoder button long");
-            encButtonDownTicks = ENCODER_BUTTON_DOWN_TICKS_LONG_DONE;
-        } 
-        else if(encButtonDownTicks == ENCODER_BUTTON_DOWN_TICKS_NOT_STARTED && encBtn == LOW) 
-        {
-            Log::println("HBI", "Encoder button down");
-            encButtonDownTicks = xTaskGetTickCount();
-        }
-        else if(encButtonDownTicks != ENCODER_BUTTON_DOWN_TICKS_NOT_STARTED && encButtonDownTicks != ENCODER_BUTTON_DOWN_TICKS_LONG_DONE && encBtn == HIGH && diff < pdMS_TO_TICKS(ENCODER_BUTTON_LONG_MS) && diff > pdMS_TO_TICKS(ENCODER_DEBOUNCE_MS))
-        {
-            Log::println("HBI", "Encoder button short");
-            encButtonDownTicks = ENCODER_BUTTON_DOWN_TICKS_NOT_STARTED;
-        }
-        else if(encButtonDownTicks == ENCODER_BUTTON_DOWN_TICKS_LONG_DONE && encBtn == HIGH) 
-        {
-            Log::println("HBI", "Encoder reset to not started");
-            encButtonDownTicks = ENCODER_BUTTON_DOWN_TICKS_NOT_STARTED;
-        }
+        this->checkLongPressState();
+        this->setLedState();
     }
 }
 
@@ -185,33 +165,42 @@ void HBI::dispatchButtonInput(uint32_t buttonMask)
     if(release == !this->hbiConfig->releaseInsteadOfPress)
         return;
 
-    IOMapping mapping = { type: IO_MAPPING_TYPE_NONE, value: "" };
+    uint8_t mapping = IO_MAPPING_TYPE_NONE;
+    int iSlot = 0;
 
     for(int i=0; i<24; i++) 
     {
-        if((diff & (1 << i)) == 0) 
-            continue;
+        if((diff & (1 << i)) > 0) 
+        {
+            Log::println("HBI", "Button: %d %s", i, (release ? "release" : "press"));
+            mapping = this->hbiConfig->ioMapping[i];
+            break;
+        }
         
-        Log::println("HBI", "Button: %d %s", i, (release ? "release" : "press"));
-        mapping = this->hbiConfig->ioMapping[i];
+        if(this->hbiConfig->ioMapping[i] == IO_MAPPING_TYPE_PLAY_SLOT)
+            iSlot++;
     }
 
-    switch(mapping.type) 
+    switch(mapping) 
     {
-        case IO_MAPPING_TYPE_PLAY_FOLDER:
-            Log::println("HBI", "Play folder: %s", mapping.value.c_str());
+        case IO_MAPPING_TYPE_PLAY_SLOT:
+            Log::println("HBI", "Play slot: %d", iSlot);
+            this->audioPlayer->playNextFromSlot(iSlot);
             break;
 
         case IO_MAPPING_TYPE_CONTROL_PLAY:
             Log::println("HBI", "Control play");
+            this->audioPlayer->play();
             break;
 
         case IO_MAPPING_TYPE_CONTROL_STOP:
             Log::println("HBI", "Control stop");
+            this->audioPlayer->stop();
             break;
         
         case IO_MAPPING_TYPE_CONTROL_PAUSE:
             Log::println("HBI", "Control pause");
+            this->audioPlayer->pause();
             break;
 
         case IO_MAPPING_TYPE_CONTROL_NEXT:
@@ -226,4 +215,46 @@ void HBI::dispatchButtonInput(uint32_t buttonMask)
         default:
             break;
     }
+}
+
+void HBI::checkLongPressState()
+{
+    // check long press timeout
+    auto encBtn = digitalRead(GPIO_HBI_ENCODER_BTN);
+    auto ticks = xTaskGetTickCount();
+    auto diff = ticks - encButtonDownTicks;
+    if(encButtonDownTicks != ENCODER_BUTTON_DOWN_TICKS_NOT_STARTED && encButtonDownTicks != ENCODER_BUTTON_DOWN_TICKS_LONG_DONE && diff > pdMS_TO_TICKS(ENCODER_BUTTON_LONG_MS)) 
+    {
+        Log::println("HBI", "Encoder button long");
+        encButtonDownTicks = ENCODER_BUTTON_DOWN_TICKS_LONG_DONE;
+    } 
+    else if(encButtonDownTicks == ENCODER_BUTTON_DOWN_TICKS_NOT_STARTED && encBtn == LOW) 
+    {
+        Log::println("HBI", "Encoder button down");
+        encButtonDownTicks = xTaskGetTickCount();
+    }
+    else if(encButtonDownTicks != ENCODER_BUTTON_DOWN_TICKS_NOT_STARTED && encButtonDownTicks != ENCODER_BUTTON_DOWN_TICKS_LONG_DONE && encBtn == HIGH && diff < pdMS_TO_TICKS(ENCODER_BUTTON_LONG_MS) && diff > pdMS_TO_TICKS(ENCODER_DEBOUNCE_MS))
+    {
+        Log::println("HBI", "Encoder button short");
+        encButtonDownTicks = ENCODER_BUTTON_DOWN_TICKS_NOT_STARTED;
+    }
+    else if(encButtonDownTicks == ENCODER_BUTTON_DOWN_TICKS_LONG_DONE && encBtn == HIGH) 
+    {
+        Log::println("HBI", "Encoder reset to not started");
+        encButtonDownTicks = ENCODER_BUTTON_DOWN_TICKS_NOT_STARTED;
+    }
+}
+
+void HBI::setLedState() 
+{
+    if(this->audioPlayer->getPlayingInfo() == nullptr)
+    {
+        xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+        this->ledDriver1->setAllBrightness((uint8_t)0x00);
+        this->ledDriver2->setAllBrightness((uint8_t)0x00);
+        this->ledDriver3->setAllBrightness((uint8_t)0x00);
+        xSemaphoreGive(this->i2cSema);
+        return;
+    }
+
 }

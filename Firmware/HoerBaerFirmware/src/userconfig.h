@@ -1,8 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <map>
+#include <vector>
 #include "sdcard.h"
+
+using namespace std;
 
 typedef struct {
     bool enabled;
@@ -11,7 +13,7 @@ typedef struct {
 } WifiConfig;
 
 #define IO_MAPPING_TYPE_NONE 0x00
-#define IO_MAPPING_TYPE_PLAY_FOLDER 0x10
+#define IO_MAPPING_TYPE_PLAY_SLOT 0x10
 #define IO_MAPPING_TYPE_CONTROL_PLAY 0x20
 #define IO_MAPPING_TYPE_CONTROL_STOP 0x21
 #define IO_MAPPING_TYPE_CONTROL_PAUSE 0x22
@@ -19,14 +21,9 @@ typedef struct {
 #define IO_MAPPING_TYPE_CONTROL_PREV 0x24
 
 typedef struct {
-    uint8_t type;
-    std::string value;
-} IOMapping;
-
-typedef struct {
     bool reverseNose;
     bool releaseInsteadOfPress;
-    IOMapping ioMapping[32];
+    uint8_t ioMapping[32];
 } HBIConfig;
 
 typedef struct {
@@ -38,14 +35,20 @@ typedef struct {
 
 class UserConfig {
     private:
-        std::shared_ptr<SDCard> sdCard;
-        std::shared_ptr<WifiConfig> wifiConfig;
-        std::shared_ptr<HBIConfig> hbiConfig;
-        std::shared_ptr<AudioConfig> audioConfig;
+        shared_ptr<SDCard> sdCard;
+        shared_ptr<WifiConfig> wifiConfig;
+        shared_ptr<HBIConfig> hbiConfig;
+        shared_ptr<AudioConfig> audioConfig;
+        shared_ptr<vector<string>> slotDirectories;
+        void initializeWifi();
+        void initializeHBI();
+        void initializeAudio();
+        void initializeSlots();
     public:
         UserConfig(std::shared_ptr<SDCard> sdCard);
         void initializeFromSdCard();
-        std::shared_ptr<WifiConfig> getWifiConfig();
-        std::shared_ptr<HBIConfig> getHBIConfig();
-        std::shared_ptr<AudioConfig> getAudioConfig();
+        shared_ptr<WifiConfig> getWifiConfig();
+        shared_ptr<HBIConfig> getHBIConfig();
+        shared_ptr<AudioConfig> getAudioConfig();
+        shared_ptr<vector<string>> getSlotDirectories();
 };

@@ -8,6 +8,7 @@
 #define SDCARD_FILE_WIFI_CONFIG "/wifi.json"
 #define SDCARD_FILE_HBI_CONFIG "/hbi.json"
 #define SDCARD_FILE_AUDIO_CONFIG "/audio.json"
+#define SDCARD_FILE_SLOTS_CONFIG "/slots.json"
 
 // I2C pins
 #define GPIO_I2C_SDA 10

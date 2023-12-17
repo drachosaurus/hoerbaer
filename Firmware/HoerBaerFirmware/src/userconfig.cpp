@@ -5,6 +5,8 @@
 #define DEFAULT_WIFI_SSID "myssid"
 #define DEFAULT_WIFI_PASSWORD "mypassword"
 
+DynamicJsonDocument jsonBuffer(2048); // size calculated with https://arduinojson.org/v6/assistant
+
 UserConfig::UserConfig(std::shared_ptr<SDCard> sdCard)
 {
     this->sdCard = sdCard;
@@ -17,36 +19,42 @@ UserConfig::UserConfig(std::shared_ptr<SDCard> sdCard)
     this->hbiConfig = std::make_shared<HBIConfig>();
     this->hbiConfig->reverseNose = false;
     this->hbiConfig->releaseInsteadOfPress = false;
-    this->hbiConfig->ioMapping[0] = { IO_MAPPING_TYPE_PLAY_FOLDER, "/PAW1" };
-    this->hbiConfig->ioMapping[1] = { IO_MAPPING_TYPE_PLAY_FOLDER, "/PAW2" };
-    this->hbiConfig->ioMapping[2] = { IO_MAPPING_TYPE_PLAY_FOLDER, "/PAW3" };
-    this->hbiConfig->ioMapping[3] = { IO_MAPPING_TYPE_PLAY_FOLDER, "/PAW4" };
-    this->hbiConfig->ioMapping[4] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[5] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[6] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[7] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[8] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[9] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[10] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[11] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[12] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[13] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[14] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[15] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[16] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[17] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[18] = { IO_MAPPING_TYPE_NONE, "" };
-    this->hbiConfig->ioMapping[19] = { IO_MAPPING_TYPE_CONTROL_STOP, "" };
-    this->hbiConfig->ioMapping[20] = { IO_MAPPING_TYPE_CONTROL_PLAY, "" };
-    this->hbiConfig->ioMapping[21] = { IO_MAPPING_TYPE_CONTROL_PAUSE, "" };
-    this->hbiConfig->ioMapping[22] = { IO_MAPPING_TYPE_CONTROL_NEXT, "" };
-    this->hbiConfig->ioMapping[23] = { IO_MAPPING_TYPE_CONTROL_PREV, "" };
+    this->hbiConfig->ioMapping[0] = IO_MAPPING_TYPE_PLAY_SLOT;
+    this->hbiConfig->ioMapping[1] = IO_MAPPING_TYPE_PLAY_SLOT;
+    this->hbiConfig->ioMapping[2] = IO_MAPPING_TYPE_PLAY_SLOT;
+    this->hbiConfig->ioMapping[3] = IO_MAPPING_TYPE_PLAY_SLOT;
+    this->hbiConfig->ioMapping[4] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[5] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[6] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[7] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[8] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[9] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[10] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[11] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[12] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[13] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[14] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[15] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[16] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[17] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[18] = IO_MAPPING_TYPE_NONE;
+    this->hbiConfig->ioMapping[19] = IO_MAPPING_TYPE_CONTROL_STOP;
+    this->hbiConfig->ioMapping[20] = IO_MAPPING_TYPE_CONTROL_PLAY;
+    this->hbiConfig->ioMapping[21] = IO_MAPPING_TYPE_CONTROL_PAUSE;
+    this->hbiConfig->ioMapping[22] = IO_MAPPING_TYPE_CONTROL_NEXT;
+    this->hbiConfig->ioMapping[23] = IO_MAPPING_TYPE_CONTROL_PREV;
 
     this->audioConfig = std::make_shared<AudioConfig>();
     this->audioConfig->initalVolume = 130;
     this->audioConfig->minVolume = 0;
     this->audioConfig->maxVolume = 255;
     this->audioConfig->volumeEncoderStep = 5;
+
+    this->slotDirectories = std::make_shared<vector<string>>();
+    this->slotDirectories->push_back("/PAW01");
+    this->slotDirectories->push_back("/PAW02");
+    this->slotDirectories->push_back("/PAW03");
+    this->slotDirectories->push_back("/PAW04");
 }
 
 void UserConfig::initializeFromSdCard()
@@ -57,83 +65,159 @@ void UserConfig::initializeFromSdCard()
         return;
     }
 
+    this->initializeWifi();
+    this->initializeHBI();
+    this->initializeAudio();
+    this->initializeSlots();
+}
+
+void UserConfig::initializeWifi() 
+{
     try 
     {
-        // Initialize WIFI settings
-        StaticJsonDocument<192> wifiJson; // size calculated with https://arduinojson.org/v6/assistant
-        if(this->sdCard->fileExists(SDCARD_FILE_WIFI_CONFIG)) {
-            this->sdCard->readParseJsonFile(SDCARD_FILE_WIFI_CONFIG, wifiJson);
-            this->wifiConfig->enabled = wifiJson["enabled"];
-            this->wifiConfig->ssid = wifiJson["ssid"].as<std::string>();
-            this->wifiConfig->password = wifiJson["password"].as<std::string>();
+        jsonBuffer.clear();
+        if(this->sdCard->fileExists(SDCARD_FILE_WIFI_CONFIG)) 
+        {
+            this->sdCard->readParseJsonFile(SDCARD_FILE_WIFI_CONFIG, jsonBuffer);
+            this->wifiConfig->enabled = jsonBuffer["enabled"];
+            this->wifiConfig->ssid = jsonBuffer["ssid"].as<std::string>();
+            this->wifiConfig->password = jsonBuffer["password"].as<std::string>();
             Log::println("USRCFG", "Loaded WIFI config: enabled: %d, ssid: %s", this->wifiConfig->enabled, this->wifiConfig->ssid.c_str());
         }
-        else {
-            wifiJson["enabled"] = this->wifiConfig->enabled;
-            wifiJson["ssid"] = this->wifiConfig->ssid;
-            wifiJson["password"] = this->wifiConfig->password;
-            this->sdCard->writeJsonFile(SDCARD_FILE_WIFI_CONFIG, wifiJson);
+        else 
+        {
+            jsonBuffer["enabled"] = this->wifiConfig->enabled;
+            jsonBuffer["ssid"] = this->wifiConfig->ssid;
+            jsonBuffer["password"] = this->wifiConfig->password;
+            this->sdCard->writeJsonFile(SDCARD_FILE_WIFI_CONFIG, jsonBuffer);
             Log::println("USRCFG", "Written default WIFI config.");
         }
+    }
+    catch (const std::exception& e)
+    {
+        Log::println("USRCFG", "Unable to initialize WIFI config - %s", e.what());
+        return;
+    }
+    catch (...)
+    {
+        Log::println("USRCFG", "Unable to initialize WIFI config - Unknown error");
+        return;
+    }
+}
 
-        // Initialize IO settings
-        StaticJsonDocument<4096> hbiConfigJson; // size calculated with https://arduinojson.org/v6/assistant
-        if(this->sdCard->fileExists(SDCARD_FILE_HBI_CONFIG)) {
-            this->sdCard->readParseJsonFile(SDCARD_FILE_HBI_CONFIG, hbiConfigJson);
-            this->hbiConfig->reverseNose = hbiConfigJson["reverseNose"];
-            this->hbiConfig->releaseInsteadOfPress = hbiConfigJson["releaseInsteadOfPress"] | false;
+void UserConfig::initializeHBI() 
+{
+    try 
+    {
+        jsonBuffer.clear();
+        if(this->sdCard->fileExists(SDCARD_FILE_HBI_CONFIG)) 
+        {
+            this->sdCard->readParseJsonFile(SDCARD_FILE_HBI_CONFIG, jsonBuffer);
+            this->hbiConfig->reverseNose = jsonBuffer["reverseNose"];
+            this->hbiConfig->releaseInsteadOfPress = jsonBuffer["releaseInsteadOfPress"] | false;
             Log::println("USRCFG", "Loaded HBI config:");
             Log::println("USRCFG", "- reverseNose: %s", this->hbiConfig->reverseNose ? "true" : "false");
             Log::println("USRCFG", "- releaseInsteadOfPress: %s", this->hbiConfig->releaseInsteadOfPress ? "true" : "false");
             for (int i = 0; i < 24; i++)
             {
-                this->hbiConfig->ioMapping[i].type = hbiConfigJson["ioMapping"][i]["type"];
-                this->hbiConfig->ioMapping[i].value = hbiConfigJson["ioMapping"][i]["value"].as<std::string>();
-                Log::println("USRCFG", "- IO%d: 0x%02X %s", i, this->hbiConfig->ioMapping[i].type, this->hbiConfig->ioMapping[i].value.c_str());
+                this->hbiConfig->ioMapping[i] = jsonBuffer["ioMapping"][i];
+                Log::println("USRCFG", "- IO%d: 0x%02X", i, this->hbiConfig->ioMapping[i]);
             }
         }
-        else {
-            hbiConfigJson["reverseNose"] = this->hbiConfig->reverseNose;
-            hbiConfigJson["releaseInsteadOfPress"] = this->hbiConfig->releaseInsteadOfPress;
-            auto ioMapping = hbiConfigJson.createNestedArray("ioMapping");
+        else 
+        {
+            jsonBuffer["reverseNose"] = this->hbiConfig->reverseNose;
+            jsonBuffer["releaseInsteadOfPress"] = this->hbiConfig->releaseInsteadOfPress;
+            auto ioMapping = jsonBuffer.createNestedArray("ioMapping");
             for(int i=0; i<24; i++) 
-            {
-                auto item = ioMapping.createNestedObject();
-                item["type"] = this->hbiConfig->ioMapping[i].type;
-                item["value"] = this->hbiConfig->ioMapping[i].value;
-            }
-            this->sdCard->writeJsonFile(SDCARD_FILE_HBI_CONFIG, hbiConfigJson);
+                ioMapping.add(this->hbiConfig->ioMapping[i]);
+            this->sdCard->writeJsonFile(SDCARD_FILE_HBI_CONFIG, jsonBuffer);
             Log::println("USRCFG", "Written default IO config.");
         }
+    }
+    catch (const std::exception& e)
+    {
+        Log::println("USRCFG", "Unable to initialize HBI config - %s", e.what());
+        return;
+    }
+    catch (...)
+    {
+        Log::println("USRCFG", "Unable to initialize HBI config - Unknown error");
+        return;
+    }
+}
 
-        // Initialize WIFI settings
-        StaticJsonDocument<64> audioJson; // size calculated with https://arduinojson.org/v6/assistant
-        if(this->sdCard->fileExists(SDCARD_FILE_AUDIO_CONFIG)) {
-            this->sdCard->readParseJsonFile(SDCARD_FILE_AUDIO_CONFIG, audioJson);
-            this->audioConfig->initalVolume = audioJson["initalVolume"];
-            this->audioConfig->minVolume = audioJson["minVolume"];
-            this->audioConfig->maxVolume = audioJson["maxVolume"];
-            this->audioConfig->volumeEncoderStep = audioJson["volumeEncoderStep"];
+void UserConfig::initializeAudio() 
+{
+    try 
+    {
+        jsonBuffer.clear();
+        if(this->sdCard->fileExists(SDCARD_FILE_AUDIO_CONFIG)) 
+        {
+            this->sdCard->readParseJsonFile(SDCARD_FILE_AUDIO_CONFIG, jsonBuffer);
+            this->audioConfig->initalVolume = jsonBuffer["initalVolume"];
+            this->audioConfig->minVolume = jsonBuffer["minVolume"];
+            this->audioConfig->maxVolume = jsonBuffer["maxVolume"];
+            this->audioConfig->volumeEncoderStep = jsonBuffer["volumeEncoderStep"];
             Log::println("USRCFG", "Loaded Audio config: initalVolume: %d, minVolume: %d, maxVolume: %d, volumeEncoderStep: %d", 
                 this->audioConfig->initalVolume, this->audioConfig->minVolume, this->audioConfig->maxVolume, this->audioConfig->volumeEncoderStep);
         }
-        else {
-            audioJson["initalVolume"] = this->audioConfig->initalVolume;
-            audioJson["minVolume"] = this->audioConfig->minVolume;
-            audioJson["maxVolume"] = this->audioConfig->maxVolume;
-            audioJson["volumeEncoderStep"] = this->audioConfig->volumeEncoderStep;
-            this->sdCard->writeJsonFile(SDCARD_FILE_AUDIO_CONFIG, audioJson);
+        else 
+        {
+            jsonBuffer["initalVolume"] = this->audioConfig->initalVolume;
+            jsonBuffer["minVolume"] = this->audioConfig->minVolume;
+            jsonBuffer["maxVolume"] = this->audioConfig->maxVolume;
+            jsonBuffer["volumeEncoderStep"] = this->audioConfig->volumeEncoderStep;
+            this->sdCard->writeJsonFile(SDCARD_FILE_AUDIO_CONFIG, jsonBuffer);
             Log::println("USRCFG", "Written default Audio config.");
         }
     }
     catch (const std::exception& e)
     {
-        Log::println("USRCFG", "Unable to load " SDCARD_FILE_WIFI_CONFIG " - %s", e.what());
+        Log::println("USRCFG", "Unable to initialize AUDIO config - %s", e.what());
         return;
     }
     catch (...)
     {
-        Log::println("USRCFG", "Unable to load " SDCARD_FILE_WIFI_CONFIG " - Unknown error");
+        Log::println("USRCFG", "Unable to initialize AUDIO config - Unknown error");
+        return;
+    }
+}
+
+void UserConfig::initializeSlots() 
+{
+    try 
+    {
+        jsonBuffer.clear();
+        if(this->sdCard->fileExists(SDCARD_FILE_SLOTS_CONFIG)) 
+        {
+            this->sdCard->readParseJsonFile(SDCARD_FILE_SLOTS_CONFIG, jsonBuffer);
+            this->slotDirectories->clear();
+
+            auto slotsJsonArray = jsonBuffer.as<JsonArray>();
+            Log::println("USRCFG", "Loaded Slots config:");
+            for (JsonVariant slot : slotsJsonArray) 
+            {
+                this->slotDirectories->push_back(slot.as<std::string>());
+                Log::println("USRCFG", "- %s", slot.as<std::string>().c_str());
+            }
+        }
+        else
+        {
+            for (auto slotDirectory : *this->slotDirectories)
+                jsonBuffer.add(slotDirectory);
+            this->sdCard->writeJsonFile(SDCARD_FILE_SLOTS_CONFIG, jsonBuffer);
+            Log::println("USRCFG", "Written default slots config.");
+        }
+    }
+    catch (const std::exception& e)
+    {
+        Log::println("USRCFG", "Unable to initialize SLOTS config - %s", e.what());
+        return;
+    }
+    catch (...)
+    {
+        Log::println("USRCFG", "Unable to initialize SLOTS config - Unknown error");
         return;
     }
 }

@@ -12,6 +12,7 @@ typedef struct {
     std::string filename;
     int index;
     int total;
+    uint32_t pausedAtPosition;
 } PlayingInfo;
 
 class AudioPlayer {
@@ -22,6 +23,7 @@ class AudioPlayer {
         unique_ptr<TAS5806> codec;
         shared_ptr<PlayingInfo> playingInfo;
         int currentVolume;
+        void playSong(std::string directory, std::string filename, uint32_t position);
     public:
         AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<AudioConfig> audioConfig);
         void initialize();
@@ -29,4 +31,8 @@ class AudioPlayer {
         shared_ptr<PlayingInfo> getPlayingInfo();
         void volumeUp();
         void volumeDown();
+        void playNextFromSlot(int iSlot);
+        void play();
+        void stop();
+        void pause();
 };
