@@ -1,6 +1,7 @@
 #pragma once
 
-#include "SD.h"
+#include <SD.h>
+#include <ArduinoJson.h>
 
 class SDCard {
     private:
@@ -9,6 +10,8 @@ class SDCard {
     public:
         SDCard();
         bool cardPresent();
-        void checkCreateFile(const std::string filename, const std::string_view& content);
+        bool fileExists(const std::string filename);
+        void writeJsonFile(const std::string filename, JsonDocument& jsonDocument);
         void listFiles();
+        void readParseJsonFile(const std::string filename, JsonDocument& targetJsonDocument);
 };

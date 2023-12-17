@@ -51,14 +51,15 @@ void setup()
   audioPlayer->initialize();
 
   WiFi.disconnect();
-  if (userConfig->getWifiEnabled())
+  auto wifi = userConfig->getWifiConfig();
+  if (wifi->enabled)
   {
-    Log::println("MAIN", "WiFi connecting to SSID: %s", userConfig->getWifiSSID().c_str());
+    Log::println("MAIN", "WiFi connecting to SSID: %s", wifi->ssid.c_str());
     WiFi.mode(WIFI_STA);
-    WiFi.begin(userConfig->getWifiSSID().c_str(), userConfig->getWifiPassword().c_str());
+    WiFi.begin(wifi->ssid.c_str(), wifi->password.c_str());
     while (WiFi.status() != WL_CONNECTED)
       delay(500);
-    Log::println("MAIN", "WiFi connected to SSID: %s", userConfig->getWifiSSID().c_str());
+    Log::println("MAIN", "WiFi connected to SSID: %s", wifi->ssid.c_str());
   }
   else
     Log::println("MAIN", "WiFi disabled");
@@ -66,8 +67,7 @@ void setup()
   hbi = make_unique<HBI>(i2c, i2cSema);
   hbi->start();
 
-  hbi->enableVegas();
-
+  // hbi->enableVegas();
   // audioPlayer->test();
 }
 

@@ -6,6 +6,7 @@
 
 // Well known SDCARD files
 #define SDCARD_FILE_WIFI_CONFIG "/wifi.json"
+#define SDCARD_FILE_IO_CONFIG "/io.json"
 
 // I2C pins
 #define GPIO_I2C_SDA 10

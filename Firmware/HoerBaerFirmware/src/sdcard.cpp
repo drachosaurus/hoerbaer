@@ -42,6 +42,8 @@ void SDCard::mountOrThrow()
         Log::println("SDCARD", "Mounted SD card (type SDHC)");
     else
         Log::println("SDCARD", "Mounted SD card (type UNKNOWN)");
+
+    this->cardMounted = true;
 }
 
 void SDCard::listFiles()
@@ -74,23 +76,38 @@ void SDCard::listFiles()
     }
 }
 
-void SDCard::checkCreateFile(const std::string filename, const std::string_view& content)
+bool SDCard::fileExists(const std::string filename) 
 {
     this->mountOrThrow();
+    return SD.exists(filename.c_str());
+}
 
-    if (SD.exists(filename.c_str()))
-    {
-        Log::println("SDCARD", "File already exists: %s", filename.c_str());
-        return;
-    }
+void SDCard::writeJsonFile(const std::string filename, JsonDocument& jsonDocument)
+{
+    this->mountOrThrow();
 
     File file = SD.open(filename.c_str(), FILE_WRITE);
     if (!file)
         throw std::runtime_error("Failed to create file");
 
-    if (!file.print(content.data()))
-        throw std::runtime_error("Failed to write content to file");
+    serializeJsonPretty(jsonDocument, file);
 
-    Log::println("SDCARD", "File created: %s", filename.c_str());
+    Log::println("SDCARD", "JSON file created: %s", filename.c_str());
     file.close();
+}
+
+void SDCard::readParseJsonFile(const std::string filename, JsonDocument& targetJsonDocument)
+{
+    this->mountOrThrow();
+
+    File file = SD.open(filename.c_str());
+    if (!file)
+        throw std::runtime_error("Failed to open file");
+
+    DeserializationError error = deserializeJson(targetJsonDocument, file);
+
+    file.close();
+
+    if (error != DeserializationError::Ok)
+        throw std::runtime_error(error.c_str());
 }
