@@ -25,17 +25,18 @@ typedef struct {
 
 typedef struct {
     bool reverseNose;
+    bool releaseInsteadOfPress;
     IOMapping ioMapping[32];
-} IOConfig;
+} HBIConfig;
 
 class UserConfig {
     private:
         std::shared_ptr<SDCard> sdCard;
         std::shared_ptr<WifiConfig> wifiConfig;
-        std::shared_ptr<IOConfig> ioConfig;
+        std::shared_ptr<HBIConfig> hbiConfig;
     public:
         UserConfig(std::shared_ptr<SDCard> sdCard);
         void initializeFromSdCard();
         std::shared_ptr<WifiConfig> getWifiConfig();
-        std::shared_ptr<IOConfig> getIOConfig();
+        std::shared_ptr<HBIConfig> getHBIConfig();
 };

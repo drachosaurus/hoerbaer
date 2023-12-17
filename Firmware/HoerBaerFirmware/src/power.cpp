@@ -13,6 +13,8 @@ Power::Power(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema)
   pinMode(GPIO_POWER_3V3_NPSAVE, OUTPUT);
   pinMode(GPIO_POWER_12V_ENABLE, OUTPUT);
 
+  digitalWrite(GPIO_POWER_12V_ENABLE, LOW);
+
   this->i2c = i2c;
   this->i2cSema = i2cSema;
 }
@@ -22,7 +24,7 @@ void Power::DisableVCCPowerSave()
   digitalWrite(GPIO_POWER_3V3_NPSAVE, HIGH);
 }
 
-void Power::EnableVCCPowerSave() 
+void Power::EnableVCCPowerSave()  
 {
   digitalWrite(GPIO_POWER_3V3_NPSAVE, LOW);
 }

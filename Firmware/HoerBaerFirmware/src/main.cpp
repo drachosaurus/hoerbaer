@@ -17,9 +17,9 @@ using namespace std;
 shared_ptr<TwoWire> i2c;
 SemaphoreHandle_t i2cSema;
 
-shared_ptr<UserConfig> userConfig;
 shared_ptr<SDCard> sdCard;
 
+unique_ptr<UserConfig> userConfig;
 unique_ptr<Power> power;
 unique_ptr<HBI> hbi;
 unique_ptr<AudioPlayer> audioPlayer;
@@ -39,15 +39,19 @@ void setup()
   Log::init();
   Log::println("MAIN", "Hello Bear! Main runs on core: %d", xPortGetCoreID());
 
+
   sdCard = make_shared<SDCard>();
-  userConfig = make_shared<UserConfig>(sdCard);
+  userConfig = make_unique<UserConfig>(sdCard);
   userConfig->initializeFromSdCard();
 
-  power->EnableAudioVoltage();
+  // pulls NPDN down
+  audioPlayer = make_unique<AudioPlayer>(i2c, i2cSema);
+
   power->InitializeChargerAndGauge();
   power->CheckBatteryVoltage();
+  power->EnableAudioVoltage();
 
-  audioPlayer = make_unique<AudioPlayer>(i2c, i2cSema);
+  // enables power
   audioPlayer->initialize();
 
   WiFi.disconnect();
@@ -64,7 +68,7 @@ void setup()
   else
     Log::println("MAIN", "WiFi disabled");
 
-  hbi = make_unique<HBI>(i2c, i2cSema);
+  hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig());
   hbi->start();
 
   // hbi->enableVegas();

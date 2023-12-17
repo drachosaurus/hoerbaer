@@ -14,32 +14,33 @@ UserConfig::UserConfig(std::shared_ptr<SDCard> sdCard)
     this->wifiConfig->ssid = DEFAULT_WIFI_SSID;
     this->wifiConfig->password = DEFAULT_WIFI_PASSWORD;
 
-    this->ioConfig = std::make_shared<IOConfig>();
-    this->ioConfig->reverseNose = false;
-    this->ioConfig->ioMapping[0] = { IO_MAPPING_TYPE_PLAY_FOLDER, "PAW1" };
-    this->ioConfig->ioMapping[1] = { IO_MAPPING_TYPE_PLAY_FOLDER, "PAW2" };
-    this->ioConfig->ioMapping[2] = { IO_MAPPING_TYPE_PLAY_FOLDER, "PAW3" };
-    this->ioConfig->ioMapping[3] = { IO_MAPPING_TYPE_PLAY_FOLDER, "PAW4" };
-    this->ioConfig->ioMapping[4] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[5] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[6] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[7] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[8] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[9] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[10] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[11] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[12] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[13] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[14] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[15] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[16] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[17] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[18] = { IO_MAPPING_TYPE_NONE, "" };
-    this->ioConfig->ioMapping[19] = { IO_MAPPING_TYPE_CONTROL_STOP, "" };
-    this->ioConfig->ioMapping[20] = { IO_MAPPING_TYPE_CONTROL_PLAY, "" };
-    this->ioConfig->ioMapping[21] = { IO_MAPPING_TYPE_CONTROL_PAUSE, "" };
-    this->ioConfig->ioMapping[22] = { IO_MAPPING_TYPE_CONTROL_NEXT, "" };
-    this->ioConfig->ioMapping[23] = { IO_MAPPING_TYPE_CONTROL_PREV, "" };
+    this->hbiConfig = std::make_shared<HBIConfig>();
+    this->hbiConfig->reverseNose = false;
+    this->hbiConfig->releaseInsteadOfPress = false;
+    this->hbiConfig->ioMapping[0] = { IO_MAPPING_TYPE_PLAY_FOLDER, "/PAW1" };
+    this->hbiConfig->ioMapping[1] = { IO_MAPPING_TYPE_PLAY_FOLDER, "/PAW2" };
+    this->hbiConfig->ioMapping[2] = { IO_MAPPING_TYPE_PLAY_FOLDER, "/PAW3" };
+    this->hbiConfig->ioMapping[3] = { IO_MAPPING_TYPE_PLAY_FOLDER, "/PAW4" };
+    this->hbiConfig->ioMapping[4] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[5] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[6] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[7] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[8] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[9] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[10] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[11] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[12] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[13] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[14] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[15] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[16] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[17] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[18] = { IO_MAPPING_TYPE_NONE, "" };
+    this->hbiConfig->ioMapping[19] = { IO_MAPPING_TYPE_CONTROL_STOP, "" };
+    this->hbiConfig->ioMapping[20] = { IO_MAPPING_TYPE_CONTROL_PLAY, "" };
+    this->hbiConfig->ioMapping[21] = { IO_MAPPING_TYPE_CONTROL_PAUSE, "" };
+    this->hbiConfig->ioMapping[22] = { IO_MAPPING_TYPE_CONTROL_NEXT, "" };
+    this->hbiConfig->ioMapping[23] = { IO_MAPPING_TYPE_CONTROL_PREV, "" };
 }
 
 void UserConfig::initializeFromSdCard()
@@ -70,28 +71,32 @@ void UserConfig::initializeFromSdCard()
         }
 
         // Initialize IO settings
-        StaticJsonDocument<4096> ioConfigJson; // size calculated with https://arduinojson.org/v6/assistant
-        if(this->sdCard->fileExists(SDCARD_FILE_IO_CONFIG)) {
-            this->sdCard->readParseJsonFile(SDCARD_FILE_IO_CONFIG, ioConfigJson);
-            this->ioConfig->reverseNose = ioConfigJson["reverseNose"];
-            Log::println("USRCFG", "Loaded IO config:");
+        StaticJsonDocument<4096> hbiConfigJson; // size calculated with https://arduinojson.org/v6/assistant
+        if(this->sdCard->fileExists(SDCARD_FILE_HBI_CONFIG)) {
+            this->sdCard->readParseJsonFile(SDCARD_FILE_HBI_CONFIG, hbiConfigJson);
+            this->hbiConfig->reverseNose = hbiConfigJson["reverseNose"];
+            this->hbiConfig->releaseInsteadOfPress = hbiConfigJson["releaseInsteadOfPress"] | false;
+            Log::println("USRCFG", "Loaded HBI config:");
+            Log::println("USRCFG", "- reverseNose: %s", this->hbiConfig->reverseNose ? "true" : "false");
+            Log::println("USRCFG", "- releaseInsteadOfPress: %s", this->hbiConfig->releaseInsteadOfPress ? "true" : "false");
             for (int i = 0; i < 24; i++)
             {
-                this->ioConfig->ioMapping[i].type = ioConfigJson["ioMapping"][i]["type"];
-                this->ioConfig->ioMapping[i].value = ioConfigJson["ioMapping"][i]["value"].as<std::string>();
-                Log::println("USRCFG", "- %d: 0x%02X %s", i, this->ioConfig->ioMapping[i].type, this->ioConfig->ioMapping[i].value.c_str());
+                this->hbiConfig->ioMapping[i].type = hbiConfigJson["ioMapping"][i]["type"];
+                this->hbiConfig->ioMapping[i].value = hbiConfigJson["ioMapping"][i]["value"].as<std::string>();
+                Log::println("USRCFG", "- IO%d: 0x%02X %s", i, this->hbiConfig->ioMapping[i].type, this->hbiConfig->ioMapping[i].value.c_str());
             }
         }
         else {
-            ioConfigJson["reverseNose"] = this->ioConfig->reverseNose;
-            auto ioMapping = ioConfigJson.createNestedArray("ioMapping");
+            hbiConfigJson["reverseNose"] = this->hbiConfig->reverseNose;
+            hbiConfigJson["releaseInsteadOfPress"] = this->hbiConfig->releaseInsteadOfPress;
+            auto ioMapping = hbiConfigJson.createNestedArray("ioMapping");
             for(int i=0; i<24; i++) 
             {
                 auto item = ioMapping.createNestedObject();
-                item["type"] = this->ioConfig->ioMapping[i].type;
-                item["value"] = this->ioConfig->ioMapping[i].value;
+                item["type"] = this->hbiConfig->ioMapping[i].type;
+                item["value"] = this->hbiConfig->ioMapping[i].value;
             }
-            this->sdCard->writeJsonFile(SDCARD_FILE_IO_CONFIG, ioConfigJson);
+            this->sdCard->writeJsonFile(SDCARD_FILE_HBI_CONFIG, hbiConfigJson);
             Log::println("USRCFG", "Written default IO config.");
         }
     }
@@ -110,4 +115,9 @@ void UserConfig::initializeFromSdCard()
 std::shared_ptr<WifiConfig> UserConfig::getWifiConfig()
 {
     return this->wifiConfig;
+}
+
+std::shared_ptr<HBIConfig> UserConfig::getHBIConfig()
+{
+    return this->hbiConfig;
 }

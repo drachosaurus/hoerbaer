@@ -85,17 +85,17 @@ void TAS5806::setParamsAndHighZ()
     if (err)
         Log::println("TAS5806", "ERROR! Set AGAIN register failed: %d", err);
 
-    // 7.6.1.18 AUTO_MUTE_CTRL Register (Offset = 50h) [reset = 0x07]
-    registerAddress = 0x50;
-    registerValue = 0b00000000;
-    //                     |||
-    //                     ||0: Disable left channel auto mute
-    //                     |0: Disable right channel auto mute
-    //                     0: Auto mute left channel and right channel independently
+    // // 7.6.1.18 AUTO_MUTE_CTRL Register (Offset = 50h) [reset = 0x07]
+    // registerAddress = 0x50;
+    // registerValue = 0b00000000;
+    // //                     |||
+    // //                     ||0: Disable left channel auto mute
+    // //                     |0: Disable right channel auto mute
+    // //                     0: Auto mute left channel and right channel independently
 
-    err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
-    if (err)
-        Log::println("TAS5806", "ERROR! Set AUTO_MUTE_CTRL register failed: %d", err);
+    // err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
+    // if (err)
+    //     Log::println("TAS5806", "ERROR! Set AUTO_MUTE_CTRL register failed: %d", err);
 }
 
 void TAS5806::setModePlay()

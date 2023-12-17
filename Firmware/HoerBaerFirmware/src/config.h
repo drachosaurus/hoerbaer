@@ -6,7 +6,7 @@
 
 // Well known SDCARD files
 #define SDCARD_FILE_WIFI_CONFIG "/wifi.json"
-#define SDCARD_FILE_IO_CONFIG "/io.json"
+#define SDCARD_FILE_HBI_CONFIG "/hbi.json"
 
 // I2C pins
 #define GPIO_I2C_SDA 10
@@ -33,6 +33,9 @@
 // HBI pins
 #define GPIO_HBI_INPUT_INT 15
 #define GPIO_HBI_LEDDRIVER_RST 14
+#define GPIO_HBI_ENCODER_A 16
+#define GPIO_HBI_ENCODER_B 17
+#define GPIO_HBI_ENCODER_BTN 18
 
 // Audio pins
 #define GPIO_AUDIO_BCLK 2

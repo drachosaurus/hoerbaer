@@ -5,16 +5,18 @@
 #include <Wire.h>
 #include "devices/TLC59108.h"
 #include "devices/PCF8574.h"
+#include "userconfig.h"
 
 using namespace std;
 
 class HBI {
     private:
         shared_ptr<TwoWire> i2c;
-        void HBIInterruptISR();
+        shared_ptr<HBIConfig> hbiConfig;
         uint32_t lastKnownButtonMask;
+        void HBIInterruptISR();
     public:
-        HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema);
+        HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfig> hbiConfig);
         ~HBI();
         void start();
         void enableVegas();
