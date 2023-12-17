@@ -18,11 +18,11 @@ shared_ptr<TwoWire> i2c;
 SemaphoreHandle_t i2cSema;
 
 shared_ptr<SDCard> sdCard;
+shared_ptr<AudioPlayer> audioPlayer;
 
 unique_ptr<UserConfig> userConfig;
 unique_ptr<Power> power;
 unique_ptr<HBI> hbi;
-unique_ptr<AudioPlayer> audioPlayer;
 
 void setup()
 {
@@ -45,7 +45,7 @@ void setup()
   userConfig->initializeFromSdCard();
 
   // pulls NPDN down
-  audioPlayer = make_unique<AudioPlayer>(i2c, i2cSema);
+  audioPlayer = make_shared<AudioPlayer>(i2c, i2cSema, userConfig->getAudioConfig());
 
   power->InitializeChargerAndGauge();
   power->CheckBatteryVoltage();
@@ -68,7 +68,7 @@ void setup()
   else
     Log::println("MAIN", "WiFi disabled");
 
-  hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig());
+  hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer);
   hbi->start();
 
   // hbi->enableVegas();

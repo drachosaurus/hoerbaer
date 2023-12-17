@@ -18,15 +18,15 @@
 #define ENCODER_BUTTON_DOWN_TICKS_LONG_DONE UINT32_MAX
 
 static QueueHandle_t hbiWorkerInputQueue; // has to be static because of ISR usage
-bool vegasMode = false;
 TickType_t encDebounceLastTicks = 0;
 TickType_t encButtonDownTicks = ENCODER_BUTTON_DOWN_TICKS_NOT_STARTED;
 
-HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfig> hbiConfig)
+HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfig> hbiConfig, shared_ptr<AudioPlayer> audioPlayer)
 {
     this->i2c = i2c;
     this->i2cSema = i2cSema;
     this->hbiConfig = hbiConfig;
+    this->audioPlayer = audioPlayer;
 
     this->ledDriver1 = make_unique<TLC59108>(i2c, I2C_ADDR_LED_DRIVER1);
     this->ledDriver2 = make_unique<TLC59108>(i2c, I2C_ADDR_LED_DRIVER2);
@@ -45,63 +45,45 @@ HBI::~HBI()
     xQueueSend(hbiWorkerInputQueue, &command, portMAX_DELAY);
 }
 
-void VegasStep(HBI* hbi) 
-{
-    uint8_t a = (rand() % static_cast<int>(8));
-    uint8_t b = (rand() % static_cast<int>(8));
-    uint8_t c = (rand() % static_cast<int>(8));
-    uint8_t d = (rand() % static_cast<int>(8));
-    uint8_t e = (rand() % static_cast<int>(8));
-    uint8_t f = (rand() % static_cast<int>(8));
-    xSemaphoreTake(hbi->i2cSema, portMAX_DELAY);
-    hbi->ledDriver1->setAllBrightness((uint8_t)0x00);
-    hbi->ledDriver1->setBrightness(a, (uint8_t)0xFF);
-    hbi->ledDriver1->setBrightness(b, (uint8_t)0x00);
-    hbi->ledDriver2->setAllBrightness((uint8_t)0xFF);
-    hbi->ledDriver2->setBrightness(c, (uint8_t)0x00);
-    hbi->ledDriver2->setBrightness(d, (uint8_t)0xFF);
-    hbi->ledDriver3->setAllBrightness((uint8_t)0x00);
-    hbi->ledDriver3->setBrightness(e, (uint8_t)0xFF);
-    hbi->ledDriver3->setBrightness(f, (uint8_t)0x00);
-    rand();
-    xSemaphoreGive(hbi->i2cSema);
-}
-
 void HBIWorkerTask(void * param) 
 {
     HBI* hbi = (static_cast<HBI*>(param));
+    hbi->runWorkerTask();
+}
+
+void HBI::runWorkerTask() 
+{
     uint8_t command;
     while(1) 
     {
-        if(vegasMode) 
-            VegasStep(hbi);
-        
         if(xQueueReceive(hbiWorkerInputQueue, &command, pdMS_TO_TICKS(200)) == pdTRUE) 
         {
             switch(command) 
             {
                 case QUEUE_CMD_INPUT_INTERRUPT: 
                 {
-                    xSemaphoreTake(hbi->i2cSema, portMAX_DELAY);
-                    uint8_t io1 = hbi->ioExpander1->read8();
-                    uint8_t io2 = hbi->ioExpander2->read8();
-                    uint8_t io3 = hbi->ioExpander3->read8();
-                    xSemaphoreGive(hbi->i2cSema);
-                    hbi->dispatchButtonInput(io1 | (io2 << 8) | (io3 << 16));
+                    xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+                    uint8_t io1 = this->ioExpander1->read8();
+                    uint8_t io2 = this->ioExpander2->read8();
+                    uint8_t io3 = this->ioExpander3->read8();
+                    xSemaphoreGive(this->i2cSema);
+                    this->dispatchButtonInput(io1 | (io2 << 8) | (io3 << 16));
                     break;
                 }
                 case QUEUE_CMD_CLEAR: 
-                    xSemaphoreTake(hbi->i2cSema, portMAX_DELAY);
-                    hbi->ledDriver1->setAllBrightness((uint8_t)0x00);
-                    hbi->ledDriver2->setAllBrightness((uint8_t)0x00);
-                    hbi->ledDriver3->setAllBrightness((uint8_t)0x00);
-                    xSemaphoreGive(hbi->i2cSema);
+                    xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+                    this->ledDriver1->setAllBrightness((uint8_t)0x00);
+                    this->ledDriver2->setAllBrightness((uint8_t)0x00);
+                    this->ledDriver3->setAllBrightness((uint8_t)0x00);
+                    xSemaphoreGive(this->i2cSema);
                     break;
                 case QUEUE_CMD_ENCODER_L:
                     Log::println("HBI", "Encoder left");
+                    this->audioPlayer->volumeDown();
                     break;
                 case QUEUE_CMD_ENCODER_R:
                     Log::println("HBI", "Encoder right");
+                    this->audioPlayer->volumeUp();
                     break;
                 case QUEUE_CMD_ENCODER_BTN_SHORT:
                     Log::println("HBI", "Encoder button short");
@@ -170,13 +152,18 @@ void HBI::start()
     attachInterrupt(GPIO_HBI_ENCODER_A, []() {
         auto ticks = xTaskGetTickCount();
         auto diff = ticks - encDebounceLastTicks;
-        encDebounceLastTicks = ticks;
-        if(diff < pdMS_TO_TICKS(ENCODER_DEBOUNCE_MS))
-            return;
-        auto encoderA = digitalRead(GPIO_HBI_ENCODER_A);
-        auto encoderB = digitalRead(GPIO_HBI_ENCODER_B);
-        uint8_t command = encoderA == encoderB ? QUEUE_CMD_ENCODER_L : QUEUE_CMD_ENCODER_R;
-        xQueueSendFromISR(hbiWorkerInputQueue, &command, NULL);
+        if(encDebounceLastTicks != 0) 
+        {
+            encDebounceLastTicks = ticks;
+            if(diff < pdMS_TO_TICKS(ENCODER_DEBOUNCE_MS))
+                return;
+            auto encoderA = digitalRead(GPIO_HBI_ENCODER_A);
+            auto encoderB = digitalRead(GPIO_HBI_ENCODER_B);
+            uint8_t command = encoderA == encoderB ? QUEUE_CMD_ENCODER_L : QUEUE_CMD_ENCODER_R;
+            xQueueSendFromISR(hbiWorkerInputQueue, &command, NULL);
+        }
+        else
+            encDebounceLastTicks = ticks;
     }, CHANGE);
 
     xTaskCreate(HBIWorkerTask, "hbi_worker", 
@@ -184,22 +171,6 @@ void HBI::start()
         this, 
         TASK_PRIO_HBI_WORKER,
         NULL);
-}
-
-void HBI::enableVegas()
-{
-    vegasMode = true;
-    uint8_t command = QUEUE_CMD_CLEAR;
-    xQueueSend(hbiWorkerInputQueue, &command, portMAX_DELAY);
-    Log::println("HBI", "Vegas enabled");
-}
-
-void HBI::disableVegas()
-{
-    vegasMode = false;
-    uint8_t command = QUEUE_CMD_CLEAR;
-    xQueueSend(hbiWorkerInputQueue, &command, portMAX_DELAY);
-    Log::println("HBI", "Vegas disabled");
 }
 
 void HBI::dispatchButtonInput(uint32_t buttonMask)

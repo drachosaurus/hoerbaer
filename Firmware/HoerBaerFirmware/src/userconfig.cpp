@@ -41,6 +41,12 @@ UserConfig::UserConfig(std::shared_ptr<SDCard> sdCard)
     this->hbiConfig->ioMapping[21] = { IO_MAPPING_TYPE_CONTROL_PAUSE, "" };
     this->hbiConfig->ioMapping[22] = { IO_MAPPING_TYPE_CONTROL_NEXT, "" };
     this->hbiConfig->ioMapping[23] = { IO_MAPPING_TYPE_CONTROL_PREV, "" };
+
+    this->audioConfig = std::make_shared<AudioConfig>();
+    this->audioConfig->initalVolume = 130;
+    this->audioConfig->minVolume = 0;
+    this->audioConfig->maxVolume = 255;
+    this->audioConfig->volumeEncoderStep = 5;
 }
 
 void UserConfig::initializeFromSdCard()
@@ -99,6 +105,26 @@ void UserConfig::initializeFromSdCard()
             this->sdCard->writeJsonFile(SDCARD_FILE_HBI_CONFIG, hbiConfigJson);
             Log::println("USRCFG", "Written default IO config.");
         }
+
+        // Initialize WIFI settings
+        StaticJsonDocument<64> audioJson; // size calculated with https://arduinojson.org/v6/assistant
+        if(this->sdCard->fileExists(SDCARD_FILE_AUDIO_CONFIG)) {
+            this->sdCard->readParseJsonFile(SDCARD_FILE_AUDIO_CONFIG, audioJson);
+            this->audioConfig->initalVolume = audioJson["initalVolume"];
+            this->audioConfig->minVolume = audioJson["minVolume"];
+            this->audioConfig->maxVolume = audioJson["maxVolume"];
+            this->audioConfig->volumeEncoderStep = audioJson["volumeEncoderStep"];
+            Log::println("USRCFG", "Loaded Audio config: initalVolume: %d, minVolume: %d, maxVolume: %d, volumeEncoderStep: %d", 
+                this->audioConfig->initalVolume, this->audioConfig->minVolume, this->audioConfig->maxVolume, this->audioConfig->volumeEncoderStep);
+        }
+        else {
+            audioJson["initalVolume"] = this->audioConfig->initalVolume;
+            audioJson["minVolume"] = this->audioConfig->minVolume;
+            audioJson["maxVolume"] = this->audioConfig->maxVolume;
+            audioJson["volumeEncoderStep"] = this->audioConfig->volumeEncoderStep;
+            this->sdCard->writeJsonFile(SDCARD_FILE_AUDIO_CONFIG, audioJson);
+            Log::println("USRCFG", "Written default Audio config.");
+        }
     }
     catch (const std::exception& e)
     {
@@ -120,4 +146,9 @@ std::shared_ptr<WifiConfig> UserConfig::getWifiConfig()
 std::shared_ptr<HBIConfig> UserConfig::getHBIConfig()
 {
     return this->hbiConfig;
+}
+
+std::shared_ptr<AudioConfig> UserConfig::getAudioConfig()
+{
+    return this->audioConfig;
 }

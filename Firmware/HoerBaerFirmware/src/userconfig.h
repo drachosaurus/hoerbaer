@@ -29,14 +29,23 @@ typedef struct {
     IOMapping ioMapping[32];
 } HBIConfig;
 
+typedef struct {
+    int initalVolume;
+    int minVolume;
+    int maxVolume;
+    int volumeEncoderStep;
+} AudioConfig;
+
 class UserConfig {
     private:
         std::shared_ptr<SDCard> sdCard;
         std::shared_ptr<WifiConfig> wifiConfig;
         std::shared_ptr<HBIConfig> hbiConfig;
+        std::shared_ptr<AudioConfig> audioConfig;
     public:
         UserConfig(std::shared_ptr<SDCard> sdCard);
         void initializeFromSdCard();
         std::shared_ptr<WifiConfig> getWifiConfig();
         std::shared_ptr<HBIConfig> getHBIConfig();
+        std::shared_ptr<AudioConfig> getAudioConfig();
 };
