@@ -209,10 +209,12 @@ void HBI::dispatchButtonInput(uint32_t buttonMask)
 
         case IO_MAPPING_TYPE_CONTROL_NEXT:
             Log::println("HBI", "Control next");
+            this->audioPlayer->next();
             break;
 
         case IO_MAPPING_TYPE_CONTROL_PREV:
             Log::println("HBI", "Control prev");
+            this->audioPlayer->prev();
             break;
 
         case IO_MAPPING_TYPE_NONE:
@@ -261,4 +263,42 @@ void HBI::setLedState()
         return;
     }
 
+    auto playingInfo = this->audioPlayer->getPlayingInfo();
+    if(playingInfo == nullptr)
+        return;
+
+    auto slot = playingInfo->slot;
+
+    // find out which led driver to use
+    int iSlot = 0;
+    for(int i=0; i<24; i++) 
+    {
+        if(iSlot == slot)
+        {
+            // set led
+            xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+            this->ledDriver1->setAllBrightness((uint8_t)0x00);
+            this->ledDriver2->setAllBrightness((uint8_t)0x00);
+            this->ledDriver3->setAllBrightness((uint8_t)0x00);
+
+            switch(i / 8) 
+            {
+                case 0:
+                    this->ledDriver1->setBrightness(i % 8, (uint8_t)0xFF);
+                    break;
+                case 1:
+                    this->ledDriver2->setBrightness(i % 8, (uint8_t)0xFF);
+                    break;
+                case 2:
+                    this->ledDriver3->setBrightness(i % 8, (uint8_t)0xFF);
+                    break;
+            }
+
+            xSemaphoreGive(this->i2cSema);
+            break;
+        }
+
+        if(this->hbiConfig->ioMapping[i] == IO_MAPPING_TYPE_PLAY_SLOT)
+            iSlot++;
+    }
 }

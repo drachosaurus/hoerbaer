@@ -13,6 +13,11 @@ SDCard::SDCard()
     pinMode(GPIO_SD_DETECT, INPUT);
 }
 
+fs::FS &SDCard::getFs()
+{
+    return SD;
+}
+
 bool SDCard::cardPresent()
 {
     return digitalRead(GPIO_SD_DETECT) == LOW;
@@ -74,6 +79,81 @@ void SDCard::listFiles()
 
         file = root.openNextFile();
     }
+}
+
+std::string SDCard::nextFile(std::string dir, int skip)
+{
+    this->mountOrThrow();
+
+    File root = SD.open(dir.c_str());
+
+    if (!root)
+    {
+        Log::println("SDCARD", "Failed to open directory %s!", dir.c_str());
+        return "";
+    }
+
+    if (!root.isDirectory())
+    {
+        Log::println("SDCARD", "Failed to list %s: not a directory!", dir.c_str());
+        return "";
+    }
+
+    File file = root.openNextFile();
+    while (file)
+    {
+        if (file.isDirectory() || file.name()[0] == '.')
+        {
+            file = root.openNextFile();
+            continue;
+        }
+
+        if(skip > 0)
+        {
+            skip--;
+            file = root.openNextFile();
+            continue;
+        }
+
+        return file.path();
+    }
+
+    return "";
+}
+
+int SDCard::countFiles(std::string dir)
+{
+    this->mountOrThrow();
+
+    File root = SD.open(dir.c_str());
+
+    if (!root)
+    {
+        Log::println("SDCARD", "Failed to open directory %s!", dir.c_str());
+        return 0;
+    }
+
+    if (!root.isDirectory())
+    {
+        Log::println("SDCARD", "Failed to list %s: not a directory!", dir.c_str());
+        return 0;
+    }
+
+    int count = 0;
+    File file = root.openNextFile();
+    while (file)
+    {
+        if (file.isDirectory() || file.name()[0] == '.')
+        {
+            file = root.openNextFile();
+            continue;
+        }
+
+        count++;
+        file = root.openNextFile();
+    }
+
+    return count;
 }
 
 bool SDCard::fileExists(const std::string filename) 

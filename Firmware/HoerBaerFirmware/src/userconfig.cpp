@@ -236,3 +236,8 @@ std::shared_ptr<AudioConfig> UserConfig::getAudioConfig()
 {
     return this->audioConfig;
 }
+
+std::shared_ptr<vector<string>> UserConfig::getSlotDirectories()
+{
+    return this->slotDirectories;
+}

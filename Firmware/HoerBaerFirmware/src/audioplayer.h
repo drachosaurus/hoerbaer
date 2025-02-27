@@ -8,8 +8,8 @@
 using namespace std;
 
 typedef struct {
-    std::string directory;
-    std::string filename;
+    std::string path;
+    int slot;
     int index;
     int total;
     uint32_t pausedAtPosition;
@@ -20,12 +20,15 @@ class AudioPlayer {
         shared_ptr<TwoWire> i2c;
         SemaphoreHandle_t i2cSema;
         shared_ptr<AudioConfig> audioConfig;
+        shared_ptr<vector<string>> slotDirectories;
         unique_ptr<TAS5806> codec;
         shared_ptr<PlayingInfo> playingInfo;
+        shared_ptr<SDCard> sdCard;
         int currentVolume;
-        void playSong(std::string directory, std::string filename, uint32_t position);
+        void playSong(std::string path, uint32_t position);
+        void playFromSlot(int iSlot, int increment);
     public:
-        AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<AudioConfig> audioConfig);
+        AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<UserConfig> userConfig, shared_ptr<SDCard> sdCard);
         void initialize();
         void loop();
         shared_ptr<PlayingInfo> getPlayingInfo();
@@ -35,4 +38,6 @@ class AudioPlayer {
         void play();
         void stop();
         void pause();
+        void next();
+        void prev();
 };

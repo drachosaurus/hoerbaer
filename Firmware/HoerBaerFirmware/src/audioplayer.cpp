@@ -6,11 +6,13 @@
 #include <Audio.h>
 Audio audio;
 
-AudioPlayer::AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<AudioConfig> audioConfig)
+AudioPlayer::AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<UserConfig> userConfig, shared_ptr<SDCard> sdCard)
 {
     this->i2c = i2c;
     this->i2cSema = i2cSema;
-    this->audioConfig = audioConfig;
+    this->audioConfig = userConfig->getAudioConfig();
+    this->slotDirectories = userConfig->getSlotDirectories();
+    this->sdCard = sdCard;
 
     this->codec = make_unique<TAS5806>(i2c, I2C_ADDR_AUDIO_CODEC);
     pinMode(GPIO_AUDIO_CODEC_NPDN, OUTPUT);
@@ -47,7 +49,7 @@ void AudioPlayer::initialize()
     this->codec->setVolume(this->currentVolume);
     this->codec->printMonRegisters();
 
-    audio.setVolume(21); // 0 .. 21
+    audio.setVolume(21); // 0 .. 21 - audio lib volume is not used. codec hw volume is used
 
     xSemaphoreGive(this->i2cSema);
 }
@@ -101,41 +103,83 @@ void AudioPlayer::volumeDown()
     Log::println("AUDIO", "Decrease volume to: %d", this->currentVolume);
 }
 
-void AudioPlayer::playSong(std::string directory, std::string filename, uint32_t position)
+void AudioPlayer::playSong(std::string path, uint32_t position)
 {
     this->codec->setMute(true);
-
-    std::string file = "04 I Like Birds.mp3";
-    audio.connecttoFS(SD, file.c_str());
+    audio.connecttoFS(this->sdCard->getFs(), path.c_str());
     audio.setFilePos(position);
+    this->codec->setMute(false);
+}
+
+void AudioPlayer::playFromSlot(int iSlot, int increment)
+{
+    if(iSlot < 0 || iSlot >= this->slotDirectories->size())
+    {
+        Log::println("AUDIO", "Invalid slot: %d", iSlot);
+        return;
+    }
+
+    string slotDir = this->slotDirectories->at(iSlot);
+    Log::println("AUDIO", "Play next from slot: %d", iSlot);
+    
+    auto index = 0;
+    auto total = 0;
+
+    // then same slot is triggered, reuse total and increase index
+    if(this->playingInfo != nullptr && this->playingInfo->slot == iSlot)
+    {
+        total = this->playingInfo->total;
+        index = this->playingInfo->index + increment;
+
+        if(index >= total)
+        {
+            Log::println("AUDIO", "Slot end reached, start at zero");
+            index = 0;
+        }
+    }
+    else 
+    {
+        total = this->sdCard->countFiles(slotDir);
+        if(increment == -1) // start from behind, when we are skipping back
+            index = total - 1;
+    }
+
+    string nextFile = this->sdCard->nextFile(slotDir, index);
+    if(nextFile.empty())
+    {
+        Log::println("AUDIO", "No files anymore in slot %d after index %d", iSlot, index);
+        return;
+    }
+
+    Log::println("AUDIO", "Play slot %d, index %d, total %d, path %s", iSlot, index, total, nextFile.c_str());
+    this->playSong(nextFile, 0);
 
     this->playingInfo = make_shared<PlayingInfo>();
-    this->playingInfo->directory = directory;
-    this->playingInfo->filename = file;
-    this->playingInfo->index = 0;
-    this->playingInfo->total = 1;
-    this->playingInfo->pausedAtPosition = position;
-
-    this->codec->setMute(false);
+    this->playingInfo->path = nextFile;
+    this->playingInfo->slot = iSlot;
+    this->playingInfo->index = index;
+    this->playingInfo->total = total;
+    this->playingInfo->pausedAtPosition = 0;
 }
 
 void AudioPlayer::playNextFromSlot(int iSlot)
 {
-    Log::println("AUDIO", "Play next from slot: %d", iSlot);
-    this->playSong("directory", "04 I Like Birds.mp3", 0);
+    this->playFromSlot(iSlot, 1);
 }
 
 void AudioPlayer::play()
 {
-    if(this->playingInfo == nullptr)
+    if(this->playingInfo == nullptr || this->playingInfo->pausedAtPosition == 0)
     {
         Log::println("AUDIO", "Play: Nothing paused, nothing to resume.");
         return;
     }
 
-    Log::println("AUDIO", "Play: resume directory %s, song %s, position %u.", 
-        this->playingInfo->directory.c_str(), this->playingInfo->filename.c_str(), this->playingInfo->pausedAtPosition);
-    this->playSong(this->playingInfo->directory, "04 I Like Birds.mp3", this->playingInfo->pausedAtPosition);
+    Log::println("AUDIO", "Play: resume %s, position %u.", 
+        this->playingInfo->path.c_str(), this->playingInfo->pausedAtPosition);
+
+    this->playSong(this->playingInfo->path, this->playingInfo->pausedAtPosition);
+    this->playingInfo->pausedAtPosition = 0;
 }
 
 void AudioPlayer::stop()
@@ -147,8 +191,66 @@ void AudioPlayer::stop()
 
 void AudioPlayer::pause()
 {
+    if(this->playingInfo == nullptr)
+    {
+        Log::println("AUDIO", "Pause: Nothing playing, nothing to pause.");
+        return;
+    }
+
+    if(this->playingInfo->pausedAtPosition > 0)
+    {
+        Log::println("AUDIO", "Pause: Already paused.");
+        return;
+    }
+
     this->playingInfo->pausedAtPosition = audio.getFilePos();
     audio.stopSong();
-    Log::println("AUDIO", "Pause: directory %s, song %s, position %u.", 
-        this->playingInfo->directory.c_str(), this->playingInfo->filename.c_str(), this->playingInfo->pausedAtPosition);
+    Log::println("AUDIO", "Pause: %s, position %u.", 
+        this->playingInfo->path.c_str(), this->playingInfo->pausedAtPosition);
+}
+
+void AudioPlayer::next()
+{
+    if(this->playingInfo == nullptr)
+        return;
+
+    Log::println("AUDIO", "Next track");
+    auto slot = this->playingInfo->slot;
+
+    if(this->playingInfo->index == this->playingInfo->total - 1) 
+    {
+        Log::println("AUDIO", "Next: End of slot %d reached, jump to next slot", slot);
+        slot++;
+    }
+
+    if(slot >= this->slotDirectories->size()) 
+    {
+        Log::println("AUDIO", "Next: End of slots reached, jump next slot 0");
+        slot = 0;
+    }
+
+    this->playFromSlot(slot, 1);
+}
+
+void AudioPlayer::prev()
+{
+    if(this->playingInfo == nullptr)
+        return;
+
+    Log::println("AUDIO", "Prev track");
+    auto slot = this->playingInfo->slot;
+
+    if(this->playingInfo->index == 0) 
+    {
+        Log::println("AUDIO", "Prev: Start of slot %d reached, jump to prev slot", slot);
+        slot--;
+    }
+
+    if(slot < 0)
+    {
+        Log::println("AUDIO", "Prev: Start of slots reached, jump to last slot");
+        slot = this->slotDirectories->size() - 1;
+    }
+
+    this->playFromSlot(slot, -1);
 }

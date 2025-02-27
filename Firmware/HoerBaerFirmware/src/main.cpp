@@ -19,8 +19,7 @@ SemaphoreHandle_t i2cSema;
 
 shared_ptr<SDCard> sdCard;
 shared_ptr<AudioPlayer> audioPlayer;
-
-unique_ptr<UserConfig> userConfig;
+shared_ptr<UserConfig> userConfig;
 unique_ptr<Power> power;
 unique_ptr<HBI> hbi;
 
@@ -41,11 +40,11 @@ void setup()
 
 
   sdCard = make_shared<SDCard>();
-  userConfig = make_unique<UserConfig>(sdCard);
+  userConfig = make_shared<UserConfig>(sdCard);
   userConfig->initializeFromSdCard();
 
   // pulls NPDN down
-  audioPlayer = make_shared<AudioPlayer>(i2c, i2cSema, userConfig->getAudioConfig());
+  audioPlayer = make_shared<AudioPlayer>(i2c, i2cSema, userConfig, sdCard);
 
   power->InitializeChargerAndGauge();
   power->CheckBatteryVoltage();
