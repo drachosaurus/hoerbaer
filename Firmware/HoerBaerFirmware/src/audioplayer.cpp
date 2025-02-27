@@ -67,6 +67,7 @@ void audio_info(const char *info){
 void AudioPlayer::loop()
 {
     audio.loop();
+    vTaskDelay(1); // https://github.com/schreibfaul1/ESP32-audioI2S/issues/887
 }
 
 shared_ptr<PlayingInfo> AudioPlayer::getPlayingInfo()
@@ -102,6 +103,8 @@ void AudioPlayer::volumeDown()
 
 void AudioPlayer::playSong(std::string directory, std::string filename, uint32_t position)
 {
+    this->codec->setMute(true);
+
     std::string file = "04 I Like Birds.mp3";
     audio.connecttoFS(SD, file.c_str());
     audio.setFilePos(position);
@@ -112,6 +115,8 @@ void AudioPlayer::playSong(std::string directory, std::string filename, uint32_t
     this->playingInfo->index = 0;
     this->playingInfo->total = 1;
     this->playingInfo->pausedAtPosition = position;
+
+    this->codec->setMute(false);
 }
 
 void AudioPlayer::playNextFromSlot(int iSlot)

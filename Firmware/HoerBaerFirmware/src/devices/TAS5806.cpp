@@ -167,6 +167,33 @@ void TAS5806::readPrintValueRegister(uint8_t addr, const char *name, uint8_t exp
     //     Log::println("TAS5806", "%s [0x%02X] OK", name, addr);
 }
 
+void TAS5806::setMute(bool mute)
+{
+    // 7.6.1.3 DEVICE_CTRL_2 Register (Offset = 3h) [reset = 0x10]
+    uint8_t registerAddress = 0x03;
+
+    uint8_t buffer[1];
+    auto err = Utils::readI2CRegister(this->wire, this->deviceAddress, registerAddress, buffer, 1);
+    if (err) {
+        Log::println("TAS5806", "ERROR! Read DEVICE_CTRL_2 register failed: %d", err);
+        return;
+    }
+
+    uint8_t registerValue = buffer[0];
+    if(mute)
+        registerValue |= 0b00001000;
+    else
+        registerValue &= 0b11110111;
+    //                         |
+    //                         1 => mute
+
+    err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
+    if (err)
+        Log::println("TAS5806", "ERROR! Set DEVICE_CTRL_2 register failed: %d", err);
+    else
+        Log::println("TAS5806", "DEVICE_CTRL_2 set to: %X02", registerValue);
+}
+
 void TAS5806::printMonRegisters()
 {
     // FS Mon depends on sample rate

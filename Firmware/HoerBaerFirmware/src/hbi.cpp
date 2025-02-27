@@ -36,6 +36,10 @@ HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfi
     this->ioExpander3 = make_unique<PCF8574>(i2c, I2C_ADDR_IO_EXPANDER3);
 
     this->lastKnownButtonMask = 0x00FFFFFF;
+
+    pinMode(GPIO_HBI_ENCODER_BTN, INPUT);
+    pinMode(GPIO_HBI_ENCODER_A, INPUT);
+    pinMode(GPIO_HBI_ENCODER_B, INPUT);
 }
 
 HBI::~HBI()

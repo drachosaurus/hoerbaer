@@ -16,6 +16,7 @@ class TAS5806
         void resetChip();
         void setParamsAndHighZ();
         void setModePlay();
+        void setMute(bool mute);
         void setVolume(uint8_t volume);
         void printMonRegisters();
 };
