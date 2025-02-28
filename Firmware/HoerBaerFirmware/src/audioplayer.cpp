@@ -55,16 +55,10 @@ void AudioPlayer::initialize()
 }
 
 // declared in Audio.h
-void audio_info(const char *info){
-    Log::println("AUDIO", "Lib info: %s", info);
+void audio_info(const char *info) 
+{
+    // Log::println("AUDIO", "Lib info: %s", info);
 }
-
-// void AudioPlayer::test()
-// {
-   
-//     // audio.connecttohost("http://mp3.ffh.de/radioffh/hqlivestream.mp3"); //  128k mp3
-//     // audio.connecttoFS(SD, "3min1khz.wav");
-// }
 
 void AudioPlayer::loop()
 {

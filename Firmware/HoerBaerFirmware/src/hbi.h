@@ -10,6 +10,8 @@
 
 using namespace std;
 
+class HBI;
+
 class HBI {
     private:
         shared_ptr<TwoWire> i2c;
@@ -24,11 +26,13 @@ class HBI {
         unique_ptr<PCF8574> ioExpander2;
         unique_ptr<PCF8574> ioExpander3;
         shared_ptr<AudioPlayer> audioPlayer;
+        void (*shutdownCallback)(void);
         void checkLongPressState();
         void setLedState();
         void dispatchButtonInput(uint32_t buttonMask);
+        void dispatchEncoderButton(bool longPress);
     public:
-        HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfig> hbiConfig, shared_ptr<AudioPlayer> audioPlayer);
+        HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfig> hbiConfig, shared_ptr<AudioPlayer> audioPlayer, void (*shutdownCallback)(void));
         ~HBI();
         void start();
         void runWorkerTask();

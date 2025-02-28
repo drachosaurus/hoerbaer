@@ -23,6 +23,8 @@ shared_ptr<UserConfig> userConfig;
 unique_ptr<Power> power;
 unique_ptr<HBI> hbi;
 
+void shutdown();
+
 void setup()
 {
   i2c = make_shared<TwoWire>(0);
@@ -35,9 +37,19 @@ void setup()
 
   i2c->begin(GPIO_I2C_SDA, GPIO_I2C_SCL, 100000);
 
-  Log::init();
-  Log::println("MAIN", "Hello Bear! Main runs on core: %d", xPortGetCoreID());
+  auto wakeupReason = esp_sleep_get_wakeup_cause();
 
+  Log::init();
+  Log::println("MAIN", "Hello Bear! Main runs on core: %d and woke up because %d", xPortGetCoreID(), wakeupReason);
+
+  // switch (wakeup_reason) {
+  //   case ESP_SLEEP_WAKEUP_EXT0:     Serial.println("Wakeup caused by external signal using RTC_IO"); break;
+  //   case ESP_SLEEP_WAKEUP_EXT1:     Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
+  //   case ESP_SLEEP_WAKEUP_TIMER:    Serial.println("Wakeup caused by timer"); break;
+  //   case ESP_SLEEP_WAKEUP_TOUCHPAD: Serial.println("Wakeup caused by touchpad"); break;
+  //   case ESP_SLEEP_WAKEUP_ULP:      Serial.println("Wakeup caused by ULP program"); break;
+  //   default:                        Serial.printf("Wakeup was not caused by deep sleep: %d\n", wakeup_reason); break;
+  // }
 
   sdCard = make_shared<SDCard>();
   userConfig = make_shared<UserConfig>(sdCard);
@@ -67,11 +79,10 @@ void setup()
   else
     Log::println("MAIN", "WiFi disabled");
 
-  hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer);
+  hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer, shutdown);
   hbi->start();
 
-  // hbi->enableVegas();
-  // audioPlayer->test();
+  Log::println("MAIN", "Baer initialized, ready to play!");
 }
 
 void loop()
@@ -83,4 +94,16 @@ void loop()
   // hbi->disableVegas();
   audioPlayer->loop();
 }
+
+void shutdown() 
+{
+  Log::println("MAIN", "Shutting down... Sleep well, bear!");
+  // power->Shutdown();
+  // delay(1000);
+  // esp_deep_sleep_start();
+
+  esp_sleep_enable_ext0_wakeup(static_cast<gpio_num_t>(GPIO_HBI_ENCODER_BTN), 1);  //1 = High, 0 = Low
+  esp_deep_sleep_start();
+}
+
 // #endif /* ARDUINO_USB_MODE */
