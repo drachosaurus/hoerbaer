@@ -98,9 +98,6 @@ void loop()
 void shutdown() 
 {
   Log::println("MAIN", "Shutting down...");
-  // power->Shutdown();
-  // delay(1000);
-  // esp_deep_sleep_start();
 
   audioPlayer->stop();
   audioPlayer.reset();
@@ -111,10 +108,15 @@ void shutdown()
   hbi->waitUntilEncoderButtonReleased();
   hbi.reset();
 
+  sdCard.reset();
+  userConfig.reset();
+
   Log::println("MAIN", "Sleep well, bear!");
 
   power->DisableAudioVoltage();
   power->EnableVCCPowerSave();
+  power.reset();
+  i2c.reset();
 
   esp_sleep_enable_ext0_wakeup(static_cast<gpio_num_t>(GPIO_HBI_ENCODER_BTN), 0);  //1 = High, 0 = Low
   esp_deep_sleep_start();
