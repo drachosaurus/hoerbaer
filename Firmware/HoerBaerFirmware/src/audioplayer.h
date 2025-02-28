@@ -29,6 +29,7 @@ class AudioPlayer {
         void playFromSlot(int iSlot, int increment);
     public:
         AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<UserConfig> userConfig, shared_ptr<SDCard> sdCard);
+        ~AudioPlayer();
         void initialize();
         void loop();
         shared_ptr<PlayingInfo> getPlayingInfo();

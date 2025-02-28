@@ -97,12 +97,26 @@ void loop()
 
 void shutdown() 
 {
-  Log::println("MAIN", "Shutting down... Sleep well, bear!");
+  Log::println("MAIN", "Shutting down...");
   // power->Shutdown();
   // delay(1000);
   // esp_deep_sleep_start();
 
-  esp_sleep_enable_ext0_wakeup(static_cast<gpio_num_t>(GPIO_HBI_ENCODER_BTN), 1);  //1 = High, 0 = Low
+  audioPlayer->stop();
+  audioPlayer.reset();
+
+  hbi->shutOffAllLeds();
+
+  Log::println("MAIN", "Wait until encoder button is released!");
+  hbi->waitUntilEncoderButtonReleased();
+  hbi.reset();
+
+  Log::println("MAIN", "Sleep well, bear!");
+
+  power->DisableAudioVoltage();
+  power->EnableVCCPowerSave();
+
+  esp_sleep_enable_ext0_wakeup(static_cast<gpio_num_t>(GPIO_HBI_ENCODER_BTN), 0);  //1 = High, 0 = Low
   esp_deep_sleep_start();
 }
 

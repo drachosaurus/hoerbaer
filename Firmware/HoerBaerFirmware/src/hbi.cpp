@@ -307,3 +307,18 @@ void HBI::setLedState()
             iSlot++;
     }
 }
+
+void HBI::shutOffAllLeds()
+{
+    xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+    this->ledDriver1->setAllBrightness((uint8_t)0x00);
+    this->ledDriver2->setAllBrightness((uint8_t)0x00);
+    this->ledDriver3->setAllBrightness((uint8_t)0x00);
+    xSemaphoreGive(this->i2cSema);
+}
+
+void HBI::waitUntilEncoderButtonReleased() 
+{
+    while(digitalRead(GPIO_HBI_ENCODER_BTN) == LOW)
+        vTaskDelay(100);
+}

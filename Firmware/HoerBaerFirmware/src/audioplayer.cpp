@@ -22,6 +22,11 @@ AudioPlayer::AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, sha
     this->currentVolume = this->audioConfig->initalVolume;
 }
 
+AudioPlayer::~AudioPlayer()
+{
+    digitalWrite(GPIO_AUDIO_CODEC_NPDN, LOW);
+}
+
 void AudioPlayer::initialize()
 {
     // DS p.45, 7.5.3.1 Startup Procedures

@@ -36,4 +36,6 @@ class HBI {
         ~HBI();
         void start();
         void runWorkerTask();
+        void shutOffAllLeds();
+        void waitUntilEncoderButtonReleased();
 };
