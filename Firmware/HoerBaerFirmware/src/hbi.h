@@ -33,7 +33,6 @@ class HBI {
         void dispatchEncoderButton(bool longPress);
     public:
         HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfig> hbiConfig, shared_ptr<AudioPlayer> audioPlayer, void (*shutdownCallback)(void));
-        ~HBI();
         void start();
         void runWorkerTask();
         void shutOffAllLeds();

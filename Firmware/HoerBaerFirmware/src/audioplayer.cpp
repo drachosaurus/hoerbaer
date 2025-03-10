@@ -6,6 +6,9 @@
 #include <Audio.h>
 Audio audio;
 
+// this is used to passback Audio-Lib callback functions.
+unique_ptr<AudioPlayer> currentInstance = nullptr;
+
 AudioPlayer::AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<UserConfig> userConfig, shared_ptr<SDCard> sdCard)
 {
     this->i2c = i2c;
@@ -20,11 +23,14 @@ AudioPlayer::AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, sha
 
     this->playingInfo = nullptr;
     this->currentVolume = this->audioConfig->initalVolume;
+    currentInstance = unique_ptr<AudioPlayer>(this);
 }
 
 AudioPlayer::~AudioPlayer()
 {
     digitalWrite(GPIO_AUDIO_CODEC_NPDN, LOW);
+    currentInstance.reset();
+    currentInstance = nullptr;
 }
 
 void AudioPlayer::initialize()
@@ -63,6 +69,13 @@ void AudioPlayer::initialize()
 void audio_info(const char *info) 
 {
     // Log::println("AUDIO", "Lib info: %s", info);
+}
+
+void audio_eof_mp3(const char *path)
+{
+    Log::println("AUDIO", "End of MP3 file");
+    if(currentInstance != nullptr)
+        currentInstance->next();
 }
 
 void AudioPlayer::loop()

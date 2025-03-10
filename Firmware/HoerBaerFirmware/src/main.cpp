@@ -23,6 +23,27 @@ shared_ptr<UserConfig> userConfig;
 unique_ptr<Power> power;
 unique_ptr<HBI> hbi;
 
+std::string wifiSsid;
+std::string wifiPwd;
+
+void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
+  Serial.println("Connected to AP successfully!");
+}
+
+void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
+  Serial.println("Disconnected from WiFi access point");
+  Serial.print("WiFi lost connection. Reason: ");
+  Serial.println(info.wifi_sta_disconnected.reason);
+  Serial.println("Trying to Reconnect");
+  WiFi.begin(wifiSsid.c_str(), wifiPwd.c_str());
+}
+
 void shutdown();
 
 void setup()
@@ -33,7 +54,7 @@ void setup()
 
   // First (has to be first!), disable 3V3 ~PSAVE
   power = make_unique<Power>(i2c, i2cSema);
-  power->DisableVCCPowerSave();
+  power->disableVCCPowerSave();
 
   i2c->begin(GPIO_I2C_SDA, GPIO_I2C_SCL, 100000);
 
@@ -58,9 +79,13 @@ void setup()
   // pulls NPDN down
   audioPlayer = make_shared<AudioPlayer>(i2c, i2cSema, userConfig, sdCard);
 
-  power->InitializeChargerAndGauge();
-  power->CheckBatteryVoltage();
-  power->EnableAudioVoltage();
+  power->initializeChargerAndGauge();
+  if(power->checkBatteryShutdown()) {
+    shutdown();
+    return;
+  }
+
+  power->enableAudioVoltage();
 
   // enables power
   audioPlayer->initialize();
@@ -69,12 +94,19 @@ void setup()
   auto wifi = userConfig->getWifiConfig();
   if (wifi->enabled)
   {
-    Log::println("MAIN", "WiFi connecting to SSID: %s", wifi->ssid.c_str());
+    wifiSsid = wifi->ssid;
+    wifiPwd = wifi->password;
+  
+    WiFi.onEvent(WiFiStationConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
+    WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
+    WiFi.onEvent(WiFiStationDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+  
+    Log::println("MAIN", "WiFi connecting to SSID: %s", wifiSsid.c_str());
     WiFi.mode(WIFI_STA);
-    WiFi.begin(wifi->ssid.c_str(), wifi->password.c_str());
-    while (WiFi.status() != WL_CONNECTED)
-      delay(500);
-    Log::println("MAIN", "WiFi connected to SSID: %s", wifi->ssid.c_str());
+    WiFi.begin(wifiSsid.c_str(), wifiPwd.c_str());
+    // while (WiFi.status() != WL_CONNECTED)
+    //   delay(500);
+    // Log::println("MAIN", "WiFi connected to SSID: %s", wifiSsid.c_str());
   }
   else
     Log::println("MAIN", "WiFi disabled");
@@ -93,6 +125,11 @@ void loop()
   // sleep(1);
   // hbi->disableVegas();
   audioPlayer->loop();
+  if(power->checkBatteryShutdownLoop())
+  {
+    shutdown();
+    return;
+  }
 }
 
 void shutdown() 
@@ -106,17 +143,12 @@ void shutdown()
 
   Log::println("MAIN", "Wait until encoder button is released!");
   hbi->waitUntilEncoderButtonReleased();
-  hbi.reset();
-
-  sdCard.reset();
-  userConfig.reset();
 
   Log::println("MAIN", "Sleep well, bear!");
 
-  power->DisableAudioVoltage();
-  power->EnableVCCPowerSave();
-  power.reset();
-  i2c.reset();
+  power->disableAudioVoltage();
+  power->enableVCCPowerSave();
+  power->setGaugeToSleep();
 
   esp_sleep_enable_ext0_wakeup(static_cast<gpio_num_t>(GPIO_HBI_ENCODER_BTN), 0);  //1 = High, 0 = Low
   esp_deep_sleep_start();

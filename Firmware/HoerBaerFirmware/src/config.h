@@ -31,6 +31,7 @@
 // Power pins
 #define GPIO_POWER_3V3_NPSAVE 46
 #define GPIO_POWER_12V_ENABLE 45
+#define GPIO_POWER_CHG_STAT 48
 
 // HBI pins
 #define GPIO_HBI_INPUT_INT 15
@@ -51,3 +52,7 @@
 #define GPIO_SD_DI 35
 #define GPIO_SD_CS 34
 #define GPIO_SD_DETECT 26
+
+// Power management
+#define POWER_BATTERY_CHECK_INTERVAL_MILLIS 1000
+#define POWER_SHUTDOWN_VOLTAGE 3.0f

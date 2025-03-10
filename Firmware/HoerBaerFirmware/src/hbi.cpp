@@ -6,7 +6,6 @@
 #define QUEUE_CMD_INPUT_INTERRUPT 0xA0
 #define QUEUE_CMD_ENCODER_L 0xB0
 #define QUEUE_CMD_ENCODER_R 0xB1
-#define QUEUE_CMD_SHUTDOWN 0xFF
 
 #define ENCODER_DEBOUNCE_MS 10
 #define ENCODER_BUTTON_LONG_MS 2000
@@ -38,12 +37,6 @@ HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfi
     pinMode(GPIO_HBI_ENCODER_BTN, INPUT);
     pinMode(GPIO_HBI_ENCODER_A, INPUT);
     pinMode(GPIO_HBI_ENCODER_B, INPUT);
-}
-
-HBI::~HBI()
-{
-    uint8_t command = QUEUE_CMD_SHUTDOWN;
-    xQueueSend(hbiWorkerInputQueue, &command, portMAX_DELAY);
 }
 
 void HBIWorkerTask(void * param) 
@@ -81,12 +74,6 @@ void HBI::runWorkerTask()
                 {
                     Log::println("HBI", "Encoder right");
                     this->audioPlayer->volumeUp();
-                    break;
-                }
-                case QUEUE_CMD_SHUTDOWN:
-                {
-                    Log::println("HBI", "Shutdown");
-                    vTaskDelete(NULL);
                     break;
                 }
                 default:
