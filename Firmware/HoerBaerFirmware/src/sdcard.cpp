@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "log.h"
 #include "SD.h"
+#include "SD_MMC.h"
 #include "config.h"
 
 #include "sdcard.h"

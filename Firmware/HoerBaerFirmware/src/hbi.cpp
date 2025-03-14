@@ -33,16 +33,37 @@ HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfi
     this->ioExpander3 = make_unique<PCF8574>(i2c, I2C_ADDR_IO_EXPANDER3);
 
     this->lastKnownButtonMask = 0x00FFFFFF;
+    this->currentVegasStep = -1;
 
     pinMode(GPIO_HBI_ENCODER_BTN, INPUT);
     pinMode(GPIO_HBI_ENCODER_A, INPUT);
     pinMode(GPIO_HBI_ENCODER_B, INPUT);
+
+    int curSlot = 0;
+    for(int io=0; io<24; io++) {
+        if(hbiConfig->ioMapping[io] == IO_MAPPING_TYPE_PLAY_SLOT) {
+            this->slotIos[curSlot] = io;
+            this->ioSlots[io] = curSlot;
+            curSlot++;
+        }
+    }
+    this->slotCount = curSlot;
 }
 
 void HBIWorkerTask(void * param) 
 {
     HBI* hbi = (static_cast<HBI*>(param));
     hbi->runWorkerTask();
+}
+
+uint32_t HBI::getButtonsState()
+{
+    xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+    uint8_t io1 = this->ioExpander1->read8();
+    uint8_t io2 = this->ioExpander2->read8();
+    uint8_t io3 = this->ioExpander3->read8();
+    xSemaphoreGive(this->i2cSema);
+    return io1 | (io2 << 8) | (io3 << 16);
 }
 
 void HBI::runWorkerTask() 
@@ -56,12 +77,8 @@ void HBI::runWorkerTask()
             {
                 case QUEUE_CMD_INPUT_INTERRUPT: 
                 {
-                    xSemaphoreTake(this->i2cSema, portMAX_DELAY);
-                    uint8_t io1 = this->ioExpander1->read8();
-                    uint8_t io2 = this->ioExpander2->read8();
-                    uint8_t io3 = this->ioExpander3->read8();
-                    xSemaphoreGive(this->i2cSema);
-                    this->dispatchButtonInput(io1 | (io2 << 8) | (io3 << 16));
+                    uint32_t buttonMask = this->getButtonsState();
+                    this->dispatchButtonInput(buttonMask);
                     break;
                 }
                 case QUEUE_CMD_ENCODER_L:
@@ -89,9 +106,8 @@ void HBI::runWorkerTask()
     }
 }
 
-void HBI::start()
+void HBI::initialize()
 {
-    // Initialize devices
     xSemaphoreTake(this->i2cSema, portMAX_DELAY);
 
     this->ledDriver1->init(GPIO_HBI_LEDDRIVER_RST);
@@ -106,6 +122,7 @@ void HBI::start()
 
     xSemaphoreGive(this->i2cSema);
 
+    // Initialize devices
     hbiWorkerInputQueue = xQueueCreate(10, sizeof(uint8_t));
 
     attachInterrupt(GPIO_HBI_INPUT_INT, []() {
@@ -150,7 +167,8 @@ void HBI::dispatchButtonInput(uint32_t buttonMask)
         return;
 
     uint8_t mapping = IO_MAPPING_TYPE_NONE;
-    int iSlot = 0;
+
+    int slotNumber = 0;
 
     for(int i=0; i<24; i++) 
     {
@@ -158,18 +176,16 @@ void HBI::dispatchButtonInput(uint32_t buttonMask)
         {
             Log::println("HBI", "Button: %d %s", i, (release ? "release" : "press"));
             mapping = this->hbiConfig->ioMapping[i];
+            slotNumber = ioSlots[i];
             break;
         }
-        
-        if(this->hbiConfig->ioMapping[i] == IO_MAPPING_TYPE_PLAY_SLOT)
-            iSlot++;
     }
 
     switch(mapping) 
     {
         case IO_MAPPING_TYPE_PLAY_SLOT:
-            Log::println("HBI", "Play slot: %d", iSlot);
-            this->audioPlayer->playNextFromSlot(iSlot);
+            Log::println("HBI", "Play slot: %d", slotNumber);
+            this->audioPlayer->playNextFromSlot(slotNumber);
             break;
 
         case IO_MAPPING_TYPE_CONTROL_PLAY:
@@ -245,54 +261,40 @@ void HBI::dispatchEncoderButton(bool longPress)
 
 void HBI::setLedState() 
 {
-    if(this->audioPlayer->getPlayingInfo() == nullptr)
-    {
-        xSemaphoreTake(this->i2cSema, portMAX_DELAY);
-        this->ledDriver1->setAllBrightness((uint8_t)0x00);
-        this->ledDriver2->setAllBrightness((uint8_t)0x00);
-        this->ledDriver3->setAllBrightness((uint8_t)0x00);
-        xSemaphoreGive(this->i2cSema);
-        return;
-    }
+    uint32_t ledState = 0;
 
     auto playingInfo = this->audioPlayer->getPlayingInfo();
-    if(playingInfo == nullptr)
+    if(playingInfo != nullptr)
+        ledState |= 1 << slotIos[playingInfo->slot];
+
+    if(this->currentVegasStep > -1)
+        ledState |= 1 << slotIos[this->currentVegasStep];
+    
+    if(this->currentLedState == ledState)
         return;
 
-    auto slot = playingInfo->slot;
+    this->currentLedState = ledState;
 
-    // find out which led driver to use
-    int iSlot = 0;
-    for(int i=0; i<24; i++) 
+    xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+
+    this->ledDriver1->setAllBrightness((uint8_t)0x00);
+    this->ledDriver2->setAllBrightness((uint8_t)0x00);
+    this->ledDriver3->setAllBrightness((uint8_t)0x00);
+
+    for(int i = 0; i<24; i++) 
     {
-        if(iSlot == slot)
+        if(ledState & (1 << i))
         {
-            // set led
-            xSemaphoreTake(this->i2cSema, portMAX_DELAY);
-            this->ledDriver1->setAllBrightness((uint8_t)0x00);
-            this->ledDriver2->setAllBrightness((uint8_t)0x00);
-            this->ledDriver3->setAllBrightness((uint8_t)0x00);
-
-            switch(i / 8) 
-            {
-                case 0:
-                    this->ledDriver1->setBrightness(i % 8, (uint8_t)0xFF);
-                    break;
-                case 1:
-                    this->ledDriver2->setBrightness(i % 8, (uint8_t)0xFF);
-                    break;
-                case 2:
-                    this->ledDriver3->setBrightness(i % 8, (uint8_t)0xFF);
-                    break;
-            }
-
-            xSemaphoreGive(this->i2cSema);
-            break;
+            if(i < 8)
+                this->ledDriver1->setBrightness(i, (uint8_t)0xFF);
+            else if(i < 16)
+                this->ledDriver2->setBrightness(i - 8, (uint8_t)0xFF);
+            else
+                this->ledDriver3->setBrightness(i - 16, (uint8_t)0xFF);
         }
-
-        if(this->hbiConfig->ioMapping[i] == IO_MAPPING_TYPE_PLAY_SLOT)
-            iSlot++;
     }
+
+    xSemaphoreGive(this->i2cSema);
 }
 
 void HBI::shutOffAllLeds()
@@ -311,4 +313,16 @@ void HBI::waitUntilEncoderButtonReleased()
 {
     while(digitalRead(GPIO_HBI_ENCODER_BTN) == LOW)
         vTaskDelay(100);
+}
+
+bool HBI::getAnyButtonPressed() {
+    auto buttonState = this->getButtonsState();
+    return buttonState != 0xFFFFFF;
+}
+
+void HBI::runVegasStep()
+{
+    this->currentVegasStep++;
+    if(this->currentVegasStep >= slotCount)
+        this->currentVegasStep = 0;
 }

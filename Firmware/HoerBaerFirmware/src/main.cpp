@@ -28,28 +28,24 @@ unique_ptr<USBStorage> usbMsc;
 std::string wifiSsid;
 std::string wifiPwd;
 
+bool usbStorageMode = false;
+
 void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
-  Serial.println("Connected to AP successfully!");
+  Log::println("WiFi", "Connected to AccessPoint.");
 }
 
 void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  Log::println("WiFi", "IP Address: %s", WiFi.localIP().toString().c_str());
 }
 
 void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
-  Serial.println("Disconnected from WiFi access point");
-  Serial.print("WiFi lost connection. Reason: ");
-  Serial.println(info.wifi_sta_disconnected.reason);
-  Serial.println("Trying to Reconnect");
+  Log::println("WiFi", "WiFi lost connection. Reason: %d. Trying to Reconnect...", info.wifi_sta_disconnected.reason);
   WiFi.begin(wifiSsid.c_str(), wifiPwd.c_str());
 }
 
 void shutdown();
 
-void setup()
-{
+void setup() {
   i2c = make_shared<TwoWire>(0);
   i2cSema = xSemaphoreCreateBinary();
   xSemaphoreGive(i2cSema);
@@ -78,66 +74,78 @@ void setup()
   userConfig = make_shared<UserConfig>(sdCard);
   userConfig->initializeFromSdCard();
 
-  // pulls NPDN down
+  // pulls NPDN down - has to be before HBI
   audioPlayer = make_shared<AudioPlayer>(i2c, i2cSema, userConfig, sdCard);
 
+  hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer, shutdown);
+  hbi->initialize();
+
   power->initializeChargerAndGauge();
-  if(power->checkBatteryShutdown()) {
+  if (power->checkBatteryShutdown()) {
     shutdown();
     return;
   }
 
-  power->enableAudioVoltage();
+  usbStorageMode = hbi->getAnyButtonPressed(); // any button pressed during boot will enable USB Storage mode
 
-  // enables power
-  audioPlayer->initialize();
+  if (!usbStorageMode) {
 
-  hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer, shutdown);
-  hbi->start();
+    power->enableAudioVoltage();
 
-  // init USB MSC
-  usbMsc = make_unique<USBStorage>(sdCard);
-  usbMsc->initialize();
+    // enables power
+    audioPlayer->initialize();
 
-  WiFi.disconnect();
-  auto wifi = userConfig->getWifiConfig();
-  if (wifi->enabled)
-  {
-    wifiSsid = wifi->ssid;
-    wifiPwd = wifi->password;
-  
-    WiFi.onEvent(WiFiStationConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
-    WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
-    WiFi.onEvent(WiFiStationDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-  
-    Log::println("MAIN", "WiFi connecting to SSID: %s", wifiSsid.c_str());
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(wifiSsid.c_str(), wifiPwd.c_str());
-    Log::println("MAIN", "WiFi connected to SSID: %s, IP Address: %s", wifiSsid.c_str(), WiFi.localIP().toString().c_str());  
+    WiFi.disconnect();
+    auto wifi = userConfig->getWifiConfig();
+    if (wifi->enabled)
+    {
+      wifiSsid = wifi->ssid;
+      wifiPwd = wifi->password;
+
+      WiFi.onEvent(WiFiStationConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
+      WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
+      WiFi.onEvent(WiFiStationDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+
+      Log::println("MAIN", "WiFi connecting to SSID: %s", wifiSsid.c_str());
+      WiFi.mode(WIFI_STA);
+      WiFi.begin(wifiSsid.c_str(), wifiPwd.c_str());
+    }
+    else
+      Log::println("MAIN", "WiFi disabled");
+      
+    Log::println("MAIN", "Baer initialized, ready to play!");
   }
   else
-    Log::println("MAIN", "WiFi disabled");
-
-  Log::println("MAIN", "Baer initialized, ready to play!");
-}
-
-void loop()
-{
-  // put your main code here, to run repeatedly
-  // Serial.println(".");
-  // hbi->enableVegas();
-  // sleep(1);
-  // hbi->disableVegas();
-  audioPlayer->loop();
-  if(power->checkBatteryShutdownLoop())
   {
-    shutdown();
-    return;
+    Log::println("MAIN", "Initialize USB Storage mode.");
+
+    // init USB MSC
+    usbMsc = make_unique<USBStorage>(sdCard);
+    usbMsc->initialize();
+
+    Log::println("MAIN", "Baer initialized in USB Mode, fill my stomache!");
   }
 }
 
-void shutdown() 
-{
+void loop() {
+  if (!usbStorageMode)
+  {
+    // Normal mode: audio loop and check battery
+    audioPlayer->loop();
+    if (power->checkBatteryShutdownLoop())
+    {
+      shutdown();
+      return;
+    }
+  }
+  else {
+    // USB Storage mode: do nothing, just blink HMI
+    hbi->runVegasStep();
+    delay(200);
+  }
+}
+
+void shutdown() {
   Log::println("MAIN", "Shutting down...");
 
   audioPlayer->stop();
@@ -154,6 +162,6 @@ void shutdown()
   power->enableVCCPowerSave();
   power->setGaugeToSleep();
 
-  esp_sleep_enable_ext0_wakeup(static_cast<gpio_num_t>(GPIO_HBI_ENCODER_BTN), 0);  //1 = High, 0 = Low
+  esp_sleep_enable_ext0_wakeup(static_cast<gpio_num_t>(GPIO_HBI_ENCODER_BTN), 0); // 1 = High, 0 = Low
   esp_deep_sleep_start();
 }

@@ -17,6 +17,11 @@ class HBI {
         shared_ptr<TwoWire> i2c;
         shared_ptr<HBIConfig> hbiConfig;
         uint32_t lastKnownButtonMask;
+        uint8_t slotIos[24];
+        uint8_t ioSlots[24];
+        uint8_t slotCount;
+        uint32_t currentLedState;
+        int currentVegasStep;
         void HBIInterruptISR();
         SemaphoreHandle_t i2cSema;
         unique_ptr<TLC59108> ledDriver1;
@@ -27,14 +32,17 @@ class HBI {
         unique_ptr<PCF8574> ioExpander3;
         shared_ptr<AudioPlayer> audioPlayer;
         void (*shutdownCallback)(void);
+        uint32_t getButtonsState();
         void checkLongPressState();
         void setLedState();
         void dispatchButtonInput(uint32_t buttonMask);
         void dispatchEncoderButton(bool longPress);
     public:
         HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfig> hbiConfig, shared_ptr<AudioPlayer> audioPlayer, void (*shutdownCallback)(void));
-        void start();
+        void initialize();
         void runWorkerTask();
         void shutOffAllLeds();
         void waitUntilEncoderButtonReleased();
+        bool getAnyButtonPressed();
+        void runVegasStep();
 };
