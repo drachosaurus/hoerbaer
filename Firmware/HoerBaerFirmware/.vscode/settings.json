@@ -47,6 +47,8 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "esp32-hal-tinyusb.h": "c",
+        "usb_persist.h": "c"
     }
 }

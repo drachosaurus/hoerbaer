@@ -7,8 +7,6 @@
       },
       "core": "esp32",
       "extra_flags": [
-        "-DARDUINO_USB_MODE=1",
-        "-DARDUINO_USB_CDC_ON_BOOT=1",
         "-DARDUINO_RUNNING_CORE=1",
         "-DARDUINO_EVENT_RUNNING_CORE=1"
       ],
@@ -17,16 +15,8 @@
       "flash_mode": "qio",
       "hwids": [
         [
-          "0x239A",
-          "0x811B"
-        ],
-        [
-          "0x239A",
-          "0x011B"
-        ],
-        [
-          "0x239A",
-          "0x811C"
+          "0x303A",
+          "0x1001"
         ]
       ],
       "mcu": "esp32s3",
@@ -52,8 +42,6 @@
       "flash_size": "8MB",
       "maximum_ram_size": 327680,
       "maximum_size": 8388608,
-      "use_1200bps_touch": true,
-      "wait_for_upload_port": true,
       "require_upload_port": true,
       "speed": 460800
     },

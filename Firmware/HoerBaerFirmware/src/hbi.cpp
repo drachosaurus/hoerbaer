@@ -299,8 +299,11 @@ void HBI::shutOffAllLeds()
 {
     xSemaphoreTake(this->i2cSema, portMAX_DELAY);
     this->ledDriver1->setAllBrightness((uint8_t)0x00);
+    this->ledDriver1->setLedOutputMode(TLC59108::LED_MODE::OFF);
     this->ledDriver2->setAllBrightness((uint8_t)0x00);
+    this->ledDriver2->setLedOutputMode(TLC59108::LED_MODE::OFF);
     this->ledDriver3->setAllBrightness((uint8_t)0x00);
+    this->ledDriver3->setLedOutputMode(TLC59108::LED_MODE::OFF);
     xSemaphoreGive(this->i2cSema);
 }
 

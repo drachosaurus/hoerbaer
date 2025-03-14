@@ -7,6 +7,8 @@ SemaphoreHandle_t logSema;
 void Log::init()
 {
     Serial.begin(115200);
+    Serial.setDebugOutput(true);
+    
 #if ARDUINO_USB_CDC_ON_BOOT
     usleep(300 * 1000); // give usb serial some time to connect (switch to CDC)
 #endif

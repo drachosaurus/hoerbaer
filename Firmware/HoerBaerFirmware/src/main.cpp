@@ -11,6 +11,7 @@
 #include "utils.h"
 #include "sdcard.h"
 #include "userconfig.h"
+#include "usb_msc.h"
 
 using namespace std;
 
@@ -22,6 +23,7 @@ shared_ptr<AudioPlayer> audioPlayer;
 shared_ptr<UserConfig> userConfig;
 unique_ptr<Power> power;
 unique_ptr<HBI> hbi;
+unique_ptr<USBStorage> usbMsc;
 
 std::string wifiSsid;
 std::string wifiPwd;
@@ -90,6 +92,13 @@ void setup()
   // enables power
   audioPlayer->initialize();
 
+  hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer, shutdown);
+  hbi->start();
+
+  // init USB MSC
+  usbMsc = make_unique<USBStorage>(sdCard);
+  usbMsc->initialize();
+
   WiFi.disconnect();
   auto wifi = userConfig->getWifiConfig();
   if (wifi->enabled)
@@ -104,15 +113,10 @@ void setup()
     Log::println("MAIN", "WiFi connecting to SSID: %s", wifiSsid.c_str());
     WiFi.mode(WIFI_STA);
     WiFi.begin(wifiSsid.c_str(), wifiPwd.c_str());
-    // while (WiFi.status() != WL_CONNECTED)
-    //   delay(500);
-    // Log::println("MAIN", "WiFi connected to SSID: %s", wifiSsid.c_str());
+    Log::println("MAIN", "WiFi connected to SSID: %s, IP Address: %s", wifiSsid.c_str(), WiFi.localIP().toString().c_str());  
   }
   else
     Log::println("MAIN", "WiFi disabled");
-
-  hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer, shutdown);
-  hbi->start();
 
   Log::println("MAIN", "Baer initialized, ready to play!");
 }
@@ -153,5 +157,3 @@ void shutdown()
   esp_sleep_enable_ext0_wakeup(static_cast<gpio_num_t>(GPIO_HBI_ENCODER_BTN), 0);  //1 = High, 0 = Low
   esp_deep_sleep_start();
 }
-
-// #endif /* ARDUINO_USB_MODE */

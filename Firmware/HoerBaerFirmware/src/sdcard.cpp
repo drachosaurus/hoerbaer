@@ -13,7 +13,7 @@ SDCard::SDCard()
     pinMode(GPIO_SD_DETECT, INPUT);
 }
 
-fs::FS &SDCard::getFs()
+fs::SDFS &SDCard::getFs()
 {
     return SD;
 }
@@ -79,6 +79,8 @@ void SDCard::listFiles()
 
         file = root.openNextFile();
     }
+
+    root.close();
 }
 
 std::string SDCard::nextFile(std::string dir, int skip)
@@ -118,6 +120,8 @@ std::string SDCard::nextFile(std::string dir, int skip)
         return file.path();
     }
 
+    root.close();
+
     return "";
 }
 
@@ -136,6 +140,7 @@ int SDCard::countFiles(std::string dir)
     if (!root.isDirectory())
     {
         Log::println("SDCARD", "Failed to list %s: not a directory!", dir.c_str());
+        root.close();
         return 0;
     }
 
@@ -153,6 +158,7 @@ int SDCard::countFiles(std::string dir)
         file = root.openNextFile();
     }
 
+    root.close();
     return count;
 }
 
@@ -190,4 +196,16 @@ void SDCard::readParseJsonFile(const std::string filename, JsonDocument& targetJ
 
     if (error != DeserializationError::Ok)
         throw std::runtime_error(error.c_str());
+}
+
+size_t SDCard::getSectorCount()
+{
+    this->mountOrThrow();
+    return SD.numSectors();
+}
+
+size_t SDCard::getSectorSize()
+{
+    this->mountOrThrow();
+    return SD.sectorSize();
 }
