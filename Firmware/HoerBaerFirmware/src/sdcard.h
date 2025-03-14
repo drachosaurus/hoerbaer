@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SD.h>
+#include <SD_MMC.h>
 #include <ArduinoJson.h>
 
 class SDCard {
@@ -9,7 +9,7 @@ class SDCard {
         void mountOrThrow();
     public:
         SDCard();
-        fs::SDFS& getFs();
+        fs::SDMMCFS& getFs();
         bool cardPresent();
         bool fileExists(const std::string filename);
         void writeJsonFile(const std::string filename, JsonDocument& jsonDocument);

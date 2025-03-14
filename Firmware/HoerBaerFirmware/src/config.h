@@ -50,11 +50,14 @@
 #define GPIO_AUDIO_CODEC_NPDN 1
 
 // SD card pins
-#define GPIO_SD_SCK 36
-#define GPIO_SD_DO 37
-#define GPIO_SD_DI 35
-#define GPIO_SD_CS 34
+#define GPIO_SD_CLK 36
+#define GPIO_SD_CMD 35
+#define GPIO_SD_D0 37
+#define GPIO_SD_D1 38
+#define GPIO_SD_D2 33
+#define GPIO_SD_D3 34
 #define GPIO_SD_DETECT 26
+#define SD_FORCE_1BIT false
 
 // Power management
 #define POWER_BATTERY_CHECK_INTERVAL_MILLIS 1000

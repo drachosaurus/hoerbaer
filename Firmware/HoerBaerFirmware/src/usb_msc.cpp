@@ -10,7 +10,7 @@
 
 // ugly globals... missing context in callbacks
 static USBMSC msc;
-static fs::SDFS* usbmsc_sd;
+static fs::SDMMCFS* usbmsc_sd;
 static size_t usbmc_sdSectorCount;
 static size_t usbmc_sdSectorSize;
 
