@@ -20,6 +20,8 @@ class HBI {
         uint8_t slotIos[24];
         uint8_t ioSlots[24];
         uint8_t slotCount;
+        uint32_t playButtonsIoMask;
+        uint32_t pauseButtonsIoMask;
         uint32_t currentLedState;
         int currentVegasStep;
         void HBIInterruptISR();

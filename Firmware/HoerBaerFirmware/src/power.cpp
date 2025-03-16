@@ -82,22 +82,15 @@ bool Power::checkBatteryShutdownLoop()
 
 bool Power::checkBatteryShutdown()
 {
-  // TODO: reenable
-  // if(isCharging()) {
-  //   Log::println("POWER", "Charging, no shutdown.");
-  //   return false;
-  // }
-
-  // TODO: abschalten crashed
-  // TODO: ohne Batterie?
-
   xSemaphoreTake(this->i2cSema, portMAX_DELAY);
   auto voltage = fuelGauge.cellVoltage();
-  auto percent = fuelGauge.cellPercent();
   xSemaphoreGive(this->i2cSema);
 
-  Log::println("POWER", "Battery: %fV (%f percent)", voltage, percent);
+  auto charging = isCharging();
+  Log::println("POWER", "Battery: %.2fV, charging: %i", voltage, charging);
 
-  return false;
+  if(charging)
+    return false;
+
   return voltage <= POWER_SHUTDOWN_VOLTAGE;
 }

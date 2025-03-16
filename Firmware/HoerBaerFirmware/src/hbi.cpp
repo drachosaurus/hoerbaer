@@ -34,6 +34,8 @@ HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfi
 
     this->lastKnownButtonMask = 0x00FFFFFF;
     this->currentVegasStep = -1;
+    this->playButtonsIoMask = 0;
+    this->pauseButtonsIoMask = 0;
 
     pinMode(GPIO_HBI_ENCODER_BTN, INPUT);
     pinMode(GPIO_HBI_ENCODER_A, INPUT);
@@ -46,6 +48,10 @@ HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfi
             this->ioSlots[io] = curSlot;
             curSlot++;
         }
+        else if(hbiConfig->ioMapping[io] == IO_MAPPING_TYPE_CONTROL_PLAY)
+            this->playButtonsIoMask |= (1 << io);
+        else if(hbiConfig->ioMapping[io] == IO_MAPPING_TYPE_CONTROL_PAUSE)
+            this->pauseButtonsIoMask |= (1 << io);
     }
     this->slotCount = curSlot;
 }
@@ -264,8 +270,13 @@ void HBI::setLedState()
     uint32_t ledState = 0;
 
     auto playingInfo = this->audioPlayer->getPlayingInfo();
-    if(playingInfo != nullptr)
+    if(playingInfo != nullptr) {
         ledState |= 1 << slotIos[playingInfo->slot];
+        if(playingInfo->pausedAtPosition > 0)
+            ledState |= pauseButtonsIoMask;
+        else
+            ledState |= playButtonsIoMask;
+    }
 
     if(this->currentVegasStep > -1)
         ledState |= 1 << slotIos[this->currentVegasStep];
