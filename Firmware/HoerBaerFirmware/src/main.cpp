@@ -27,6 +27,7 @@ unique_ptr<USBStorage> usbMsc;
 
 std::string wifiSsid;
 std::string wifiPwd;
+std::string currentLogFileName;
 
 bool usbStorageMode = false;
 
@@ -36,6 +37,17 @@ void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
 
 void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
   Log::println("WiFi", "IP Address: %s", WiFi.localIP().toString().c_str());
+  configTime(0, 0, "pool.ntp.org"); // First connect to NTP server, with 0 TZ offset
+  setenv("TZ", LOCALTZ, 1);         // set timezone
+  tzset();
+  Log::println("WiFi", "NTP time set: " LOCALTZ);
+  struct tm timeInfo;
+  if (getLocalTime(&timeInfo)) {
+    char timeStringBuff[22]; 
+    strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d_%H%M%S.log", &timeInfo);
+    Log::println("WiFi", "Set timestamp for logfile: %s", timeStringBuff);
+    currentLogFileName = std::string(timeStringBuff);
+  }
 }
 
 void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
