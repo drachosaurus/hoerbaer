@@ -4,6 +4,9 @@
 #define TASK_PRIO_HBI_WORKER 1
 #define TASK_STACK_SIZE_HBI_WORKER 10000
 
+// Timezone
+#define LOCALTZ "CET-1CEST,M3.5.0,M10.5.0/3"
+
 // Well known SDCARD files
 #define SDCARD_FILE_WIFI_CONFIG "/wifi.json"
 #define SDCARD_FILE_HBI_CONFIG "/hbi.json"
