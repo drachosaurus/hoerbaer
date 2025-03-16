@@ -32,7 +32,7 @@ void SDCard::mountOrThrow()
         return;
 
     SD_MMC.setPins(GPIO_SD_CLK, GPIO_SD_CMD, GPIO_SD_D0, GPIO_SD_D1, GPIO_SD_D2, GPIO_SD_D3);
-    if (!SD_MMC.begin("/", SD_FORCE_1BIT))
+    if (!SD_MMC.begin())
         throw std::runtime_error("Failed to mount SD card");
 
     uint8_t cardType = SD_MMC.cardType();
