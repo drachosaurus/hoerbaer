@@ -58554,7 +58554,7 @@
 		(layer "Edge.Cuts")
 		(uuid "ce39381a-f1a6-4db9-8cda-99cf04919f42")
 	)
-	(gr_text "TODOS:\n- turn SD socket\n- label high / low led side\n- label buttons\n- Maybe change UART bridge? Or just add socket and use UART cable? \n  (check conn first)\n- Thermal Reliefs for Zones\n- Test Points for I2S\n- ESP Module with more PSRAM?\n- Bridge mode possible?\n- Zus. Power Input\n- Pulls - wirklich 10k?\n- HW Power-switch für ganz HBI\n- Keep USB-UART IC powered when unplug VBus\n- Charging power weniger? Laptop macht zu. Warum?"
+	(gr_text "TODOS:\n- turn SD socket\n- label high / low led side\n- label buttons\n- Maybe change UART bridge? Or just add socket and use UART cable? \n  (check conn first)\n- Thermal Reliefs for Zones\n- Test Points for I2S\n- ESP Module with more PSRAM?\n- Bridge mode possible?\n- Zus. Power Input\n- Pulls - wirklich 10k?\n- HW Power-switch für ganz HBI\n- Keep USB-UART IC powered when unplug VBus\n- Charging power weniger? Laptop macht zu. Warum?\n  --> oder mosfest um PROG zu schalten?"
 		(at 144.4 99.4 0)
 		(layer "F.Cu")
 		(uuid "8cc413b5-0296-41ab-a0bf-836a051e538a")
