@@ -60,3 +60,9 @@ Leise
 
 ### Stromaufnahme Codec
 97mA @5V
+
+
+## HBI
+
+Alle 18 lampen an
+177mA @9V
