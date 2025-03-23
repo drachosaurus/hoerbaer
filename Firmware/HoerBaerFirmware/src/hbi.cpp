@@ -308,8 +308,18 @@ void HBI::setLedState()
     xSemaphoreGive(this->i2cSema);
 }
 
-void HBI::shutOffAllLeds()
-{
+void HBI::lightUpAllLeds() {
+    xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+    this->ledDriver1->setAllBrightness((uint8_t)0xFF);
+    this->ledDriver1->setLedOutputMode(TLC59108::LED_MODE::PWM_IND);
+    this->ledDriver2->setAllBrightness((uint8_t)0xFF);
+    this->ledDriver2->setLedOutputMode(TLC59108::LED_MODE::PWM_IND);
+    this->ledDriver3->setAllBrightness((uint8_t)0xFF);
+    this->ledDriver3->setLedOutputMode(TLC59108::LED_MODE::PWM_IND);
+    xSemaphoreGive(this->i2cSema);
+}
+
+void HBI::shutOffAllLeds() {
     xSemaphoreTake(this->i2cSema, portMAX_DELAY);
     this->ledDriver1->setAllBrightness((uint8_t)0x00);
     this->ledDriver1->setLedOutputMode(TLC59108::LED_MODE::OFF);
@@ -320,8 +330,7 @@ void HBI::shutOffAllLeds()
     xSemaphoreGive(this->i2cSema);
 }
 
-void HBI::waitUntilEncoderButtonReleased() 
-{
+void HBI::waitUntilEncoderButtonReleased() {
     while(digitalRead(GPIO_HBI_ENCODER_BTN) == LOW)
         vTaskDelay(100);
 }
@@ -331,8 +340,7 @@ bool HBI::getAnyButtonPressed() {
     return buttonState != 0xFFFFFF;
 }
 
-void HBI::runVegasStep()
-{
+void HBI::runVegasStep() {
     this->currentVegasStep++;
     if(this->currentVegasStep >= slotCount)
         this->currentVegasStep = 0;

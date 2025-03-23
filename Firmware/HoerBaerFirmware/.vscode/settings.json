@@ -50,5 +50,6 @@
         "typeinfo": "cpp",
         "esp32-hal-tinyusb.h": "c",
         "usb_persist.h": "c"
-    }
+    },
+    "cmake.ignoreCMakeListsMissing": true
 }

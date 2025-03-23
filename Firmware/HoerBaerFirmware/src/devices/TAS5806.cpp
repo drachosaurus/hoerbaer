@@ -22,17 +22,18 @@ void TAS5806::resetChip()
     if (err)
         Log::println("TAS5806", "ERROR! Reset chip failed: %d", err);
 
-    // // 7.6.1.2 DEVICE_CTRL_1 Register (Offset = 2h) [reset = 0x00]
-    // registerAddress = 0x02;
-    // registerValue = 0b0000000;
-    // //                 |˩˩||˩
-    // //                 |  |00 => BD Mode
-    // //                 |  0 => BTL Mode
-    // //                 000 => 768K
+    // 7.6.1.2 DEVICE_CTRL_1 Register (Offset = 2h) [reset = 0x00]
+    registerAddress = 0x02;
+    //registerValue = 0b0000000;
+    registerValue = 0b0000000;
+    //                 |˩˩||˩
+    //                 |  |00 => BD Mode
+    //                 |  0 => BTL Mode
+    //                 000 => 768K
 
-    // err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
-    // if(err)
-    //     Log::println("TAS5806", "ERROR! Set DEVICE_CTRL_1 register failed: %d", err);
+    err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
+    if(err)
+        Log::println("TAS5806", "ERROR! Set DEVICE_CTRL_1 register failed: %d", err);
 }
 
 void TAS5806::setParamsAndHighZ()

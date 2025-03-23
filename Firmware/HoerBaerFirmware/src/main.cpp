@@ -58,10 +58,11 @@ void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
 void shutdown();
 
 void setup() {
+  
   i2c = make_shared<TwoWire>(0);
   i2cSema = xSemaphoreCreateBinary();
   xSemaphoreGive(i2cSema);
-
+  
   // First (has to be first!), disable 3V3 ~PSAVE
   power = make_unique<Power>(i2c, i2cSema);
   power->disableVCCPowerSave();
@@ -73,20 +74,18 @@ void setup() {
   Log::init();
   Log::println("MAIN", "Hello Bear! Main runs on core: %d and woke up because %d", xPortGetCoreID(), wakeupReason);
 
-  // switch (wakeup_reason) {
-  //   case ESP_SLEEP_WAKEUP_EXT0:     Serial.println("Wakeup caused by external signal using RTC_IO"); break;
-  //   case ESP_SLEEP_WAKEUP_EXT1:     Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
-  //   case ESP_SLEEP_WAKEUP_TIMER:    Serial.println("Wakeup caused by timer"); break;
-  //   case ESP_SLEEP_WAKEUP_TOUCHPAD: Serial.println("Wakeup caused by touchpad"); break;
-  //   case ESP_SLEEP_WAKEUP_ULP:      Serial.println("Wakeup caused by ULP program"); break;
-  //   default:                        Serial.printf("Wakeup was not caused by deep sleep: %d\n", wakeup_reason); break;
-  // }
+  if(wakeupReason != ESP_SLEEP_WAKEUP_EXT0)
+  {
+    Log::println("MAIN", "Wakeup was not caused from button interrupt, shutting down again.");
+    shutdown();
+    return;
+  }
 
   sdCard = make_shared<SDCard>();
   userConfig = make_shared<UserConfig>(sdCard);
   userConfig->initializeFromSdCard();
 
-  // pulls NPDN down - has to be before HBI
+  // keeps 12V supply off (NPDN down) - has to be before HBI
   audioPlayer = make_shared<AudioPlayer>(i2c, i2cSema, userConfig, sdCard);
 
   hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer, shutdown);
@@ -104,7 +103,6 @@ void setup() {
 
     power->enableAudioVoltage();
 
-    // enables power
     audioPlayer->initialize();
 
     WiFi.disconnect();
@@ -140,8 +138,7 @@ void setup() {
 }
 
 void loop() {
-  if (!usbStorageMode)
-  {
+  if (!usbStorageMode) {
     // Normal mode: audio loop and check battery
     audioPlayer->loop();
     if (power->checkBatteryShutdownLoop())
@@ -160,19 +157,23 @@ void loop() {
 void shutdown() {
   Log::println("MAIN", "Shutting down...");
 
-  audioPlayer->stop();
-  audioPlayer.reset();
+  if(audioPlayer != nullptr) {
+    audioPlayer->stop();
+    audioPlayer.reset();
+  }
 
-  hbi->shutOffAllLeds();
-
-  Log::println("MAIN", "Wait until encoder button is released!");
-  hbi->waitUntilEncoderButtonReleased();
+  if(hbi != nullptr) {
+    hbi->shutOffAllLeds();
+    
+    Log::println("MAIN", "Wait until encoder button is released!");
+    hbi->waitUntilEncoderButtonReleased();
+  }
 
   Log::println("MAIN", "Sleep well, bear!");
 
   power->disableAudioVoltage();
-  power->enableVCCPowerSave();
   power->setGaugeToSleep();
+  power->enableVCCPowerSave();
 
   esp_sleep_enable_ext0_wakeup(static_cast<gpio_num_t>(GPIO_HBI_ENCODER_BTN), 0); // 1 = High, 0 = Low
   esp_deep_sleep_start();

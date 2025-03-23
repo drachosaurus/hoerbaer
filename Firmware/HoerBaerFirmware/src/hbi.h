@@ -43,6 +43,7 @@ class HBI {
         HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfig> hbiConfig, shared_ptr<AudioPlayer> audioPlayer, void (*shutdownCallback)(void));
         void initialize();
         void runWorkerTask();
+        void lightUpAllLeds();
         void shutOffAllLeds();
         void waitUntilEncoderButtonReleased();
         bool getAnyButtonPressed();
