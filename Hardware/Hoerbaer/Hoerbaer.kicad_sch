@@ -10875,7 +10875,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Card:microSD_HC_Molex_104031-0811"
+		(property "Footprint" "Connector_Card:microSD_HC_Hirose_DM3D-SF"
 			(at -5.08 152.4 0)
 			(effects
 				(font
@@ -10901,7 +10901,7 @@
 				)
 			)
 		)
-		(property "MPN" "1040310811"
+		(property "MPN" "DM3D-SF"
 			(at 46.99 170.18 0)
 			(effects
 				(font
@@ -10910,7 +10910,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C585350"
+		(property "LCSC" "C719027"
 			(at 46.99 170.18 0)
 			(effects
 				(font
@@ -11871,162 +11871,6 @@
 			(project "Hoerbaer"
 				(path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
 					(reference "R6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Mechanical:MountingHole_Pad")
-		(at 209.55 158.75 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "9e287d34-c8ca-422a-a973-dab3692e3a96")
-		(property "Reference" "H4"
-			(at 212.09 156.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Value" "MountingHole_Pad"
-			(at 212.09 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3_Pad_Via"
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Check_prices" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MANUFACTURER" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MF" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "PARTREV" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Purchase-URL" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "STANDARD" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "SnapEDA_Link" ""
-			(at 209.55 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "455bfc4b-893b-445d-9c8e-0ca583c406ac")
-		)
-		(instances
-			(project "Hoerbaer"
-				(path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
-					(reference "H4")
 					(unit 1)
 				)
 			)
@@ -13013,7 +12857,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "ESP32-S3-WROOM-1U-N4R8"
+		(property "Value" "ESP32-S3-WROOM-1-N4R8"
 			(at 142.748 73.66 0)
 			(effects
 				(font
@@ -13049,7 +12893,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3013943"
+		(property "LCSC" "C2913200"
 			(at 154.94 106.68 0)
 			(effects
 				(font
@@ -13058,7 +12902,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "ESP32-S3-WROOM-1U-N4R8 "
+		(property "MPN" "ESP32-S3-WROOM-1-N4R8"
 			(at 154.94 106.68 0)
 			(effects
 				(font
@@ -16085,71 +15929,6 @@
 			(project "Hoerbaer"
 				(path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
 					(reference "R15")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 209.55 161.29 0)
-		(mirror y)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "eaf3ab99-49a8-4ea9-a70f-d0b937f2371e")
-		(property "Reference" "#PWR0199"
-			(at 209.55 167.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 213.36 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 209.55 161.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 209.55 161.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 209.55 161.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "ab378a9f-1992-4ed3-a4d4-cb2ebf838eb5")
-		)
-		(instances
-			(project "Hoerbaer"
-				(path "/31f16f54-0469-45ae-b442-d363bf5fad3b"
-					(reference "#PWR0199")
 					(unit 1)
 				)
 			)
