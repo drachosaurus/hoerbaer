@@ -22,13 +22,13 @@ Laut
 
 ### Stromaufnahme Codec
 
-Leise
+Leise  
 PSU: 147mA @9V
 
 Oszibild (Peaks: 132mA - 276mA):
 ![oszi](95_Stromverbrauch_9V_leise.png)
 
-Laut
+Laut  
 PSU: 200mA @9V
 
 Oszibild (Peaks: 96mA - 512mA):
@@ -36,10 +36,10 @@ Oszibild (Peaks: 96mA - 512mA):
 
 ## VAudio = 8V
 
-Leise
+Leise   
 ![Temp](93_786kHz_8V_leise.jpg)
 
-Laut
+Laut  
 ![Temp](94_786kHz_8V_laut.jpg)
 
 ### Stromaufnahme Codec
