@@ -15593,7 +15593,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 248.92 157.48 0)
 			(effects
 				(font
@@ -15602,7 +15602,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 248.92 157.48 0)
 			(effects
 				(font

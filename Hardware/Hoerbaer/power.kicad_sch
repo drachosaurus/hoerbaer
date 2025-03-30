@@ -7739,7 +7739,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C386133"
+		(property "LCSC" "C86287"
 			(at 237.49 110.49 0)
 			(effects
 				(font
@@ -7748,7 +7748,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "UMK105CG270JV-F"
+		(property "MPN" "CL05C270JB5NNNC"
 			(at 237.49 110.49 0)
 			(effects
 				(font
@@ -8645,7 +8645,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 182.88 102.87 0)
 			(effects
 				(font
@@ -8654,7 +8654,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 182.88 102.87 0)
 			(effects
 				(font
@@ -11334,7 +11334,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 185.42 38.1 0)
 			(effects
 				(font
@@ -11343,7 +11343,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 185.42 38.1 0)
 			(effects
 				(font
@@ -11729,6 +11729,22 @@
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "LCSC" "C527679"
+			(at 255.27 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPS22810DRVR"
+			(at 255.27 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "6"
@@ -13413,7 +13429,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "90kΩ"
+		(property "Value" "91kΩ"
 			(at 245.11 92.71 0)
 			(effects
 				(font
@@ -13448,7 +13464,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C114151"
+		(property "LCSC" "C327323"
 			(at 243.84 91.44 0)
 			(effects
 				(font
@@ -13457,7 +13473,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "RC0402FR-07140KL "
+		(property "MPN" "RC0402FR-0791KL "
 			(at 243.84 91.44 0)
 			(effects
 				(font
@@ -16061,7 +16077,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 199.39 93.98 0)
 			(effects
 				(font
@@ -16070,7 +16086,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 199.39 93.98 0)
 			(effects
 				(font
@@ -17175,7 +17191,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C1517770"
+		(property "LCSC" "C84705"
 			(at 233.68 107.95 0)
 			(effects
 				(font
@@ -17184,7 +17200,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "GCM155L81H472KA37D"
+		(property "MPN" "CL05B472KB5NNNC"
 			(at 233.68 107.95 0)
 			(effects
 				(font
@@ -17588,7 +17604,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 74.93 146.05 0)
 			(effects
 				(font
@@ -17597,7 +17613,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 74.93 146.05 0)
 			(effects
 				(font
@@ -17825,7 +17841,7 @@
 				)
 			)
 		)
-		(property "MPN" "S54BF"
+		(property "MPN" "SS54BF"
 			(at 96.52 44.45 0)
 			(effects
 				(font
@@ -17834,7 +17850,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C432789"
+		(property "LCSC" "C122867"
 			(at 96.52 44.45 0)
 			(effects
 				(font
@@ -18660,7 +18676,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C386133"
+		(property "LCSC" "C86287"
 			(at 250.19 101.6 0)
 			(effects
 				(font
@@ -18669,7 +18685,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "UMK105CG270JV-F"
+		(property "MPN" "CL05C270JB5NNNC"
 			(at 250.19 101.6 0)
 			(effects
 				(font
@@ -20163,7 +20179,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 266.7 67.31 0)
 			(effects
 				(font
@@ -20172,7 +20188,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 266.7 67.31 0)
 			(effects
 				(font
@@ -20291,7 +20307,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "c03c0e1f-1330-4d34-bfbd-6402f95e6f82")
 		(property "Reference" "J13"
 			(at 138.43 143.51 0)
@@ -20502,7 +20518,7 @@
 				)
 			)
 		)
-		(property "MPN" "S54BF"
+		(property "MPN" "SS54BF"
 			(at 86.36 44.45 0)
 			(effects
 				(font
@@ -20511,7 +20527,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C432789"
+		(property "LCSC" "C122867"
 			(at 86.36 44.45 0)
 			(effects
 				(font
@@ -21194,7 +21210,7 @@
 				)
 			)
 		)
-		(property "MPN" "S54BF"
+		(property "MPN" "SS54BF"
 			(at 76.2 44.45 0)
 			(effects
 				(font
@@ -21203,7 +21219,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C432789"
+		(property "LCSC" "C122867"
 			(at 76.2 44.45 0)
 			(effects
 				(font
@@ -22416,7 +22432,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 238.76 62.23 0)
 			(effects
 				(font
@@ -22425,7 +22441,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 238.76 62.23 0)
 			(effects
 				(font

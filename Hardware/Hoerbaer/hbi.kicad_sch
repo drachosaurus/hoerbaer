@@ -7526,7 +7526,25 @@
 			"ZXJ0aWNhbApURSwgODI2NTc2LTksIDkgUGlucyAoaHR0cHM6Ly93d3cudGUuY29tL2NvbW1lcmNl"
 			"L0RvY3VtZW50RGVsaXZlcnkvRERFQ29udHJvbGxlcj9BY3Rpb249c3JjaHJ0cnYmRG9jTm09ODI2"
 			"NTc2JkRvY1R5cGU9Q3VzdG9tZXIrRHJhd2luZyZEb2NMYW5nPUVuZ2xpc2gpLCBnZW5lcmF0ZWQg"
-			"d2l0aCBraWNhZC1mb290cA=="
+			"d2l0aCBraWNhZC1mb290cEggcGl0Y2ggMy41bW0gc2l6ZSA1Nng3LjZtbSBkcmlsbCAxLjJtbSBw"
+			"YWQgMi40bW0KMAoxNgoxNgpUZXJtaW5hbEJsb2NrX1Bob2VuaXgKVGVybWluYWxCbG9ja19QaG9l"
+			"bml4X1BULTEsNS0xNi01LjAtSF8xeDE2X1A1LjAwbW1fSG9yaXpvbnRhbApUZXJtaW5hbCBCbG9j"
+			"ayBQaG9lbml4IFBULTEsNS0xNi01LjAtSCwgMTYgcGlucywgcGl0Y2ggNW1tLCBzaXplIDgweDlt"
+			"bSwgZHJpbGwgZGlhbWV0ZXIgMS4zbW0sIHBhZCBkaWFtZXRlciAyLjZtbSwgaHR0cDovL3d3dy5t"
+			"b3VzZXIuY29tL2RzLzIvMzI0L0l0ZW1EZXRhaWxfMTkzNTE2MS05MjI1NzgucGRmLCBzY3JpcHQt"
+			"Z2VuZXJhdGVkIHVzaW5nIGh0dHBzOi8vZ2l0bGFiLmNvbS9raWNhZC9saWJyYXJpZXMva2ljYWQt"
+			"Zm9vdHByaW50LWdlbmVyYXRvci8tL3RyZWUvbWFzdGVyL3NjcmlwdHMvVGVybWluYWxCbG9ja19Q"
+			"aG9lbml4ClRIVCBUZXJtaW5hbCBCbG9jayBQaG9lbml4IFBULTEsNS0xNi01LjAtSCBwaXRjaCA1"
+			"bW0gc2l6ZSA4MHg5bW0gZHJpbGwgMS4zbW0gcGFkIDIuNm1tCjAKMTYKMTYKVGVybWluYWxCbG9j"
+			"a19QaG9lbml4ClRlcm1pbmFsQmxvY2tfUGhvZW5peF9QVFNNLTAsNS0yLTIsNS1WLVNNRF8xeDAy"
+			"LTFNUF9QMi41MG1tX1ZlcnRpY2FsClBob2VuaXhDb250YWN0IFBUU00wLDUgMiAyLDVtbSB2ZXJ0"
+			"aWNhbCBTTUQgc3ByaW5nIGNsYW1wIHRlcm1pbmFsIGJsb2NrIGNvbm5lY3RvciBodHRwOi8vd3d3"
+			"LnBob2VuaXhjb250YWN0LmNvbS91cy9wcm9kdWN0cy8xODE0NzAyL3BkZgpQaG9lbml4Q29udGFj"
+			"dCBQVFNNMC41IDIgMi41bW0gdmVydGljYWwgU01EIHNwcmluZyBjbGFtcCB0ZXJtaW5hbCBibG9j"
+			"ayBjb25uZWN0b3IgCjAKNAozClRlcm1pbmFsQmxvY2tfUGhvZW5peApUZXJtaW5hbEJsb2NrX1Bo"
+			"b2VuaXhfUFRTTS0wLDUtMi0yLjUtSC1USFJfMXgwMl9QMi41MG1tX0hvcml6b250YWwKVGVybWlu"
+			"YWwgQmxvY2sgUGhvZW5peCBQVFNNLTAsNS0yLTIuNS1ILVRIUiwgMiBwaW5zLCBwaXRjaCAyLjVt"
+			"bSwgc2l6ZSA3LjJ4MTBtbQ=="
 		)
 	)
 	(label "HBI_I2C_SCL"
@@ -9380,7 +9398,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 99.06 110.49 0)
 			(effects
 				(font
@@ -9389,7 +9407,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 99.06 110.49 0)
 			(effects
 				(font
@@ -16176,7 +16194,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 214.63 46.99 0)
 			(effects
 				(font
@@ -16185,7 +16203,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 214.63 46.99 0)
 			(effects
 				(font
@@ -17628,7 +17646,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 99.06 48.26 0)
 			(effects
 				(font
@@ -17637,7 +17655,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 99.06 48.26 0)
 			(effects
 				(font
@@ -17977,7 +17995,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 214.63 149.86 0)
 			(effects
 				(font
@@ -17986,7 +18004,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 214.63 149.86 0)
 			(effects
 				(font
@@ -19325,7 +19343,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 99.06 170.18 0)
 			(effects
 				(font
@@ -19334,7 +19352,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 99.06 170.18 0)
 			(effects
 				(font
@@ -22098,7 +22116,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C458949"
+		(property "LCSC" "C1525"
 			(at 214.63 100.33 0)
 			(effects
 				(font
@@ -22107,7 +22125,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "MT15B104K160CT"
+		(property "MPN" "CL05B104KO5NNNC"
 			(at 214.63 100.33 0)
 			(effects
 				(font
