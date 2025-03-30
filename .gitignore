@@ -2,3 +2,5 @@
 **/~*.xlsx
 **/~*.lck
 **/#auto_saved_files#
+
+**/production
