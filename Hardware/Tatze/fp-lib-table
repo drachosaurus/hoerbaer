@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "Baer_Footprints")(type "KiCad")(uri "/Users/silvan/silvan-src/hoerbaer-v2/Hardware/Lib/Baer_Footprints.pretty")(options "")(descr ""))
+)
