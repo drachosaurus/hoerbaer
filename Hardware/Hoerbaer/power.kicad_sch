@@ -2194,6 +2194,200 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Jumper:SolderJumper_2_Bridged"
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "JP"
+				(at 0 2.032 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SolderJumper_2_Bridged"
+				(at 0 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Solder Jumper, 2-pole, closed/bridged"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "solder jumper SPST"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "SolderJumper*Bridged*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SolderJumper_2_Bridged_0_1"
+				(rectangle
+					(start -0.508 0.508)
+					(end 0.508 -0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.254 1.016) (xy -0.254 -1.016)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -0.254 -1.016)
+					(mid -1.2656 0)
+					(end -0.254 1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -0.254 -1.016)
+					(mid -1.2656 0)
+					(end -0.254 1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(arc
+					(start 0.254 1.016)
+					(mid 1.2656 0)
+					(end 0.254 -1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0.254 1.016)
+					(mid 1.2656 0)
+					(end 0.254 -1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 1.016) (xy 0.254 -1.016)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SolderJumper_2_Bridged_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Jumper:SolderJumper_2_Open"
 			(pin_numbers
 				(hide yes)
@@ -4077,7 +4271,7 @@
 		)
 		(uuid "553ce443-330f-41a3-8fa1-aba6ef12d5d3")
 	)
-	(text "BQ24073RGT Current settings\n\nTGT: ISET = 0.8A (Imax fast chg), ILIM = 1.4A (Imax Input)\nR_{ISET} = 890 AΩ / 0.8 A = 1.1125 kΩ => 1.13kΩ\nR_{ILIM} = 1550 AΩ / 1.4 A = 1.1107 kΩ => 1.13kΩ"
+	(text "BQ24073RGT Current settings\n\nTGT: ISET = 0.8A (Imax fast chg), ILIM = 1.4A (Imax Input)\nR_{ILIM} = 1550 AΩ / 1.4 A = 1.1107 kΩ => 1.13kΩ\nR_{ISET} = 890 AΩ / 0.8 A = 1.1125 kΩ => 1.13kΩ\n(ISet dividable by 2 via JP16 => 0.4A when open)"
 		(exclude_from_sim no)
 		(at 20.828 66.802 0)
 		(effects
@@ -4226,6 +4420,12 @@
 		(uuid "37de287b-1612-41e9-bae9-7350b346e536")
 	)
 	(junction
+		(at 88.9 124.46)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3f839ac2-449e-42aa-8317-6040f3dbd7be")
+	)
+	(junction
 		(at 262.89 88.9)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4350,6 +4550,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "77df38ef-cff4-470a-8648-7d1e53534697")
+	)
+	(junction
+		(at 88.9 116.84)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8211248e-654b-4876-bdf5-26af9545dc6d")
 	)
 	(junction
 		(at 36.83 187.96)
@@ -4699,6 +4905,16 @@
 	)
 	(wire
 		(pts
+			(xy 88.9 116.84) (xy 88.9 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "218074d0-bafb-4485-9592-45874cb1935b")
+	)
+	(wire
+		(pts
 			(xy 92.71 147.32) (xy 78.74 147.32)
 		)
 		(stroke
@@ -4839,6 +5055,16 @@
 	)
 	(wire
 		(pts
+			(xy 88.9 124.46) (xy 88.9 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2fdc780f-24b5-4903-9d42-a9eb59593562")
+	)
+	(wire
+		(pts
 			(xy 133.35 88.9) (xy 153.67 88.9)
 		)
 		(stroke
@@ -4926,6 +5152,16 @@
 			(type default)
 		)
 		(uuid "3d70cb71-330d-4252-84e6-50f7447cc74e")
+	)
+	(wire
+		(pts
+			(xy 88.9 116.84) (xy 95.25 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3e356865-3847-44c2-9c22-81a0f85a29e9")
 	)
 	(wire
 		(pts
@@ -5026,6 +5262,16 @@
 			(type default)
 		)
 		(uuid "4c3acf24-7b2c-4ece-8467-07c4606f2c68")
+	)
+	(wire
+		(pts
+			(xy 88.9 124.46) (xy 95.25 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4d2c2dc5-29d5-4c7d-aec2-6c548b525ae9")
 	)
 	(wire
 		(pts
@@ -5349,7 +5595,7 @@
 	)
 	(wire
 		(pts
-			(xy 88.9 109.22) (xy 88.9 113.03)
+			(xy 88.9 109.22) (xy 88.9 111.76)
 		)
 		(stroke
 			(width 0)
@@ -9061,7 +9307,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 88.9 115.57 0)
+		(at 88.9 114.3 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -9070,7 +9316,7 @@
 		(dnp no)
 		(uuid "2354f451-2fa6-4517-8549-de8527d8b543")
 		(property "Reference" "R52"
-			(at 93.98 114.3 0)
+			(at 93.98 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9079,7 +9325,7 @@
 			)
 		)
 		(property "Value" "1.13kΩ"
-			(at 87.63 114.3 0)
+			(at 87.63 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9088,7 +9334,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9097,7 +9343,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9106,7 +9352,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9114,7 +9360,7 @@
 			)
 		)
 		(property "LCSC" "C67014"
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9123,7 +9369,7 @@
 			)
 		)
 		(property "MPN" "0402WGF1131TCE"
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9132,7 +9378,7 @@
 			)
 		)
 		(property "Check_prices" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9140,7 +9386,7 @@
 			)
 		)
 		(property "MANUFACTURER" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9148,7 +9394,7 @@
 			)
 		)
 		(property "MAXIMUM_PACKAGE_HEIGHT" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9156,7 +9402,7 @@
 			)
 		)
 		(property "MF" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9164,7 +9410,7 @@
 			)
 		)
 		(property "MP" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9172,7 +9418,7 @@
 			)
 		)
 		(property "PARTREV" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9180,7 +9426,7 @@
 			)
 		)
 		(property "Package" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9188,7 +9434,7 @@
 			)
 		)
 		(property "Price" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9196,7 +9442,7 @@
 			)
 		)
 		(property "Purchase-URL" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9204,7 +9450,7 @@
 			)
 		)
 		(property "STANDARD" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9212,7 +9458,7 @@
 			)
 		)
 		(property "SnapEDA_Link" ""
-			(at 88.9 115.57 0)
+			(at 88.9 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10296,6 +10542,161 @@
 			(project "Hoerbaer"
 				(path "/31f16f54-0469-45ae-b442-d363bf5fad3b/619abe22-66a2-4b7d-b472-86dccb0a4dd1"
 					(reference "NT12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:SolderJumper_2_Bridged")
+		(at 95.25 120.65 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2f014cec-cf35-43d1-b297-e5b1c7cddeac")
+		(property "Reference" "JP16"
+			(at 97.79 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "~{RST}"
+			(at 99.06 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm"
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Check_prices" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MANUFACTURER" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MF" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MP" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "PARTREV" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Package" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Price" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Purchase-URL" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "STANDARD" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "SnapEDA_Link" ""
+			(at 95.25 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "816943ae-2005-4103-8ffa-0b4c78572ed3")
+		)
+		(pin "2"
+			(uuid "36720669-15e8-4425-a8ba-a49c67ab65b7")
+		)
+		(instances
+			(project "Hoerbaer"
+				(path "/31f16f54-0469-45ae-b442-d363bf5fad3b/619abe22-66a2-4b7d-b472-86dccb0a4dd1"
+					(reference "JP16")
 					(unit 1)
 				)
 			)
@@ -22154,7 +22555,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 88.9 118.11 0)
+		(at 88.9 124.46 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -22162,7 +22563,7 @@
 		(dnp no)
 		(uuid "dd1e9825-f5ac-4d7d-b6d9-b7a84ae7d93b")
 		(property "Reference" "#PWR0124"
-			(at 88.9 124.46 0)
+			(at 88.9 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22171,7 +22572,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 88.9 121.92 0)
+			(at 88.9 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22179,7 +22580,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 88.9 118.11 0)
+			(at 88.9 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22188,7 +22589,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 88.9 118.11 0)
+			(at 88.9 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22197,7 +22598,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 88.9 118.11 0)
+			(at 88.9 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22514,6 +22915,181 @@
 			(project "Hoerbaer"
 				(path "/31f16f54-0469-45ae-b442-d363bf5fad3b/619abe22-66a2-4b7d-b472-86dccb0a4dd1"
 					(reference "#PWR0153")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 88.9 120.65 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ea56c34a-fc9a-4b83-aace-5422e5e92d6f")
+		(property "Reference" "R74"
+			(at 93.98 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1.13kΩ"
+			(at 87.63 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C67014"
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0402WGF1131TCE"
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Check_prices" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MANUFACTURER" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MF" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MP" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "PARTREV" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Package" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Price" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Purchase-URL" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "STANDARD" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "SnapEDA_Link" ""
+			(at 88.9 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "44da3107-f8a7-4395-adb6-799b619f2a33")
+		)
+		(pin "2"
+			(uuid "ab345b58-1c66-4569-bd87-ae8ad5e2a1c7")
+		)
+		(instances
+			(project "Hoerbaer"
+				(path "/31f16f54-0469-45ae-b442-d363bf5fad3b/619abe22-66a2-4b7d-b472-86dccb0a4dd1"
+					(reference "R74")
 					(unit 1)
 				)
 			)
