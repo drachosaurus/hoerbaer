@@ -11686,7 +11686,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "3b251fd8-f635-453a-a704-009665fdde9c")
 		(property "Reference" "U14"
 			(at 255.27 53.34 0)
@@ -11737,14 +11736,16 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "MPN" "TPS22810DRVR"
-			(at 255.27 62.23 0)
+			(at 255.778 62.992 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(pin "6"
@@ -12152,15 +12153,6 @@
 				(hide yes)
 			)
 		)
-		(property "JLCPCB Rotation Offset" "90"
-			(at 102.87 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
 		(property "Check_prices" ""
 			(at 102.87 149.86 0)
 			(effects
@@ -12242,6 +12234,14 @@
 			)
 		)
 		(property "SnapEDA_Link" ""
+			(at 102.87 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "FT Rotation Offset" "270"
 			(at 102.87 149.86 0)
 			(effects
 				(font
@@ -12441,6 +12441,15 @@
 				(font
 					(size 1.27 1.27)
 				)
+			)
+		)
+		(property "FT Position Offset" "0.0,0.474"
+			(at 213.36 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -20354,15 +20363,6 @@
 				(hide yes)
 			)
 		)
-		(property "JLCPCB Rotation Offset" "90"
-			(at 140.97 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
 		(property "Check_prices" ""
 			(at 140.97 142.24 0)
 			(effects
@@ -20444,6 +20444,14 @@
 			)
 		)
 		(property "SnapEDA_Link" ""
+			(at 140.97 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "FT Rotation Offset" "90"
 			(at 140.97 142.24 0)
 			(effects
 				(font

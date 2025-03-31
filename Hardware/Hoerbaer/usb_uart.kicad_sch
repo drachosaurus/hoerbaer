@@ -4812,15 +4812,6 @@
 				(hide yes)
 			)
 		)
-		(property "JLCPCB Rotation Offset" "180"
-			(at 210.82 86.36 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
 		(property "Check_prices" ""
 			(at 210.82 86.36 0)
 			(effects
@@ -4902,6 +4893,14 @@
 			)
 		)
 		(property "SnapEDA_Link" ""
+			(at 210.82 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "FT Rotation Offset" ""
 			(at 210.82 86.36 0)
 			(effects
 				(font
@@ -5917,15 +5916,6 @@
 				(hide yes)
 			)
 		)
-		(property "JLCPCB Position Offset" "0.0,1.35"
-			(at 63.5 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
 		(property "Check_prices" ""
 			(at 63.5 80.01 0)
 			(effects
@@ -6007,6 +5997,14 @@
 			)
 		)
 		(property "SnapEDA_Link" ""
+			(at 63.5 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "FT Position Offset" "0.0,1.35"
 			(at 63.5 80.01 0)
 			(effects
 				(font
@@ -6149,15 +6147,6 @@
 				(hide yes)
 			)
 		)
-		(property "JLCPCB Rotation Offset" "180"
-			(at 210.82 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
 		(property "Check_prices" ""
 			(at 210.82 104.14 0)
 			(effects
@@ -6239,6 +6228,14 @@
 			)
 		)
 		(property "SnapEDA_Link" ""
+			(at 210.82 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "FT Rotation Offset" ""
 			(at 210.82 104.14 0)
 			(effects
 				(font
@@ -7440,6 +7437,14 @@
 			)
 		)
 		(property "SnapEDA_Link" ""
+			(at 153.67 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "FT Rotation Offset" "180"
 			(at 153.67 92.71 0)
 			(effects
 				(font
