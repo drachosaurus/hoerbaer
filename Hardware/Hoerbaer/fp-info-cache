@@ -1,4 +1,4 @@
-24756122554684912
+24757866084829451
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -61,6 +61,13 @@ SOT, 3 Pin (https://www.jedec.org/system/files/docs/to-236h.pdf variant AB), gen
 SOT TO_SOT_SMD
 0
 3
+2
+Baer_Footprints
+SS54BF
+Diode SMB (DO-214AA)
+Diode SMB (DO-214AA)
+0
+2
 2
 Baer_Footprints
 SW_ TS-1088-AR02016

@@ -17816,7 +17816,7 @@
 				)
 			)
 		)
-		(property "Value" "S54BF"
+		(property "Value" "SS54BF"
 			(at 92.71 44.7675 0)
 			(effects
 				(font
@@ -17824,7 +17824,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Baer_Footprints:S54BF"
+		(property "Footprint" "Baer_Footprints:SS54BF"
 			(at 96.52 44.45 0)
 			(effects
 				(font
@@ -17833,7 +17833,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8586195341142339584"
 			(at 96.52 44.45 0)
 			(effects
 				(font
@@ -20492,7 +20492,7 @@
 				)
 			)
 		)
-		(property "Value" "S54BF"
+		(property "Value" "SS54BF"
 			(at 82.55 44.7675 0)
 			(effects
 				(font
@@ -20500,7 +20500,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Baer_Footprints:S54BF"
+		(property "Footprint" "Baer_Footprints:SS54BF"
 			(at 86.36 44.45 0)
 			(effects
 				(font
@@ -20509,7 +20509,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8586195341142339584"
 			(at 86.36 44.45 0)
 			(effects
 				(font
@@ -21184,7 +21184,7 @@
 				)
 			)
 		)
-		(property "Value" "S54BF"
+		(property "Value" "SS54BF"
 			(at 72.39 44.7675 0)
 			(effects
 				(font
@@ -21192,7 +21192,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Baer_Footprints:S54BF"
+		(property "Footprint" "Baer_Footprints:SS54BF"
 			(at 76.2 44.45 0)
 			(effects
 				(font
@@ -21201,7 +21201,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
+		(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8586195341142339584"
 			(at 76.2 44.45 0)
 			(effects
 				(font
@@ -21992,6 +21992,14 @@
 			)
 		)
 		(property "SnapEDA_Link" ""
+			(at 213.36 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "FT Rotation Offset" "180"
 			(at 213.36 40.64 0)
 			(effects
 				(font
