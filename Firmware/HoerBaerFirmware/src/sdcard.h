@@ -1,7 +1,14 @@
 #pragma once
 
-#include <SD.h>
 #include <ArduinoJson.h>
+
+#ifdef SD_MODE_SDMMC
+#include <SD_MMC.h>
+#define FSTYPE fs::SDMMCFS
+#else 
+#include <SD.h>
+#define FSTYPE fs::SDFS
+#endif
 
 class SDCard {
     private:
@@ -9,7 +16,7 @@ class SDCard {
         void mountOrThrow();
     public:
         SDCard();
-        fs::SDFS& getFs();
+        FSTYPE& getFs();
         bool cardPresent();
         bool fileExists(const std::string filename);
         void writeJsonFile(const std::string filename, JsonDocument& jsonDocument);

@@ -6,17 +6,27 @@
 
 #include "sdcard.h"
 
-SPIClass sdSpi;
+#ifdef SD_MODE_SDMMC
+    #define SDLIB SD_MMC
+#else
+    #define SDLIB SD
+    SPIClass sdSpi;
+#endif
 
 SDCard::SDCard()
 {
-    sdSpi.begin(GPIO_SD_SCK, GPIO_SD_DO, GPIO_SD_DI, -1);
+    #ifdef SD_MODE_SDMMC
+        SD_MMC.setPins(GPIO_SD_CLK, GPIO_SD_CMD, GPIO_SD_D0, GPIO_SD_D1, GPIO_SD_D2, GPIO_SD_D3);
+    #else
+        sdSpi.begin(GPIO_SD_SCK, GPIO_SD_DO, GPIO_SD_DI, -1);
+    #endif
+
     pinMode(GPIO_SD_DETECT, INPUT);
 }
 
-fs::SDFS &SDCard::getFs()
+FSTYPE& SDCard::getFs()
 {
-    return SD;
+    return SDLIB;
 }
 
 bool SDCard::cardPresent()
@@ -32,10 +42,17 @@ void SDCard::mountOrThrow()
     if(this->cardMounted)
         return;
 
+    uint8_t cardType = CARD_NONE;
+
+#ifdef SD_MODE_SDMMC
+    if (!SD_MMC.begin())
+        throw std::runtime_error("Failed to mount SD card");
+#else
     if (!SD.begin(GPIO_SD_CS, sdSpi))
         throw std::runtime_error("Failed to mount SD card");
+#endif
 
-    uint8_t cardType = SD.cardType();
+    cardType = SDLIB.cardType();
 
     if (cardType == CARD_NONE)
         throw std::runtime_error("SD card not present (but should be according to the detect-pin)");
@@ -56,7 +73,7 @@ void SDCard::listFiles()
 {
     this->mountOrThrow();
 
-    File root = SD.open("/");
+    File root = SDLIB.open("/");
 
     if (!root)
     {
@@ -88,7 +105,7 @@ std::string SDCard::nextFile(std::string dir, int skip)
 {
     this->mountOrThrow();
 
-    File root = SD.open(dir.c_str());
+    File root = SDLIB.open(dir.c_str());
 
     if (!root)
     {
@@ -130,7 +147,7 @@ int SDCard::countFiles(std::string dir)
 {
     this->mountOrThrow();
 
-    File root = SD.open(dir.c_str());
+    File root = SDLIB.open(dir.c_str());
 
     if (!root)
     {
@@ -166,14 +183,14 @@ int SDCard::countFiles(std::string dir)
 bool SDCard::fileExists(const std::string filename) 
 {
     this->mountOrThrow();
-    return SD.exists(filename.c_str());
+    return SDLIB.exists(filename.c_str());
 }
 
 void SDCard::writeJsonFile(const std::string filename, JsonDocument& jsonDocument)
 {
     this->mountOrThrow();
 
-    File file = SD.open(filename.c_str(), FILE_WRITE);
+    File file = SDLIB.open(filename.c_str(), FILE_WRITE);
     if (!file)
         throw std::runtime_error("Failed to create file");
 
@@ -187,7 +204,7 @@ void SDCard::readParseJsonFile(const std::string filename, JsonDocument& targetJ
 {
     this->mountOrThrow();
 
-    File file = SD.open(filename.c_str());
+    File file = SDLIB.open(filename.c_str());
     if (!file)
         throw std::runtime_error("Failed to open file");
 
@@ -202,11 +219,11 @@ void SDCard::readParseJsonFile(const std::string filename, JsonDocument& targetJ
 size_t SDCard::getSectorCount()
 {
     this->mountOrThrow();
-    return SD.numSectors();
+    return SDLIB.numSectors();
 }
 
 size_t SDCard::getSectorSize()
 {
     this->mountOrThrow();
-    return SD.sectorSize();
+    return SDLIB.sectorSize();
 }

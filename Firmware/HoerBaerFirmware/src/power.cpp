@@ -14,9 +14,13 @@ Power::Power(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema)
 {
   pinMode(GPIO_POWER_CHG_STAT, INPUT_PULLUP);
   pinMode(GPIO_POWER_3V3_NPSAVE, OUTPUT);
-  pinMode(GPIO_POWER_12V_ENABLE, OUTPUT);
+  pinMode(GPIO_POWER_HV_ENABLE, OUTPUT);
 
-  digitalWrite(GPIO_POWER_12V_ENABLE, LOW);
+  #ifdef GPIO_POWER_VCC_P_ENABLE
+    pinMode(GPIO_POWER_VCC_P_ENABLE, OUTPUT);
+  #endif
+
+  digitalWrite(GPIO_POWER_HV_ENABLE, LOW);
 
   this->i2c = i2c;
   this->i2cSema = i2cSema;
@@ -24,23 +28,35 @@ Power::Power(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema)
 
 void Power::disableVCCPowerSave() 
 {
+  // Disable 3.3v regulator power save mode
   digitalWrite(GPIO_POWER_3V3_NPSAVE, HIGH);
+
+  // Enable peripherial VCC
+  #ifdef GPIO_POWER_VCC_P_ENABLE
+    digitalWrite(GPIO_POWER_VCC_P_ENABLE, HIGH);
+  #endif
 }
 
 void Power::enableVCCPowerSave()  
 {
+  // Disable peripherial VCC
+  #ifdef GPIO_POWER_VCC_P_ENABLE
+    digitalWrite(GPIO_POWER_VCC_P_ENABLE, LOW);
+  #endif
+
+  // Set 3.3v regulator to power save mode
   digitalWrite(GPIO_POWER_3V3_NPSAVE, LOW);
 }
 
 void Power::enableAudioVoltage() 
 {
-  digitalWrite(GPIO_POWER_12V_ENABLE, HIGH);
+  digitalWrite(GPIO_POWER_HV_ENABLE, HIGH);
   Log::println("POWER", "12V enabled");
 }
 
 void Power::disableAudioVoltage() 
 {
-  digitalWrite(GPIO_POWER_12V_ENABLE, LOW);
+  digitalWrite(GPIO_POWER_HV_ENABLE, LOW);
   Log::println("POWER", "12V disabled");
 }
 

@@ -1,5 +1,10 @@
 #pragma once
 
+#ifndef PINOUT_PCB_REV
+// PCB Rev 2 (latest) is the default
+#define PINOUT_PCB_REV 2
+#endif
+
 // Task priorities
 #define TASK_PRIO_HBI_WORKER 1
 #define TASK_STACK_SIZE_HBI_WORKER 10000
@@ -12,10 +17,6 @@
 #define SDCARD_FILE_HBI_CONFIG "/hbi.json"
 #define SDCARD_FILE_AUDIO_CONFIG "/audio.json"
 #define SDCARD_FILE_SLOTS_CONFIG "/slots.json"
-
-// I2C pins
-#define GPIO_I2C_SDA 10
-#define GPIO_I2C_SCL 11
 
 // I2C addresses
 #define I2C_ADDR_LED_DRIVER1 0x40   // (R: 0x81, W: 0x80)
@@ -31,31 +32,79 @@
 // I2C device found at address 0x48 (R: 0x91, W: 0x90)
 // I2C device found at address 0x4b (R: 0x97, W: 0x96)
 
-// Power pins
-#define GPIO_POWER_3V3_NPSAVE 46
-#define GPIO_POWER_12V_ENABLE 45
-#define GPIO_POWER_CHG_STAT 48
-
-// HBI pins
-#define GPIO_HBI_INPUT_INT 15
-#define GPIO_HBI_LEDDRIVER_RST 14
-#define GPIO_HBI_ENCODER_A 16
-#define GPIO_HBI_ENCODER_B 17
-#define GPIO_HBI_ENCODER_BTN 18
-
-// Audio pins
-#define GPIO_AUDIO_BCLK 2
-#define GPIO_AUDIO_LRCLK 3
-#define GPIO_AUDIO_DOUT 4
-#define GPIO_AUDIO_CODEC_NPDN 1
-
-// SD card pins
-#define GPIO_SD_SCK 36
-#define GPIO_SD_DO 37
-#define GPIO_SD_DI 35
-#define GPIO_SD_CS 34
-#define GPIO_SD_DETECT 26
-
 // Power management
 #define POWER_BATTERY_CHECK_INTERVAL_MILLIS 1000
 #define POWER_SHUTDOWN_VOLTAGE 3.0f
+
+// PINOUT -----------------------------
+
+#if PINOUT_PCB_REV == 2
+
+    // I2C pins
+    #define GPIO_I2C_SDA 10
+    #define GPIO_I2C_SCL 11
+
+    // Power pins
+    #define GPIO_POWER_3V3_NPSAVE 45
+    #define GPIO_POWER_HV_ENABLE 42
+    #define GPIO_POWER_VCC_P_ENABLE 48
+    #define GPIO_POWER_CHG_STAT 47
+
+    // HBI pins
+    #define GPIO_HBI_INPUT_INT 7
+    #define GPIO_HBI_LEDDRIVER_RST 15 
+    #define GPIO_HBI_ENCODER_A 4
+    #define GPIO_HBI_ENCODER_B 5
+    #define GPIO_HBI_ENCODER_BTN 6
+
+    // Audio pins
+    #define GPIO_AUDIO_BCLK 46
+    #define GPIO_AUDIO_LRCLK 3
+    #define GPIO_AUDIO_DOUT 9
+    #define GPIO_AUDIO_CODEC_NPDN 14
+
+    // SD card pins
+    #define SD_MODE_SDMMC
+    #define GPIO_SD_CLK 13
+    #define GPIO_SD_CMD 12
+    #define GPIO_SD_D0 38
+    #define GPIO_SD_D1 39
+    #define GPIO_SD_D2 40
+    #define GPIO_SD_D3 41
+    #define GPIO_SD_DETECT 21
+
+#endif
+#if PINOUT_PCB_REV == 1
+
+    // I2C pins
+    #define GPIO_I2C_SDA 10
+    #define GPIO_I2C_SCL 11
+
+    // Power pins
+    #define GPIO_POWER_3V3_NPSAVE 46
+    #define GPIO_POWER_HV_ENABLE 45
+    #define GPIO_POWER_CHG_STAT 48
+
+    // HBI pins
+    #define GPIO_HBI_INPUT_INT 15
+    #define GPIO_HBI_LEDDRIVER_RST 14
+    #define GPIO_HBI_ENCODER_A 16
+    #define GPIO_HBI_ENCODER_B 17
+    #define GPIO_HBI_ENCODER_BTN 18
+
+    // Audio pins
+    #define GPIO_AUDIO_BCLK 2
+    #define GPIO_AUDIO_LRCLK 3
+    #define GPIO_AUDIO_DOUT 4
+    #define GPIO_AUDIO_CODEC_NPDN 1
+
+    // SD card pins
+    #define SD_MODE_SPI
+    #define GPIO_SD_SCK 36
+    #define GPIO_SD_DO 37
+    #define GPIO_SD_DI 35
+    #define GPIO_SD_CS 34
+    #define GPIO_SD_DETECT 26
+
+#endif
+
