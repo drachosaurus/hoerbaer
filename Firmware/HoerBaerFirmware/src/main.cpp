@@ -72,7 +72,7 @@ void setup() {
   auto wakeupReason = esp_sleep_get_wakeup_cause();
 
   Log::init();
-  Log::println("MAIN", "Hello Bear! Main runs on core: %d and woke up because %d", xPortGetCoreID(), wakeupReason);
+  Log::println("MAIN", "Hello Bear! I woke up because %d", wakeupReason);
 
   if(wakeupReason != ESP_SLEEP_WAKEUP_EXT0)
   {
@@ -80,6 +80,8 @@ void setup() {
     shutdown();
     return;
   }
+
+  Log::println("MAIN", "Startup! Main runs on core: %d and PSRAM is %s.", xPortGetCoreID(), psramFound() ? "available" : "not available");
 
   sdCard = make_shared<SDCard>();
   userConfig = make_shared<UserConfig>(sdCard);
@@ -138,6 +140,7 @@ void setup() {
 }
 
 void loop() {
+
   if (!usbStorageMode) {
     // Normal mode: audio loop and check battery
     audioPlayer->loop();
