@@ -1,5 +1,7 @@
 const char *defaultUserConfig =
     "{\n"
+    "  \"name\": \"Baer\",\n"
+    "  \"timezone\": \"CET-1CEST,M3.5.0,M10.5.0/3\",\n"
     "  \"audio\": {\n"
     "    \"initalVolume\": 130,\n"
     "    \"minVolume\": 0,\n"

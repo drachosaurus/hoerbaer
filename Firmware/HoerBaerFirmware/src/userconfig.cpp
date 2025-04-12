@@ -13,6 +13,9 @@ UserConfig::UserConfig(std::shared_ptr<SDCard> sdCard)
 {
     this->sdCard = sdCard;
 
+    this->name = "Baer";
+    this->timezone = "CET-1CEST,M3.5.0,M10.5.0/3";
+
     this->wifiConfig = std::make_shared<WifiConfig>();
     this->wifiConfig->enabled = false;
     this->wifiConfig->ssid = DEFAULT_WIFI_SSID;
@@ -78,6 +81,7 @@ void UserConfig::initializeFromSdCard()
         jsonBuffer.clear();
         this->sdCard->readParseJsonFile(SDCARD_FILE_CONFIG, jsonBuffer);
 
+        this->initializeGlobals();
         this->initializeWifi();
         this->initializeHBI();
         this->initializeAudio();
@@ -94,6 +98,27 @@ void UserConfig::initializeFromSdCard()
         Log::println("USRCFG", "Unable to initialize WIFI config - Unknown error");
         return;
     }
+}
+
+void UserConfig::initializeGlobals() 
+{
+    try 
+    {
+        this->name = jsonBuffer["name"].as<std::string>();
+        this->timezone = jsonBuffer["timezone"].as<std::string>();
+        Log::println("USRCFG", "Loaded: name: %s, timezone: %s", this->name.c_str(), this->timezone.c_str());
+    }
+    catch (const std::exception& e)
+    {
+        Log::println("USRCFG", "Unable to initialize globals - %s", e.what());
+        return;
+    }
+    catch (...)
+    {
+        Log::println("USRCFG", "Unable to initialize globals - Unknown error");
+        return;
+    }
+
 }
 
 void UserConfig::initializeWifi() 
@@ -213,4 +238,14 @@ std::shared_ptr<AudioConfig> UserConfig::getAudioConfig()
 std::shared_ptr<vector<string>> UserConfig::getSlotDirectories()
 {
     return this->slotDirectories;
+}
+
+string UserConfig::getName() 
+{
+    return this->name; 
+}
+
+string UserConfig::getTimezone() 
+{
+    return this->timezone;
 }

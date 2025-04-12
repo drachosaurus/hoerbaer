@@ -40,9 +40,10 @@ void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
 void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
   Log::println("WiFi", "IP Address: %s", WiFi.localIP().toString().c_str());
   configTime(0, 0, "pool.ntp.org"); // First connect to NTP server, with 0 TZ offset
-  setenv("TZ", LOCALTZ, 1);         // set timezone
+  auto tz = userConfig->getTimezone();
+  setenv("TZ", tz.c_str(), 1);         // set timezone
   tzset();
-  Log::println("WiFi", "NTP time set: " LOCALTZ);
+  Log::println("WiFi", "NTP time set: %s", tz.c_str());
   struct tm timeInfo;
   if (getLocalTime(&timeInfo)) {
     char timeStringBuff[22]; 
@@ -115,7 +116,7 @@ void setup() {
 
     audioPlayer->initialize();
 
-    bleRemote = make_unique<BLERemote>();
+    bleRemote = make_unique<BLERemote>(userConfig);
     bleRemote->initialize();
 
     WiFi.disconnect();
@@ -155,6 +156,7 @@ void loop() {
   if (!usbStorageMode) {
     // Normal mode: audio loop and check battery
     audioPlayer->loop();
+    bleRemote->updateCharacteristics();
     if (power->checkBatteryShutdownLoop())
     {
       shutdown();
@@ -170,6 +172,11 @@ void loop() {
 
 void shutdown() {
   Log::println("MAIN", "Shutting down...");
+
+  if(bleRemote != nullptr) {
+    bleRemote->shutdown();
+    bleRemote.reset();
+  }
 
   if(audioPlayer != nullptr) {
     audioPlayer->stop();

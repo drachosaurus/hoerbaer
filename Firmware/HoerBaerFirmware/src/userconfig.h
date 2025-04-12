@@ -40,6 +40,9 @@ class UserConfig {
         shared_ptr<HBIConfig> hbiConfig;
         shared_ptr<AudioConfig> audioConfig;
         shared_ptr<vector<string>> slotDirectories;
+        std::string name;
+        std::string timezone;
+        void initializeGlobals();
         void initializeWifi();
         void initializeHBI();
         void initializeAudio();
@@ -51,4 +54,6 @@ class UserConfig {
         shared_ptr<HBIConfig> getHBIConfig();
         shared_ptr<AudioConfig> getAudioConfig();
         shared_ptr<vector<string>> getSlotDirectories();
+        string getName();
+        string getTimezone();
 };

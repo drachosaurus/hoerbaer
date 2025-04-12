@@ -2,36 +2,48 @@
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include "log.h"
+#include "config.h"
 #include "bleremote.h"
 
-#define SERVICE_UUID        "10fe50c2-7787-425f-9d74-187313ca41d4"
-#define CHARACTERISTIC_UUID "bdb1d967-8a30-42fd-b035-0b65e15074ca"
-
-BLERemote::BLERemote() {
-
+BLERemote::BLERemote(shared_ptr<UserConfig> userConfig) {
+    this->userConfig = userConfig;
 }
 
 void BLERemote::initialize() {
 
     Log::println("BLERemote", "Initializing BLE remote");
 
-    BLEDevice::init("Long name works now");
-    BLEServer *pServer = BLEDevice::createServer();
-    BLEService *pService = pServer->createService(SERVICE_UUID);
+    BLEDevice::init(userConfig->getName().c_str());
+
+    bleServer = BLEDevice::createServer();
+    bleService = bleServer->createService(BLE_SERVICE_UUID);
     
-    BLECharacteristic *pCharacteristic =
-      pService->createCharacteristic(CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+    powerCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_POWER_UUID, BLECharacteristic::PROPERTY_READ);
+    playerCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_PLAYER_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   
-    pCharacteristic->setValue("Hello World says Neil");
-    pService->start();
+    powerCharacteristic->setValue("{}");
+    playerCharacteristic->setValue("{}");
     
-    // BLEAdvertising *pAdvertising = pServer->getAdvertising();  // this still is working for backward compatibility
+    bleService->start();
+    
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-    pAdvertising->addServiceUUID(SERVICE_UUID);
+    pAdvertising->addServiceUUID(BLE_SERVICE_UUID);
     pAdvertising->setScanResponse(true);
     pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
     pAdvertising->setMinPreferred(0x12);
     BLEDevice::startAdvertising();
-    
+
     Serial.println("Characteristic defined! Now you can read it in your phone!");
+}
+
+void BLERemote::updateCharacteristics() {
+}
+
+void BLERemote::shutdown() {
+    BLEDevice::deinit(true);
+    bleServer = nullptr;
+    bleService = nullptr;
+    powerCharacteristic = nullptr;
+    playerCharacteristic = nullptr;
+    Log::println("BLERemote", "BLE shut down");
 }

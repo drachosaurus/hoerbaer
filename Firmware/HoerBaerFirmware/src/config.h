@@ -9,11 +9,13 @@
 #define TASK_PRIO_HBI_WORKER 1
 #define TASK_STACK_SIZE_HBI_WORKER 10000
 
-// Timezone
-#define LOCALTZ "CET-1CEST,M3.5.0,M10.5.0/3"
-
 // Well known SDCARD files
 #define SDCARD_FILE_CONFIG "/config.json"
+
+// BLE IDs
+#define BLE_SERVICE_UUID "4ed1ce10-a038-404e-9e93-64bc8d8a4753"
+#define BLE_CHARACTERISTIC_POWER_UUID "bdb1d967-8a30-42fd-b035-0b65e15074ca"
+#define BLE_CHARACTERISTIC_PLAYER_UUID "936bc2e0-2ba8-4a15-9c98-b82fcc308d22"
 
 // I2C addresses
 #define I2C_ADDR_LED_DRIVER1 0x40   // (R: 0x81, W: 0x80)
