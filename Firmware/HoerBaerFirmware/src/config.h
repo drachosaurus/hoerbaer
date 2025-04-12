@@ -64,7 +64,9 @@
     #define GPIO_AUDIO_CODEC_NPDN 14
 
     // SD card pins
-    #define SD_MODE_SDMMC
+    #ifndef SD_MODE_SDMMC
+        #define SD_MODE_SDMMC
+    #endif
     #define GPIO_SD_CLK 13
     #define GPIO_SD_CMD 12
     #define GPIO_SD_D0 38
@@ -99,7 +101,9 @@
     #define GPIO_AUDIO_CODEC_NPDN 1
 
     // SD card pins
-    #define SD_MODE_SPI
+    #ifndef SD_MODE_SPI
+        #define SD_MODE_SPI
+    #endif
     #define GPIO_SD_SCK 36
     #define GPIO_SD_DO 37
     #define GPIO_SD_DI 35

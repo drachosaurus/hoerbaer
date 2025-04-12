@@ -81,7 +81,13 @@ void setup() {
     return;
   }
 
-  Log::println("MAIN", "Startup! Main runs on core: %d and PSRAM is %s.", xPortGetCoreID(), psramFound() ? "available" : "not available");
+  Log::println("MAIN", "Startup! \n"
+        "\t- Main runs on core: %d \n" 
+        "\t- PSRAM is %s\n"
+        "\t- PINOUT_PCB_REV: %d \n",
+        xPortGetCoreID(), 
+        psramFound() ? "available" : "not available",
+        PINOUT_PCB_REV);
 
   sdCard = make_shared<SDCard>();
   userConfig = make_shared<UserConfig>(sdCard);
