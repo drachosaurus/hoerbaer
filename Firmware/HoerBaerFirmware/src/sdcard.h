@@ -20,6 +20,7 @@ class SDCard {
         bool cardPresent();
         bool fileExists(const std::string filename);
         void writeJsonFile(const std::string filename, JsonDocument& jsonDocument);
+        void writeTextFile(const std::string filename, const char* text);
         void listFiles();
         std::string nextFile(std::string dir, int skip);
         int countFiles(std::string dir);

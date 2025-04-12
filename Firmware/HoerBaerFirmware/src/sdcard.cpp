@@ -200,6 +200,20 @@ void SDCard::writeJsonFile(const std::string filename, JsonDocument& jsonDocumen
     file.close();
 }
 
+void SDCard::writeTextFile(const std::string filename, const char* text)
+{
+    this->mountOrThrow();
+
+    File file = SDLIB.open(filename.c_str(), FILE_WRITE);
+    if (!file)
+        throw std::runtime_error("Failed to create file");
+
+    file.print(text);
+
+    Log::println("SDCARD", "Text file created: %s", filename.c_str());
+    file.close();
+}
+
 void SDCard::readParseJsonFile(const std::string filename, JsonDocument& targetJsonDocument)
 {
     this->mountOrThrow();

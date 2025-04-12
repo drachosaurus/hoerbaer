@@ -13,10 +13,7 @@
 #define LOCALTZ "CET-1CEST,M3.5.0,M10.5.0/3"
 
 // Well known SDCARD files
-#define SDCARD_FILE_WIFI_CONFIG "/wifi.json"
-#define SDCARD_FILE_HBI_CONFIG "/hbi.json"
-#define SDCARD_FILE_AUDIO_CONFIG "/audio.json"
-#define SDCARD_FILE_SLOTS_CONFIG "/slots.json"
+#define SDCARD_FILE_CONFIG "/config.json"
 
 // I2C addresses
 #define I2C_ADDR_LED_DRIVER1 0x40   // (R: 0x81, W: 0x80)

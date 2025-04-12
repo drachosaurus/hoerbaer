@@ -12,6 +12,7 @@
 #include "sdcard.h"
 #include "userconfig.h"
 #include "usb_msc.h"
+#include "bleremote.h"
 
 using namespace std;
 
@@ -23,6 +24,7 @@ shared_ptr<AudioPlayer> audioPlayer;
 shared_ptr<UserConfig> userConfig;
 unique_ptr<Power> power;
 unique_ptr<HBI> hbi;
+unique_ptr<BLERemote> bleRemote;
 unique_ptr<USBStorage> usbMsc;
 
 std::string wifiSsid;
@@ -112,6 +114,9 @@ void setup() {
     power->enableAudioVoltage();
 
     audioPlayer->initialize();
+
+    bleRemote = make_unique<BLERemote>();
+    bleRemote->initialize();
 
     WiFi.disconnect();
     auto wifi = userConfig->getWifiConfig();
