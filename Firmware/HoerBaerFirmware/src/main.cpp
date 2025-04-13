@@ -22,7 +22,7 @@ SemaphoreHandle_t i2cSema;
 shared_ptr<SDCard> sdCard;
 shared_ptr<AudioPlayer> audioPlayer;
 shared_ptr<UserConfig> userConfig;
-unique_ptr<Power> power;
+shared_ptr<Power> power;
 unique_ptr<HBI> hbi;
 unique_ptr<BLERemote> bleRemote;
 unique_ptr<USBStorage> usbMsc;
@@ -32,6 +32,7 @@ std::string wifiPwd;
 std::string currentLogFileName;
 
 bool usbStorageMode = false;
+bool shuttingDown = false;
 
 void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
   Log::println("WiFi", "Connected to AccessPoint.");
@@ -62,14 +63,15 @@ void shutdown();
 
 void setup() {
   
+  shuttingDown = false;
   i2c = make_shared<TwoWire>(0);
   i2cSema = xSemaphoreCreateBinary();
   xSemaphoreGive(i2cSema);
   
   // First (has to be first!), disable 3V3 ~PSAVE
-  power = make_unique<Power>(i2c, i2cSema);
+  power = make_shared<Power>(i2c, i2cSema);
   power->disableVCCPowerSave();
-
+  
   i2c->begin(GPIO_I2C_SDA, GPIO_I2C_SCL, 100000);
 
   auto wakeupReason = esp_sleep_get_wakeup_cause();
@@ -116,7 +118,7 @@ void setup() {
 
     audioPlayer->initialize();
 
-    bleRemote = make_unique<BLERemote>(userConfig);
+    bleRemote = make_unique<BLERemote>(userConfig, power);
     bleRemote->initialize();
 
     WiFi.disconnect();
@@ -153,6 +155,9 @@ void setup() {
 
 void loop() {
 
+  if(shuttingDown)
+    return;
+
   if (!usbStorageMode) {
     // Normal mode: audio loop and check battery
     audioPlayer->loop();
@@ -172,6 +177,7 @@ void loop() {
 
 void shutdown() {
   Log::println("MAIN", "Shutting down...");
+  shuttingDown = true;
 
   if(bleRemote != nullptr) {
     bleRemote->shutdown();

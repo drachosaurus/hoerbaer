@@ -24,6 +24,7 @@ Power::Power(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema)
 
   this->i2c = i2c;
   this->i2cSema = i2cSema;
+  initialized = false;
 }
 
 void Power::disableVCCPowerSave() 
@@ -78,12 +79,36 @@ void Power::initializeChargerAndGauge()
   auto hyber = fuelGauge.getHibernationThreshold();
   xSemaphoreGive(this->i2cSema);
 
+  initialized = true;
   Log::println("POWER", "Fuel gauge initialized, chip ID: 0x%x, minV: %f, maxV %f, hybernation: %f", chipId, minV, maxV, hyber);
 }
 
 void Power::setGaugeToSleep() 
 {
+  if(!initialized) {
+    Log::println("POWER", "Fuel gauge not initialized, cannot set to sleep");
+    return;
+  }
+  
+  Log::println("POWER", "Set fuel gauge to sleep");
+  xSemaphoreTake(this->i2cSema, portMAX_DELAY);
   fuelGauge.sleep(true);
+  xSemaphoreGive(this->i2cSema);
+}
+
+void Power::updateState() 
+{
+  if(!initialized) {
+    Log::println("POWER", "Fuel gauge not initialized, unable to update state");
+    return;
+  }
+  
+  xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+  state.voltage = fuelGauge.cellVoltage();
+  state.percentage = fuelGauge.cellPercent();
+  xSemaphoreGive(this->i2cSema);
+
+  state.charging = isCharging();
 }
 
 bool Power::checkBatteryShutdownLoop() 
@@ -96,17 +121,17 @@ bool Power::checkBatteryShutdownLoop()
     return checkBatteryShutdown();
 }
 
+PowerState& Power::getState() {
+    return state;
+}
+
 bool Power::checkBatteryShutdown()
 {
-  xSemaphoreTake(this->i2cSema, portMAX_DELAY);
-  auto voltage = fuelGauge.cellVoltage();
-  xSemaphoreGive(this->i2cSema);
+  updateState();
+  Log::println("POWER", "Battery: %.2fV (%.1f percent), charging: %i", state.voltage, state.percentage, state.charging);
 
-  auto charging = isCharging();
-  Log::println("POWER", "Battery: %.2fV, charging: %i", voltage, charging);
-
-  if(charging)
+  if(state.charging)
     return false;
 
-  return voltage <= POWER_SHUTDOWN_VOLTAGE;
+  return state.voltage <= POWER_SHUTDOWN_VOLTAGE;
 }

@@ -70,7 +70,8 @@
         "stop_token": "cpp",
         "text_encoding": "cpp",
         "thread": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "power_state.pb.h": "c"
     },
     "cmake.ignoreCMakeListsMissing": true,
     "workbench.colorCustomizations": {

@@ -1,12 +1,18 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
+#include <pb_encode.h>
 #include "log.h"
 #include "config.h"
 #include "bleremote.h"
 
-BLERemote::BLERemote(shared_ptr<UserConfig> userConfig) {
+#include "power_state_characteristic.pb.h"
+
+uint8_t pbBuffer[128]; // check all "pb.h"
+
+BLERemote::BLERemote(shared_ptr<UserConfig> userConfig, shared_ptr<Power> power) {
     this->userConfig = userConfig;
+    this->power = power;
 }
 
 void BLERemote::initialize() {
@@ -33,10 +39,23 @@ void BLERemote::initialize() {
     pAdvertising->setMinPreferred(0x12);
     BLEDevice::startAdvertising();
 
-    Serial.println("Characteristic defined! Now you can read it in your phone!");
+    Log::println("BLERemote", "Characteristic defined! Now you can read it in your phone!");
 }
 
 void BLERemote::updateCharacteristics() {
+
+    auto state = power->getState();
+
+    PowerStateCharacteristic message = PowerStateCharacteristic_init_zero;
+    message.voltage = state.voltage;
+    message.percentage = state.percentage;
+    message.charging = state.charging;
+
+    pb_ostream_t stream = pb_ostream_from_buffer(pbBuffer, sizeof(pbBuffer));
+    if (!pb_encode(&stream, PowerStateCharacteristic_fields, &message))
+        Log::println("BLERemote", "Failed to encode power state! Send defaults.");
+
+    powerCharacteristic->setValue(pbBuffer, stream.bytes_written);
 }
 
 void BLERemote::shutdown() {

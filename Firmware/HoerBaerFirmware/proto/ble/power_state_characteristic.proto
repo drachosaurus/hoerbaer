@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message PowerStateCharacteristic {
+  float voltage = 1;
+  float percentage = 2;
+  bool charging = 3;
+}
