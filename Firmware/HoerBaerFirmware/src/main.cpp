@@ -161,7 +161,7 @@ void loop() {
   if (!usbStorageMode) {
     // Normal mode: audio loop and check battery
     audioPlayer->loop();
-    bleRemote->updateCharacteristics();
+    bleRemote->bleRemoteLoop();
     if (power->checkBatteryShutdownLoop())
     {
       shutdown();

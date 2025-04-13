@@ -1,7 +1,8 @@
 syntax = "proto3";
+option csharp_namespace = "HoerBaer.Ble";
 
 message PowerStateCharacteristic {
-  float voltage = 1;
-  float percentage = 2;
+  float batteryVoltage = 1;
+  float batteryPercentage = 2;
   bool charging = 3;
 }

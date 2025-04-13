@@ -1,6 +1,7 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
+#include <BLE2902.h>
 #include <pb_encode.h>
 #include "log.h"
 #include "config.h"
@@ -9,6 +10,20 @@
 #include "power_state_characteristic.pb.h"
 
 uint8_t pbBuffer[128]; // check all "pb.h"
+bool deviceConnected = false;
+bool oldDeviceConnected = false;
+
+static BLEDescriptor* delayDescriptor = new BLEDescriptor((uint16_t)0x2901);
+
+class MyServerCallbacks: public BLEServerCallbacks {
+    void onConnect(BLEServer* pServer) {
+      deviceConnected = true;
+    };
+
+    void onDisconnect(BLEServer* pServer) {
+      deviceConnected = false;
+    }
+};
 
 BLERemote::BLERemote(shared_ptr<UserConfig> userConfig, shared_ptr<Power> power) {
     this->userConfig = userConfig;
@@ -17,18 +32,22 @@ BLERemote::BLERemote(shared_ptr<UserConfig> userConfig, shared_ptr<Power> power)
 
 void BLERemote::initialize() {
 
-    Log::println("BLERemote", "Initializing BLE remote");
+    Log::println("BLE", "Initializing BLE remote");
 
     BLEDevice::init(userConfig->getName().c_str());
 
     bleServer = BLEDevice::createServer();
+    bleServer->setCallbacks(new MyServerCallbacks());
+
     bleService = bleServer->createService(BLE_SERVICE_UUID);
     
-    powerCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_POWER_UUID, BLECharacteristic::PROPERTY_READ);
-    playerCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_PLAYER_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+    powerCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_POWER_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
+    powerCharacteristic->addDescriptor(new BLE2902());
+
+    playerCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_PLAYER_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
   
-    powerCharacteristic->setValue("{}");
-    playerCharacteristic->setValue("{}");
+    // powerCharacteristic->setValue();
+    // playerCharacteristic->setValue();
     
     bleService->start();
     
@@ -39,23 +58,48 @@ void BLERemote::initialize() {
     pAdvertising->setMinPreferred(0x12);
     BLEDevice::startAdvertising();
 
-    Log::println("BLERemote", "Characteristic defined! Now you can read it in your phone!");
+    Log::println("BLE", "Characteristic defined! Now you can read it in your phone!");
 }
 
-void BLERemote::updateCharacteristics() {
+void BLERemote::bleRemoteLoop() {
 
-    auto state = power->getState();
+    auto tickCount = xTaskGetTickCount();
+    if(tickCount - lastCharacteristicsUpdate < pdMS_TO_TICKS(BLE_CHARACTERISTICS_UPDATE_INTERVAL_MILLIS))
+      return;
 
-    PowerStateCharacteristic message = PowerStateCharacteristic_init_zero;
-    message.voltage = state.voltage;
-    message.percentage = state.percentage;
-    message.charging = state.charging;
+    lastCharacteristicsUpdate = tickCount;
 
-    pb_ostream_t stream = pb_ostream_from_buffer(pbBuffer, sizeof(pbBuffer));
-    if (!pb_encode(&stream, PowerStateCharacteristic_fields, &message))
-        Log::println("BLERemote", "Failed to encode power state! Send defaults.");
+    // connected
+    if (deviceConnected) {
+        auto state = power->getState();
+        PowerStateCharacteristic message = PowerStateCharacteristic_init_zero;
+        message.batteryVoltage = state.voltage;
+        message.batteryPercentage = state.percentage;
+        message.charging = state.charging;
+    
+        pb_ostream_t stream = pb_ostream_from_buffer(pbBuffer, sizeof(pbBuffer));
+        if (!pb_encode(&stream, PowerStateCharacteristic_fields, &message))
+            Log::println("BLE", "Failed to encode power state! Send defaults.");
+    
+        powerCharacteristic->setValue(pbBuffer, stream.bytes_written);
+        powerCharacteristic->notify();
+        delay(3); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
+    }
 
-    powerCharacteristic->setValue(pbBuffer, stream.bytes_written);
+    // disconnecting
+    if (!deviceConnected && oldDeviceConnected) {
+        delay(500); // give the bluetooth stack the chance to get things ready
+        bleServer->startAdvertising(); // restart advertising
+        Log::println("BLE", "Client disconnecting, start advertising...");
+        oldDeviceConnected = deviceConnected;
+    }
+
+    // connecting
+    if (deviceConnected && !oldDeviceConnected) {
+        // do stuff here on connecting
+        oldDeviceConnected = deviceConnected;
+        Log::println("BLE", "Client connecting...");
+    }
 }
 
 void BLERemote::shutdown() {
@@ -64,5 +108,5 @@ void BLERemote::shutdown() {
     bleService = nullptr;
     powerCharacteristic = nullptr;
     playerCharacteristic = nullptr;
-    Log::println("BLERemote", "BLE shut down");
+    Log::println("BLE", "BLE shut down");
 }

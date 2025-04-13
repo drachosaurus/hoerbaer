@@ -8,8 +8,6 @@ using namespace std;
 
 Adafruit_MAX17048 fuelGauge;
 
-TickType_t lastBatteryCheck = 0;
-
 Power::Power(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema) 
 {
   pinMode(GPIO_POWER_CHG_STAT, INPUT_PULLUP);
@@ -25,6 +23,7 @@ Power::Power(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema)
   this->i2c = i2c;
   this->i2cSema = i2cSema;
   initialized = false;
+  lastBatteryCheck = 0;
 }
 
 void Power::disableVCCPowerSave() 
@@ -117,8 +116,8 @@ bool Power::checkBatteryShutdownLoop()
   if(tickCount - lastBatteryCheck < pdMS_TO_TICKS(POWER_BATTERY_CHECK_INTERVAL_MILLIS))
     return false;
 
-    lastBatteryCheck = tickCount;
-    return checkBatteryShutdown();
+  lastBatteryCheck = tickCount;
+  return checkBatteryShutdown();
 }
 
 PowerState& Power::getState() {

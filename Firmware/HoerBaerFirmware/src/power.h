@@ -16,6 +16,7 @@ class Power {
         shared_ptr<TwoWire> i2c;
         SemaphoreHandle_t i2cSema;
         PowerState state;
+        TickType_t lastBatteryCheck;
         bool isCharging();
         bool initialized;
     public:

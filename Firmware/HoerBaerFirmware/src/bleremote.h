@@ -12,6 +12,7 @@ class BLERemote {
     private:
         shared_ptr<UserConfig> userConfig;
         shared_ptr<Power> power;
+        TickType_t lastCharacteristicsUpdate;
         BLEServer* bleServer;
         BLEService* bleService;
         BLECharacteristic* powerCharacteristic;
@@ -19,6 +20,6 @@ class BLERemote {
     public:
         BLERemote(shared_ptr<UserConfig> userConfig, shared_ptr<Power> power);
         void initialize();
-        void updateCharacteristics();
+        void bleRemoteLoop();
         void shutdown();
 };

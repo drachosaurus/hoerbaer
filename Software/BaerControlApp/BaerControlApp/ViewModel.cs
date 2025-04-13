@@ -1,6 +1,8 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace BaerControlApp;
 
-public class ViewModelBase
+public abstract class ViewModel : ObservableObject
 {
-    
+
 }
