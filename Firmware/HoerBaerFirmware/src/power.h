@@ -19,6 +19,7 @@ class Power {
         TickType_t lastBatteryCheck;
         bool isCharging();
         bool initialized;
+        bool batteryPresent;
     public:
         Power(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema);
         void disableVCCPowerSave();

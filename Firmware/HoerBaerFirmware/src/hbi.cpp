@@ -187,6 +187,11 @@ void HBI::dispatchButtonInput(uint32_t buttonMask)
         }
     }
 
+    if(!actionButtonsEnabled) {
+        Log::println("HBI", "Action buttons disabled, ignoring button input.");
+        return;
+    }
+
     switch(mapping) 
     {
         case IO_MAPPING_TYPE_PLAY_SLOT:
@@ -344,4 +349,8 @@ void HBI::runVegasStep() {
     this->currentVegasStep++;
     if(this->currentVegasStep >= slotCount)
         this->currentVegasStep = 0;
+}
+
+void HBI::setActionButtonsEnabled(bool enabled) {
+    this->actionButtonsEnabled = enabled;
 }

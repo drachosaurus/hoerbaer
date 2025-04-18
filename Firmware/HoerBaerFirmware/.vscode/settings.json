@@ -71,7 +71,9 @@
         "text_encoding": "cpp",
         "thread": "cpp",
         "variant": "cpp",
-        "power_state.pb.h": "c"
+        "power_state.pb.h": "c",
+        "codecvt": "cpp",
+        "regex": "cpp"
     },
     "cmake.ignoreCMakeListsMissing": true,
     "workbench.colorCustomizations": {

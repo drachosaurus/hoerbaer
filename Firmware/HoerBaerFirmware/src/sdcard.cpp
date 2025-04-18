@@ -42,10 +42,12 @@ void SDCard::mountOrThrow()
     if(this->cardMounted)
         return;
 
+    Log::println("SDCARD", "Mounting SD card...");
+
     uint8_t cardType = CARD_NONE;
 
 #ifdef SD_MODE_SDMMC
-    if (!SD_MMC.begin())
+    if (!SD_MMC.begin("/sdcard", false, false, SDMMC_FREQ))
         throw std::runtime_error("Failed to mount SD card");
 #else
     if (!SD.begin(GPIO_SD_CS, sdSpi))
@@ -69,31 +71,49 @@ void SDCard::mountOrThrow()
     this->cardMounted = true;
 }
 
-void SDCard::listFiles()
+void SDCard::listFiles(std::function<void(const std::string&)> fileCallback)
+{
+    this->listFiles("/", fileCallback);
+}
+
+void SDCard::listFiles(const std::string& path, std::function<void(const std::string&)> fileCallback)
 {
     this->mountOrThrow();
 
-    File root = SDLIB.open("/");
+    File root = SDLIB.open(path.c_str());
 
     if (!root)
     {
-        Log::println("SDCARD", "Failed to open directory!");
+        Log::println("SDCARD", "Failed to open directory: %s", path.c_str());
         return;
     }
 
     if (!root.isDirectory())
     {
-        Log::println("SDCARD", "Failed to list: not a directory!");
+        Log::println("SDCARD", "Failed to list: %s is not a directory!", path.c_str());
         return;
     }
 
     File file = root.openNextFile();
     while (file)
     {
-        if (file.isDirectory())
-            Log::println("SDCARD", "- D: %s", file.name());
+        if (file.name()[0] == '.')
+        {
+            file = root.openNextFile();
+            continue;
+        }
+
+        std::string fullPath = path;
+
+        if (fullPath.back() != '/')
+            fullPath += "/";
+        
+        fullPath += file.name();
+        
+        if (!file.isDirectory())
+            fileCallback(fullPath);
         else
-            Log::println("SDCARD", "- F: %s - SIZE: %d", file.name(), file.size());
+            listFiles(fullPath, fileCallback); // Recursive call for subdirectories
 
         file = root.openNextFile();
     }

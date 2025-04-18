@@ -35,6 +35,9 @@ void Power::disableVCCPowerSave()
   #ifdef GPIO_POWER_VCC_P_ENABLE
     digitalWrite(GPIO_POWER_VCC_P_ENABLE, HIGH);
   #endif
+
+  // Wait for 3.3V to stabilize
+  delay(POWER_PERIPHERIAL_STARTUP_DELAY);
 }
 
 void Power::enableVCCPowerSave()  
@@ -71,14 +74,23 @@ void Power::initializeChargerAndGauge()
   float maxV = 0.0f;
 
   xSemaphoreTake(this->i2cSema, portMAX_DELAY);
-  fuelGauge.begin(this->i2c.get());
+  batteryPresent = fuelGauge.begin(this->i2c.get());
   fuelGauge.sleep(false);
+
+  initialized = true;
+  xSemaphoreGive(this->i2cSema);
+
+  if(!batteryPresent) {
+    Log::println("POWER", "No battery present. Skip initialization of fuel gauge.");
+    return;
+  }
+
+  xSemaphoreTake(this->i2cSema, portMAX_DELAY);
   auto chipId = fuelGauge.getChipID();
   fuelGauge.getAlertVoltages(minV, maxV);
   auto hyber = fuelGauge.getHibernationThreshold();
   xSemaphoreGive(this->i2cSema);
 
-  initialized = true;
   Log::println("POWER", "Fuel gauge initialized, chip ID: 0x%x, minV: %f, maxV %f, hybernation: %f", chipId, minV, maxV, hyber);
 }
 
@@ -112,6 +124,9 @@ void Power::updateState()
 
 bool Power::checkBatteryShutdownLoop() 
 {
+  if(!batteryPresent)
+    return false;
+
   auto tickCount = xTaskGetTickCount();
   if(tickCount - lastBatteryCheck < pdMS_TO_TICKS(POWER_BATTERY_CHECK_INTERVAL_MILLIS))
     return false;
@@ -121,16 +136,19 @@ bool Power::checkBatteryShutdownLoop()
 }
 
 PowerState& Power::getState() {
-    return state;
+  return state;
 }
 
 bool Power::checkBatteryShutdown()
 {
+  if(!batteryPresent)
+    return false;
+
   updateState();
   Log::println("POWER", "Battery: %.2fV (%.1f percent), charging: %i", state.voltage, state.percentage, state.charging);
 
   if(state.charging)
     return false;
 
-  return state.voltage <= POWER_SHUTDOWN_VOLTAGE;
+  return state.voltage > 0.5 && state.voltage <= POWER_SHUTDOWN_VOLTAGE; // over 0.5 => battery is connected and no transmission errors or something
 }

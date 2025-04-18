@@ -24,6 +24,13 @@ AudioPlayer::AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, sha
     this->playingInfo = nullptr;
     this->currentVolume = this->audioConfig->initalVolume;
     currentInstance = unique_ptr<AudioPlayer>(this);
+
+    // Define a map to store file names per slot directory with artist and title in PSRAM
+    this->slotFiles = std::make_unique<std::unordered_map<std::string, std::vector<std::tuple<std::string, std::string, std::string>>>>();
+
+    // TODO: 
+    // - slotFiles anstatt slotDirectories verwenden?
+    // - slotFiles auch für Next brauchen?
 }
 
 AudioPlayer::~AudioPlayer()
@@ -50,7 +57,7 @@ void AudioPlayer::initialize()
 
     xSemaphoreTake(this->i2cSema, portMAX_DELAY);
 
-    this->codec->setParamsAndHighZ();
+    this->codec->setParamsAndHighZ(this->audioConfig->mono);
     Log::println("AUDIO", "Codec params and highZ mode set");
     usleep(10 * 1000);
 
@@ -63,6 +70,29 @@ void AudioPlayer::initialize()
     audio.setVolume(21); // 0 .. 21 - audio lib volume is not used. codec hw volume is used
 
     xSemaphoreGive(this->i2cSema);
+}
+
+void AudioPlayer::populateAudioMetadata() {
+
+    // Populate the map with file names, artist, and title
+    for (const auto& slotDir : *this->slotDirectories) {
+        std::vector<std::tuple<std::string, std::string, std::string>> files;
+
+        this->sdCard->listFiles(slotDir, [&](const std::string& filePath) {
+            // Extract artist and title metadata (placeholder logic, replace with actual metadata extraction)
+            std::string artist = "Unknown Artist";
+            std::string title = "Unknown Title";
+
+            // Add the file, artist, and title to the vector
+            files.emplace_back(filePath, artist, title);
+        });
+
+        // Store the vector in the map
+        (*slotFiles)[slotDir] = std::move(files);
+    }
+
+    // Optionally, store the unique_ptr in a class member if needed
+    this->slotFiles = std::move(slotFiles);
 }
 
 // declared in Audio.h

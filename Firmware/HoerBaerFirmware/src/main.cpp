@@ -93,7 +93,7 @@ void setup() {
         xPortGetCoreID(), 
         psramFound() ? "available" : "not available",
         PINOUT_PCB_REV);
-
+  
   sdCard = make_shared<SDCard>();
   userConfig = make_shared<UserConfig>(sdCard);
   userConfig->initializeFromSdCard();
@@ -117,9 +117,12 @@ void setup() {
     power->enableAudioVoltage();
 
     audioPlayer->initialize();
+    audioPlayer->populateAudioMetadata();
 
     bleRemote = make_unique<BLERemote>(userConfig, power);
     bleRemote->initialize();
+    
+    hbi->setActionButtonsEnabled(true);
 
     WiFi.disconnect();
     auto wifi = userConfig->getWifiConfig();

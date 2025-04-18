@@ -21,34 +21,41 @@ void TAS5806::resetChip()
     auto err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
     if (err)
         Log::println("TAS5806", "ERROR! Reset chip failed: %d", err);
-
-    // 7.6.1.2 DEVICE_CTRL_1 Register (Offset = 2h) [reset = 0x00]
-    registerAddress = 0x02;
-    //registerValue = 0b0000000;
-    registerValue = 0b0000000;
-    //                 |˩˩||˩
-    //                 |  |00 => BD Mode
-    //                 |  0 => BTL Mode
-    //                 000 => 768K
-
-    err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
-    if(err)
-        Log::println("TAS5806", "ERROR! Set DEVICE_CTRL_1 register failed: %d", err);
 }
 
-void TAS5806::setParamsAndHighZ()
+void TAS5806::setParamsAndHighZ(bool mono)
 {
     // Params hard-coded for now... not a very universal library at the moment ;)
+    uint8_t registerAddress = 0x02;
+    uint8_t registerValue;
 
-    // 7.6.1.3 DEVICE_CTRL_2 Register (Offset = 3h) [reset = 0x10]
-    uint8_t registerAddress = 0x03;
-    uint8_t registerValue = 0b00000010;
-    //                           || |˩
-    //                           || 10 => CTRL State HIGH-Z
-    //                           |0 => unmute
-    //                           0 => DSP to "normal operation"
+    // 7.6.1.2 DEVICE_CTRL_1 Register (Offset = 2h) [reset = 0x00]
+    if(mono)
+        registerValue = 0b0000100;
+        //                 |˩˩||˩
+        //                 |  |00 => BD Mode
+        //                 |  1 => PBTL Mode (Parallel Bridge Tied Load)
+        //                 000 => 768K
+    else
+        registerValue = 0b0000000;
+        //                 |˩˩||˩
+        //                 |  |00 => BD Mode
+        //                 |  0 => BTL Mode (Bridge Tied Load)
+        //                 000 => 768K
 
     auto err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
+    if(err)
+        Log::println("TAS5806", "ERROR! Set DEVICE_CTRL_1 register failed: %d", err);
+
+    // 7.6.1.3 DEVICE_CTRL_2 Register (Offset = 3h) [reset = 0x10]
+    registerAddress = 0x03;
+    registerValue = 0b00000010;
+    //                   || |˩
+    //                   || 10 => CTRL State HIGH-Z
+    //                   |0 => unmute
+    //                   0 => DSP to "normal operation"
+
+    err = Utils::writeI2CRegister(this->wire, this->deviceAddress, registerAddress, registerValue);
     if (err)
         Log::println("TAS5806", "ERROR! Set DEVICE_CTRL_2 register failed: %d", err);
 
@@ -207,8 +214,8 @@ void TAS5806::printMonRegisters()
     // 7.6.1.14 CLKDET_STATUS Register (Offset = 39h) [reset = 0x00]
     this->readPrintBinaryRegister(0x39, "CLKDET_STATUS", 0b00001000); // PLL locked, others 0
 
-    // 7.6.1.15 DIG_VOL_CTL Register (Offset = 4Ch) [reset = 30h]
-    this->readPrintBinaryRegister(0x4C, "DIG_VOL_CTL", 0b00001000);
+    // // 7.6.1.15 DIG_VOL_CTL Register (Offset = 4Ch) [reset = 30h]
+    // this->readPrintBinaryRegister(0x4C, "DIG_VOL_CTL", 0b00001000);
 
     // 7.6.1.36 CHAN_FAULT Register (Offset = 70h) [reset = 0x00]
     this->readPrintBinaryRegister(0x70, "CHAN_FAULT", 0x00);

@@ -21,7 +21,8 @@ class SDCard {
         bool fileExists(const std::string filename);
         void writeJsonFile(const std::string filename, JsonDocument& jsonDocument);
         void writeTextFile(const std::string filename, const char* text);
-        void listFiles();
+        void listFiles(std::function<void(const std::string&)> fileCallback);
+        void listFiles(const std::string& path, std::function<void(const std::string&)> fileCallback);
         std::string nextFile(std::string dir, int skip);
         int countFiles(std::string dir);
         void readParseJsonFile(const std::string filename, JsonDocument& targetJsonDocument);

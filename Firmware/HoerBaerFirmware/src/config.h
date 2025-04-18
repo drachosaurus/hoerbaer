@@ -33,8 +33,9 @@
 // I2C device found at address 0x4b (R: 0x97, W: 0x96)
 
 // Power management
-#define POWER_BATTERY_CHECK_INTERVAL_MILLIS 1000
+#define POWER_BATTERY_CHECK_INTERVAL_MILLIS 5000
 #define POWER_SHUTDOWN_VOLTAGE 3.0f
+#define POWER_PERIPHERIAL_STARTUP_DELAY 300
 
 // PINOUT -----------------------------
 
@@ -67,6 +68,7 @@
     #ifndef SD_MODE_SDMMC
         #define SD_MODE_SDMMC
     #endif
+    #define SDMMC_FREQ 40000
     #define GPIO_SD_CLK 13
     #define GPIO_SD_CMD 12
     #define GPIO_SD_D0 38

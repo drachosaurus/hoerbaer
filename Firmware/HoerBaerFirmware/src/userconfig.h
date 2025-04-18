@@ -31,6 +31,7 @@ typedef struct {
     int minVolume;
     int maxVolume;
     int volumeEncoderStep;
+    bool mono;
 } AudioConfig;
 
 class UserConfig {

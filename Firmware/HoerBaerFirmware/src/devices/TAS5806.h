@@ -14,7 +14,7 @@ class TAS5806
     public:
         TAS5806(std::shared_ptr<TwoWire> wire, uint8_t deviceAddress);
         void resetChip();
-        void setParamsAndHighZ();
+        void setParamsAndHighZ(bool mono);
         void setModePlay();
         void setMute(bool mute);
         void setVolume(uint8_t volume);

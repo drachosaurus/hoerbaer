@@ -54,6 +54,7 @@ UserConfig::UserConfig(std::shared_ptr<SDCard> sdCard)
     this->audioConfig->minVolume = 0;
     this->audioConfig->maxVolume = 255;
     this->audioConfig->volumeEncoderStep = 5;
+    this->audioConfig->mono = false;
 
     this->slotDirectories = std::make_shared<vector<string>>();
     this->slotDirectories->push_back("/PAW01");
@@ -180,8 +181,9 @@ void UserConfig::initializeAudio()
         this->audioConfig->minVolume = audio["minVolume"];
         this->audioConfig->maxVolume = audio["maxVolume"];
         this->audioConfig->volumeEncoderStep = audio["volumeEncoderStep"];
-        Log::println("USRCFG", "Loaded Audio config: initalVolume: %d, minVolume: %d, maxVolume: %d, volumeEncoderStep: %d", 
-            this->audioConfig->initalVolume, this->audioConfig->minVolume, this->audioConfig->maxVolume, this->audioConfig->volumeEncoderStep);
+        this->audioConfig->mono = audio["mono"];
+        Log::println("USRCFG", "Loaded Audio config: initalVolume: %d, minVolume: %d, maxVolume: %d, volumeEncoderStep: %d, %s", 
+            this->audioConfig->initalVolume, this->audioConfig->minVolume, this->audioConfig->maxVolume, this->audioConfig->volumeEncoderStep, this->audioConfig->mono ? "mono" : "stereo");
     }
     catch (const std::exception& e)
     {
