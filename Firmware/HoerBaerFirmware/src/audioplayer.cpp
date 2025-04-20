@@ -2,6 +2,7 @@
 #include "config.h"
 #include "userconfig.h"
 #include "audioplayer.h"
+#include "id3parser.h"
 
 #include <Audio.h>
 Audio audio;
@@ -26,7 +27,7 @@ AudioPlayer::AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, sha
     currentInstance = unique_ptr<AudioPlayer>(this);
 
     // Define a map to store file names per slot directory with artist and title in PSRAM
-    this->slotFiles = std::make_unique<std::unordered_map<std::string, std::vector<std::tuple<std::string, std::string, std::string>>>>();
+    this->slotFiles = std::make_unique<std::vector<std::vector<std::tuple<std::string, std::string, std::string>>>>();
 
     // TODO: 
     // - slotFiles anstatt slotDirectories verwenden?
@@ -73,26 +74,22 @@ void AudioPlayer::initialize()
 }
 
 void AudioPlayer::populateAudioMetadata() {
-
-    // Populate the map with file names, artist, and title
-    for (const auto& slotDir : *this->slotDirectories) {
+    for(int iDir = 0; iDir < this->slotDirectories->size(); iDir++)
+    {
         std::vector<std::tuple<std::string, std::string, std::string>> files;
 
-        this->sdCard->listFiles(slotDir, [&](const std::string& filePath) {
-            // Extract artist and title metadata (placeholder logic, replace with actual metadata extraction)
-            std::string artist = "Unknown Artist";
-            std::string title = "Unknown Title";
-
-            // Add the file, artist, and title to the vector
-            files.emplace_back(filePath, artist, title);
+        this->sdCard->listFiles(this->slotDirectories->at(iDir), [&](const std::string& filePath) {
+            auto [title, artist] = ID3Parser::readId3Tags(sdCard->getFs(), filePath);
+            if (title.empty() && artist.empty())
+                Log::println("AUDIO", "No metadata found for file: %s", filePath.c_str());
+            else
+                Log::println("AUDIO", "Metadata - title: %s, artist: %s", title.c_str(), artist.c_str());
+            files.emplace_back(filePath, title, artist);
         });
 
         // Store the vector in the map
-        (*slotFiles)[slotDir] = std::move(files);
+        slotFiles->push_back(std::move(files));
     }
-
-    // Optionally, store the unique_ptr in a class member if needed
-    this->slotFiles = std::move(slotFiles);
 }
 
 // declared in Audio.h

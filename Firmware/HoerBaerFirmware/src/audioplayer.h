@@ -24,7 +24,7 @@ class AudioPlayer {
         unique_ptr<TAS5806> codec;
         shared_ptr<PlayingInfo> playingInfo;
         shared_ptr<SDCard> sdCard;
-        std::unique_ptr<std::unordered_map<std::string, std::vector<std::tuple<std::string, std::string, std::string>>>> slotFiles;
+        std::unique_ptr<std::vector<std::vector<std::tuple<std::string, std::string, std::string>>>> slotFiles;
         int currentVolume;
         void playSong(std::string path, uint32_t position);
         void playFromSlot(int iSlot, int increment);
