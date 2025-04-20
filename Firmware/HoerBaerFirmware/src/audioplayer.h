@@ -7,6 +7,8 @@
 
 using namespace std;
 
+#define JSON_BUFFER_SIZE_TRACK_METADATA (40*1024)
+
 typedef struct {
     std::string path;
     int slot;
@@ -33,6 +35,8 @@ class AudioPlayer {
         ~AudioPlayer();
         void initialize();
         void populateAudioMetadata();
+        void serializeLoadedSlotsAndMetadata(JsonDocument& doc);
+        void deserializeLoadedSlotsAndMetadata(JsonDocument& doc);
         void loop();
         shared_ptr<PlayingInfo> getPlayingInfo();
         void volumeUp();

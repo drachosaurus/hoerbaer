@@ -40,9 +40,11 @@ class HBI {
         void dispatchButtonInput(uint32_t buttonMask);
         void dispatchEncoderButton(bool longPress);
         bool actionButtonsEnabled = false;
+        bool readyToPlay = false;
     public:
         HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfig> hbiConfig, shared_ptr<AudioPlayer> audioPlayer, void (*shutdownCallback)(void));
         void initialize();
+        void setReadyToPlay(bool ready);
         void runWorkerTask();
         void lightUpAllLeds();
         void shutOffAllLeds();

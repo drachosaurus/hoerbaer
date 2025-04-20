@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include <SPIFFS.h>
-#include "webserver.h"
 #include <AsyncTCP.h>
+#include "log.h"
+#include "webserver.h"
 
 WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer) 
 {    
@@ -16,38 +17,17 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer)
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, X-Requested-With");
     
     this->server->on("/api/slots", HTTP_GET, [&](AsyncWebServerRequest *request) {
-        Serial.println(
-            "HTTP GET /api/slots FROM " + request->client()->remoteIP().toString() + 
-            " - get alarm clock info");
+        Log::println("WEBSRV", "GET /api/slots FROM %s - get slots",
+            request->client()->remoteIP().toString().c_str());
             
         AsyncResponseStream *response = request->beginResponseStream("application/json");
 
-        JsonVariant doc;
-        JsonObject root = doc.to<JsonObject>();
+        StaticJsonDocument<JSON_BUFFER_SIZE_TRACK_METADATA> doc;
+        this->audioPlayer->serializeLoadedSlotsAndMetadata(doc);
 
-        root["test"] = "test";
-        // auto info = this->alarmClock->getCurrentSettings();
-        // AlarmClock::serializeSettings(info, doc);
-        
-        serializeJson(root, *response);
+        serializeJson(doc, *response);
         request->send(response);
     });
-
-    // this->server->addHandler(new AsyncCallbackJsonWebHandler("/api/alarmclock", [&](AsyncWebServerRequest *request, const JsonVariant &json) {
-    //     JsonObject jsonObj = json.as<JsonObject>();
-        
-    //     Serial.println(
-    //         "HTTP " + String(request->methodToString()) + 
-    //         " /api/alarmclock FROM " + request->client()->remoteIP().toString() + 
-    //         " - set alarm clock settings");
-
-    //     AlarmClockSettings settings;
-    //     AlarmClock::deserializeSettings(settings, jsonObj);
-
-    //     this->alarmClock->updateSettingsAndSaveToFs(settings);
-        
-    //     request->send(200, "text/json", "{ \"success\": true }");
-    // }));
 
     // this->server->serveStatic("/alarmclock", spiffs, "/webinterface/index.html");
     // this->server->serveStatic("/wifi", spiffs, "/webinterface/index.html");

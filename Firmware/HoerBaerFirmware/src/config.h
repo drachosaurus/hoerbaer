@@ -11,6 +11,7 @@
 
 // Well known SDCARD files
 #define SDCARD_FILE_CONFIG "/config.json"
+#define SDCARD_FILE_META_CACHE "/_metaCache.json"
 
 // BLE IDs
 #define BLE_SERVICE_UUID "4ed1ce10-a038-404e-9e93-64bc8d8a4753"

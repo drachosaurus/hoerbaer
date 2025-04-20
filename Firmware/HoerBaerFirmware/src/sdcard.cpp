@@ -250,6 +250,20 @@ void SDCard::readParseJsonFile(const std::string filename, JsonDocument& targetJ
         throw std::runtime_error(error.c_str());
 }
 
+size_t SDCard::getFileSize(const std::string filename)
+{
+    this->mountOrThrow();
+
+    File file = SDLIB.open(filename.c_str());
+    if (!file)
+        throw std::runtime_error("Failed to open file");
+
+    size_t size = file.size();
+    file.close();
+
+    return size;
+}
+
 size_t SDCard::getSectorCount()
 {
     this->mountOrThrow();

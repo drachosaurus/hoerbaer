@@ -73,21 +73,82 @@ void AudioPlayer::initialize()
     xSemaphoreGive(this->i2cSema);
 }
 
-void AudioPlayer::populateAudioMetadata() {
-    for(int iDir = 0; iDir < this->slotDirectories->size(); iDir++)
+void AudioPlayer::populateAudioMetadata() 
+{
+    if(this->sdCard->fileExists(SDCARD_FILE_META_CACHE))
+    {
+        Log::println("AUDIO", "Loading audio file metadata cache from file.");
+        auto size = this->sdCard->getFileSize(SDCARD_FILE_META_CACHE);
+        DynamicJsonDocument jsonBuffer(size);
+        this->sdCard->readParseJsonFile(SDCARD_FILE_META_CACHE, jsonBuffer);
+        this->deserializeLoadedSlotsAndMetadata(jsonBuffer);
+    }
+    else {
+        Log::println("AUDIO", "Populating audio file metadata cache...");
+        TickType_t start = xTaskGetTickCount();
+        int nFound = 0;
+        int nNoMeta = 0;
+        for(int iDir = 0; iDir < this->slotDirectories->size(); iDir++)
+        {
+            std::vector<std::tuple<std::string, std::string, std::string>> files;
+    
+            this->sdCard->listFiles(this->slotDirectories->at(iDir), [&](const std::string& filePath) {
+                auto [title, artist] = ID3Parser::readId3Tags(sdCard->getFs(), filePath);
+                if (title.empty() && artist.empty())
+                    nNoMeta++;
+                else
+                    nFound++;
+                files.emplace_back(filePath, title, artist);
+            });
+    
+            // Store the vector in the map
+            slotFiles->push_back(std::move(files));
+        }
+        TickType_t duration = xTaskGetTickCount() - start;
+        Log::println("AUDIO", "Found %d files with metadata, %d without metadata (used %d ms)", nFound, nNoMeta, pdTICKS_TO_MS(duration));
+
+        Log::println("AUDIO", "Saving metadata cache to file...");
+        DynamicJsonDocument jsonBuffer(JSON_BUFFER_SIZE_TRACK_METADATA);
+        this->serializeLoadedSlotsAndMetadata(jsonBuffer);
+        this->sdCard->writeJsonFile(SDCARD_FILE_META_CACHE, jsonBuffer);
+        Log::println("AUDIO", "Metadata cache saved to file.");
+    }
+}
+
+void AudioPlayer::serializeLoadedSlotsAndMetadata(JsonDocument& doc) 
+{
+    for(int iDir = 0; iDir < this->slotDirectories->size(); iDir++) 
+    {
+        JsonObject slot = doc.createNestedObject();
+        slot["path"] = this->slotDirectories->at(iDir).c_str();
+        auto files = slot.createNestedArray("files");
+
+        auto& slotFiles = this->slotFiles->at(iDir);
+        for (const auto& [filePath, title, artist] : slotFiles) 
+        {
+            JsonObject file = files.createNestedObject();
+            file["path"] = filePath.c_str();
+            file["title"] = title.c_str();
+            file["artist"] = artist.c_str();
+        }
+    }
+}
+
+void AudioPlayer::deserializeLoadedSlotsAndMetadata(JsonDocument& doc) 
+{
+    for(int iDir = 0; iDir < this->slotDirectories->size(); iDir++) 
     {
         std::vector<std::tuple<std::string, std::string, std::string>> files;
 
-        this->sdCard->listFiles(this->slotDirectories->at(iDir), [&](const std::string& filePath) {
-            auto [title, artist] = ID3Parser::readId3Tags(sdCard->getFs(), filePath);
-            if (title.empty() && artist.empty())
-                Log::println("AUDIO", "No metadata found for file: %s", filePath.c_str());
-            else
-                Log::println("AUDIO", "Metadata - title: %s, artist: %s", title.c_str(), artist.c_str());
-            files.emplace_back(filePath, title, artist);
-        });
-
-        // Store the vector in the map
+        auto jsonFiles = doc[iDir]["files"].as<JsonArray>();
+        for (const auto& file : jsonFiles) 
+        {
+            std::string path = file["path"].as<std::string>();
+            std::string title = file["title"].as<std::string>();
+            std::string artist = file["artist"].as<std::string>();
+            files.emplace_back(path, title, artist);
+        }
+        
         slotFiles->push_back(std::move(files));
     }
 }

@@ -26,6 +26,7 @@ class SDCard {
         std::string nextFile(std::string dir, int skip);
         int countFiles(std::string dir);
         void readParseJsonFile(const std::string filename, JsonDocument& targetJsonDocument);
+        size_t getFileSize(const std::string filename);
         size_t getSectorCount();
         size_t getSectorSize();
 };

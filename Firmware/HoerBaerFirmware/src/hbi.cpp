@@ -167,6 +167,10 @@ void HBI::initialize()
         NULL);
 }
 
+void HBI::setReadyToPlay(bool ready) {
+    this->readyToPlay = ready;
+}
+
 void HBI::dispatchButtonInput(uint32_t buttonMask)
 {
     auto diff = buttonMask ^ this->lastKnownButtonMask;
@@ -296,7 +300,8 @@ void HBI::setLedState()
         ledState |= 1 << slotIos[this->currentVegasStep];
     
     // set leds from power on LED mapping
-    ledState |= this->powerLedsIoMask;
+    if(this->readyToPlay)
+        ledState |= this->powerLedsIoMask;
 
     if(this->currentLedState == ledState)
         return;

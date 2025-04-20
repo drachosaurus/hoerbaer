@@ -11,8 +11,9 @@
 #include "utils.h"
 #include "sdcard.h"
 #include "userconfig.h"
-#include "usb_msc.h"
 #include "bleremote.h"
+#include "webserver.h"
+#include "usb_msc.h"
 
 using namespace std;
 
@@ -25,6 +26,7 @@ shared_ptr<UserConfig> userConfig;
 shared_ptr<Power> power;
 unique_ptr<HBI> hbi;
 unique_ptr<BLERemote> bleRemote;
+shared_ptr<WebServer> webServer;
 unique_ptr<USBStorage> usbMsc;
 
 std::string wifiSsid;
@@ -118,10 +120,11 @@ void setup() {
 
     audioPlayer->initialize();
     audioPlayer->populateAudioMetadata();
-
+    
     bleRemote = make_unique<BLERemote>(userConfig, power);
     bleRemote->initialize();
-
+    
+    hbi->setReadyToPlay(true);
     hbi->setActionButtonsEnabled(true);
 
     WiFi.disconnect();
@@ -138,6 +141,10 @@ void setup() {
       Log::println("MAIN", "WiFi connecting to SSID: %s", wifiSsid.c_str());
       WiFi.mode(WIFI_STA);
       WiFi.begin(wifiSsid.c_str(), wifiPwd.c_str());
+
+      Log::println("MAIN", "Starting WebServer");
+      webServer = make_shared<WebServer>(audioPlayer);
+      webServer->start();
     }
     else
       Log::println("MAIN", "WiFi disabled");
@@ -193,6 +200,7 @@ void shutdown() {
   }
 
   if(hbi != nullptr) {
+    hbi->setReadyToPlay(false);
     hbi->shutOffAllLeds();
     
     Log::println("MAIN", "Wait until encoder button is released!");
