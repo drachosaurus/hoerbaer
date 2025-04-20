@@ -10,9 +10,20 @@ public class DeviceViewModel : ObservableObject
     private readonly BearDiscovery _discovery;
     private BearConnection _connection;
 
-    public string BatteryVoltageDisplay => $"{_connection?.State.Power.BatteryVoltage:0.00}V";
-    public string BatteryPercentageDisplay => $"{_connection?.State.Power.BatteryPercentage:0.00}%";
-    public string BatteryChargingDisplay => (_connection?.State.Power.Charging ?? false) ? "Charging" : "Not Charging";
+    public string BatteryVoltageDisplay =>
+        _connection?.State.Power.BatteryPresent == true ?
+            $"{_connection?.State.Power.BatteryVoltage:0.00}V" :
+            "--";
+    
+    public string BatteryPercentageDisplay => 
+        _connection?.State.Power.BatteryPresent == true ?
+            $"{_connection?.State.Power.BatteryPercentage:0.00}%" :
+            "--";
+    
+    public string BatteryChargingDisplay => 
+        _connection?.State.Power.BatteryPresent == true ?
+            (_connection?.State.Power.Charging == true) ? "Charging" : "Not Charging" :
+            "--";
     
     public DeviceViewModel(INotificationHub notificationHub)
     {

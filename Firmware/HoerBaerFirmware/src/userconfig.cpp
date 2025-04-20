@@ -15,6 +15,7 @@ UserConfig::UserConfig(std::shared_ptr<SDCard> sdCard)
 
     this->name = "Baer";
     this->timezone = "CET-1CEST,M3.5.0,M10.5.0/3";
+    this->batteryPresent = true;
 
     this->wifiConfig = std::make_shared<WifiConfig>();
     this->wifiConfig->enabled = false;
@@ -107,7 +108,8 @@ void UserConfig::initializeGlobals()
     {
         this->name = jsonBuffer["name"].as<std::string>();
         this->timezone = jsonBuffer["timezone"].as<std::string>();
-        Log::println("USRCFG", "Loaded: name: %s, timezone: %s", this->name.c_str(), this->timezone.c_str());
+        this->batteryPresent = jsonBuffer["batteryPresent"];
+        Log::println("USRCFG", "Loaded: name: %s, timezone: %s, battery: %s", this->name.c_str(), this->timezone.c_str(), this->batteryPresent ? "present" : "not present");
     }
     catch (const std::exception& e)
     {
@@ -250,4 +252,9 @@ string UserConfig::getName()
 string UserConfig::getTimezone() 
 {
     return this->timezone;
+}
+
+bool UserConfig::getBatteryPresent() 
+{
+    return this->batteryPresent; 
 }

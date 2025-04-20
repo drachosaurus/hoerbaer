@@ -36,6 +36,7 @@ HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfi
     this->currentVegasStep = -1;
     this->playButtonsIoMask = 0;
     this->pauseButtonsIoMask = 0;
+    this->powerLedsIoMask = 0;
 
     pinMode(GPIO_HBI_ENCODER_BTN, INPUT);
     pinMode(GPIO_HBI_ENCODER_A, INPUT);
@@ -43,15 +44,21 @@ HBI::HBI(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, shared_ptr<HBIConfi
 
     int curSlot = 0;
     for(int io=0; io<24; io++) {
-        if(hbiConfig->ioMapping[io] == IO_MAPPING_TYPE_PLAY_SLOT) {
+        uint8_t buttonIoMapping = (hbiConfig->ioMapping[io] & 0x0F);
+        uint8_t ledIoMapping = (hbiConfig->ioMapping[io] & 0xF0);
+
+        if(buttonIoMapping == IO_MAPPING_TYPE_PLAY_SLOT) {
             this->slotIos[curSlot] = io;
             this->ioSlots[io] = curSlot;
             curSlot++;
         }
-        else if(hbiConfig->ioMapping[io] == IO_MAPPING_TYPE_CONTROL_PLAY)
+        else if(buttonIoMapping == IO_MAPPING_TYPE_CONTROL_PLAY)
             this->playButtonsIoMask |= (1 << io);
-        else if(hbiConfig->ioMapping[io] == IO_MAPPING_TYPE_CONTROL_PAUSE)
+        else if(buttonIoMapping == IO_MAPPING_TYPE_CONTROL_PAUSE)
             this->pauseButtonsIoMask |= (1 << io);
+
+        if(ledIoMapping == LED_POWER_ON)
+            this->powerLedsIoMask |= (1 << io);
     }
     this->slotCount = curSlot;
 }
@@ -181,7 +188,7 @@ void HBI::dispatchButtonInput(uint32_t buttonMask)
         if((diff & (1 << i)) > 0) 
         {
             Log::println("HBI", "Button: %d %s", i, (release ? "release" : "press"));
-            mapping = this->hbiConfig->ioMapping[i];
+            mapping = this->hbiConfig->ioMapping[i] & 0x0F; // buttons commands are in the lower 4 bits
             slotNumber = ioSlots[i];
             break;
         }
@@ -274,6 +281,7 @@ void HBI::setLedState()
 {
     uint32_t ledState = 0;
 
+    // set leds from current playing slot
     auto playingInfo = this->audioPlayer->getPlayingInfo();
     if(playingInfo != nullptr) {
         ledState |= 1 << slotIos[playingInfo->slot];
@@ -283,9 +291,13 @@ void HBI::setLedState()
             ledState |= playButtonsIoMask;
     }
 
+    // set leds from vegas step
     if(this->currentVegasStep > -1)
         ledState |= 1 << slotIos[this->currentVegasStep];
     
+    // set leds from power on LED mapping
+    ledState |= this->powerLedsIoMask;
+
     if(this->currentLedState == ledState)
         return;
 
@@ -352,5 +364,6 @@ void HBI::runVegasStep() {
 }
 
 void HBI::setActionButtonsEnabled(bool enabled) {
+    Log::println("HBI", "Set action buttons enabled: %s", enabled ? "true" : "false");
     this->actionButtonsEnabled = enabled;
 }

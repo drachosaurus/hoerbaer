@@ -23,6 +23,7 @@ Power::Power(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema)
   this->i2c = i2c;
   this->i2cSema = i2cSema;
   initialized = false;
+  batteryPresent = false;
   lastBatteryCheck = 0;
 }
 
@@ -68,16 +69,22 @@ bool Power::isCharging()
   return digitalRead(GPIO_POWER_CHG_STAT) == LOW;
 }
 
-void Power::initializeChargerAndGauge()
+void Power::initializeChargerAndGauge(bool batteryPresent)
 {
   float minV = 0.0f;
   float maxV = 0.0f;
 
+  this->batteryPresent = batteryPresent;
+
+  if(!batteryPresent) {
+    Log::println("POWER", "Battery not present, skip initialization of fuel gauge.");
+    return;
+  }
+
   xSemaphoreTake(this->i2cSema, portMAX_DELAY);
   batteryPresent = fuelGauge.begin(this->i2c.get());
   fuelGauge.sleep(false);
-
-  initialized = true;
+  this->initialized = true;
   xSemaphoreGive(this->i2cSema);
 
   if(!batteryPresent) {

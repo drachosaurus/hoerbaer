@@ -22,6 +22,7 @@ class HBI {
         uint8_t slotCount;
         uint32_t playButtonsIoMask;
         uint32_t pauseButtonsIoMask;
+        uint32_t powerLedsIoMask;
         uint32_t currentLedState;
         int currentVegasStep;
         SemaphoreHandle_t i2cSema;

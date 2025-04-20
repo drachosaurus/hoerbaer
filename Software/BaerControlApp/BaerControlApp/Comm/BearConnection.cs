@@ -47,6 +47,7 @@ public class BearConnection : IDisposable
             return;
 
         var powerStatePayload = PowerStateCharacteristic.Parser.ParseFrom(bytes);
+        State.Power.BatteryPresent = powerStatePayload.BatteryPresent;
         State.Power.BatteryVoltage = powerStatePayload.BatteryVoltage;
         State.Power.BatteryPercentage = powerStatePayload.BatteryPercentage;
         State.Power.Charging = powerStatePayload.Charging;

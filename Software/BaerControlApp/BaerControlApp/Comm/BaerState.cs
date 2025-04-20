@@ -9,6 +9,8 @@ public class BaerState
 
 public partial class DevicePower : ObservableObject
 {
+    [ObservableProperty] private bool batteryPresent;
+    
     [ObservableProperty] private bool charging;
 
     [ObservableProperty] private float batteryVoltage;

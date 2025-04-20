@@ -26,7 +26,7 @@ class Power {
         void enableVCCPowerSave();
         void enableAudioVoltage();
         void disableAudioVoltage();
-        void initializeChargerAndGauge();
+        void initializeChargerAndGauge(bool batteryPresent);
         void setGaugeToSleep();
         void updateState();
         bool checkBatteryShutdown();

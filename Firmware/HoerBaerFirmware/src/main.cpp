@@ -104,7 +104,7 @@ void setup() {
   hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer, shutdown);
   hbi->initialize();
 
-  power->initializeChargerAndGauge();
+  power->initializeChargerAndGauge(userConfig->getBatteryPresent());
   if (power->checkBatteryShutdown()) {
     shutdown();
     return;
@@ -121,7 +121,7 @@ void setup() {
 
     bleRemote = make_unique<BLERemote>(userConfig, power);
     bleRemote->initialize();
-    
+
     hbi->setActionButtonsEnabled(true);
 
     WiFi.disconnect();

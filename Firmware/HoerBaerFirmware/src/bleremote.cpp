@@ -73,6 +73,7 @@ void BLERemote::bleRemoteLoop() {
     if (deviceConnected) {
         auto state = power->getState();
         PowerStateCharacteristic message = PowerStateCharacteristic_init_zero;
+        message.batteryPresent = userConfig->getBatteryPresent();
         message.batteryVoltage = state.voltage;
         message.batteryPercentage = state.percentage;
         message.charging = state.charging;
