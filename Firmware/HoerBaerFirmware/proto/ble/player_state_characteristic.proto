@@ -1,0 +1,19 @@
+syntax = "proto3";
+option csharp_namespace = "HoerBaer.Ble";
+
+enum PlayerState {
+  PLAYER_STOPPED = 0;
+  PLAYER_PAUSED = 1;
+  PLAYER_PLAYING = 2;
+}
+
+message PlayerStateCharacteristic {
+  PlayerState state = 1;
+  int32 slotActive = 2;
+  int32 fileIndex = 3;
+  int32 fileCount = 4;
+  int32 currentTime = 5;
+  int32 duration = 6;
+  int32 volume = 7;
+  int32 maxVolume = 8;
+}

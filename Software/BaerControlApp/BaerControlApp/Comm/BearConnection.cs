@@ -33,7 +33,14 @@ public class BearConnection : IDisposable
         
         powerChar.ValueUpdated += (o, args) => DeserializeUpdatePowerValues(args.Characteristic.Value);
 
+        var playerChar = await service.GetCharacteristicAsync(KnownIds.PlayerCharacteristicId);
+        if (playerChar == null)
+            throw new InvalidOperationException("Player characteristic not found");
+
+        playerChar.ValueUpdated += (o, args) => DeserializeUpdatePlayerValues(args.Characteristic.Value);
+
         await powerChar.StartUpdatesAsync();
+        await playerChar.StartUpdatesAsync();
     }
 
     public void Dispose()
@@ -51,5 +58,21 @@ public class BearConnection : IDisposable
         State.Power.BatteryVoltage = powerStatePayload.BatteryVoltage;
         State.Power.BatteryPercentage = powerStatePayload.BatteryPercentage;
         State.Power.Charging = powerStatePayload.Charging;
+    }
+
+    private void DeserializeUpdatePlayerValues(byte[]? bytes)
+    {
+        if(bytes == null || bytes.Length == 0)
+            return;
+
+        var playerStatePayload = PlayerStateCharacteristic.Parser.ParseFrom(bytes);
+        State.PlayingInfo.State = playerStatePayload.State;
+        State.PlayingInfo.SlotActive = playerStatePayload.SlotActive;
+        State.PlayingInfo.FileIndex = playerStatePayload.FileIndex;
+        State.PlayingInfo.FileCount = playerStatePayload.FileCount;
+        State.PlayingInfo.CurrentTime = playerStatePayload.CurrentTime;
+        State.PlayingInfo.Duration = playerStatePayload.Duration;
+        State.PlayingInfo.Volume = playerStatePayload.Volume;
+        State.PlayingInfo.MaxVolume = playerStatePayload.MaxVolume;
     }
 }

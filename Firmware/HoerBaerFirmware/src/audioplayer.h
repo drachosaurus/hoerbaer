@@ -15,6 +15,8 @@ typedef struct {
     int index;
     int total;
     uint32_t pausedAtPosition;
+    uint32_t duration;
+    uint32_t currentTime;
 } PlayingInfo;
 
 class AudioPlayer {
@@ -27,6 +29,7 @@ class AudioPlayer {
         shared_ptr<PlayingInfo> playingInfo;
         shared_ptr<SDCard> sdCard;
         std::unique_ptr<std::vector<std::vector<std::tuple<std::string, std::string, std::string>>>> slotFiles;
+        TickType_t lastPlayingInfoUpdate;
         int currentVolume;
         void playSong(std::string path, uint32_t position);
         void playFromSlot(int iSlot, int increment);
@@ -47,4 +50,6 @@ class AudioPlayer {
         void pause();
         void next();
         void prev();
+        int getCurrentVolume();
+        int getMaxVolume();
 };

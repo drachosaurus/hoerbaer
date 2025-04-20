@@ -30,19 +30,14 @@
 	<string>Assets.xcassets/appicon.appiconset</string>
 	<key>UIBackgroundModes</key>
 	<array>
-		<!--for connecting to devices (client)-->
 		<string>bluetooth-central</string>
-		<!--for server configurations if needed-->
 		<string>bluetooth-peripheral</string>
 	</array>
-
-	<!--Description of the Bluetooth request message (required on iOS 10, deprecated)-->
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Ich will Bären steuern</string>
-
-	<!--Description of the Bluetooth request message (required on iOS 13)-->
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Ich will Bären steuern</string>
-
+	<key>CFBundleIdentifier</key>
+	<string>ch.gacond.BaerControl</string>
 </dict>
 </plist>

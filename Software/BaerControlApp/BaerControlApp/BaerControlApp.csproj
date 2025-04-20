@@ -22,7 +22,7 @@
         <ApplicationTitle>BaerControlApp</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>ch.gacond.baercontrolapp</ApplicationId>
+        <ApplicationId>ch.gacond.BaerControl</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -71,9 +71,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Protobuf Include="..\..\..\Firmware\HoerBaerFirmware\proto\ble\power_state_characteristic.proto">
-        <Link>Proto\power_state_characteristic.proto</Link>
-      </Protobuf>
+        <Protobuf Include="..\..\..\Firmware\HoerBaerFirmware\proto\ble\power_state_characteristic.proto">
+            <Link>Proto\power_state_characteristic.proto</Link>
+        </Protobuf>
+        <Protobuf Include="..\..\..\Firmware\HoerBaerFirmware\proto\ble\player_state_characteristic.proto">
+            <Link>Proto\player_state_characteristic.proto</Link>
+        </Protobuf>
     </ItemGroup>
 
 </Project>

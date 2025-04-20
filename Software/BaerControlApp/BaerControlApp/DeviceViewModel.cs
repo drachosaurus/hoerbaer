@@ -1,5 +1,6 @@
 using BaerControlApp.Comm;
 using CommunityToolkit.Mvvm.ComponentModel;
+using HoerBaer.Ble;
 using Plugin.BLE.Abstractions.Exceptions;
 
 namespace BaerControlApp;
@@ -7,8 +8,7 @@ namespace BaerControlApp;
 public class DeviceViewModel : ObservableObject
 {
     private readonly INotificationHub _notificationHub;
-    private readonly BearDiscovery _discovery;
-    private BearConnection _connection;
+    private BearConnection? _connection;
 
     public string BatteryVoltageDisplay =>
         _connection?.State.Power.BatteryPresent == true ?
@@ -23,6 +23,11 @@ public class DeviceViewModel : ObservableObject
     public string BatteryChargingDisplay => 
         _connection?.State.Power.BatteryPresent == true ?
             (_connection?.State.Power.Charging == true) ? "Charging" : "Not Charging" :
+            "--";
+
+    public string StateDisplay =>
+        _connection != null ? 
+            Enum.GetName(_connection.State.PlayingInfo.State) ?? "--" : 
             "--";
     
     public DeviceViewModel(INotificationHub notificationHub)
@@ -42,6 +47,11 @@ public class DeviceViewModel : ObservableObject
                 OnPropertyChanged(nameof(BatteryVoltageDisplay));
                 OnPropertyChanged(nameof(BatteryPercentageDisplay));
                 OnPropertyChanged(nameof(BatteryChargingDisplay));
+            };
+            
+            _connection.State.PlayingInfo.PropertyChanged += (sender, args) =>
+            {
+                OnPropertyChanged(nameof(StateDisplay));
             };
         }
         catch(DeviceConnectionException ex)

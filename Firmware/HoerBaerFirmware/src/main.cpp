@@ -121,7 +121,7 @@ void setup() {
     audioPlayer->initialize();
     audioPlayer->populateAudioMetadata();
     
-    bleRemote = make_unique<BLERemote>(userConfig, power);
+    bleRemote = make_unique<BLERemote>(userConfig, power, audioPlayer);
     bleRemote->initialize();
     
     hbi->setReadyToPlay(true);

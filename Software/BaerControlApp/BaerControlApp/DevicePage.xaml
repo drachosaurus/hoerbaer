@@ -6,7 +6,7 @@
              x:DataType="local:DeviceViewModel">
     <ScrollView>
         <VerticalStackLayout
-            Padding="30,0"
+            Padding="30,10"
             Spacing="25">
             
             <Label
@@ -19,8 +19,10 @@
             <Label Text="Battery Percentage" />
             <Label Text="{Binding BatteryPercentageDisplay}" />
             
-            <Label Text="Charging" />
             <Label Text="{Binding BatteryChargingDisplay}" />
+
+            <Label Text="State" />
+            <Label Text="{Binding StateDisplay}" />
             
         </VerticalStackLayout>
     </ScrollView>

@@ -148,7 +148,7 @@ void AudioPlayer::deserializeLoadedSlotsAndMetadata(JsonDocument& doc)
             std::string artist = file["artist"].as<std::string>();
             files.emplace_back(path, title, artist);
         }
-        
+
         slotFiles->push_back(std::move(files));
     }
 }
@@ -170,6 +170,17 @@ void AudioPlayer::loop()
 {
     audio.loop();
     vTaskDelay(1); // https://github.com/schreibfaul1/ESP32-audioI2S/issues/887
+
+    auto tickCount = xTaskGetTickCount();
+    if(tickCount - lastPlayingInfoUpdate > pdMS_TO_TICKS(AUDIO_PLAYING_INGO_UPDATE_INTERVAL_MILLIS))
+    {
+        lastPlayingInfoUpdate = tickCount;
+        if(this->playingInfo != nullptr)
+        {
+            this->playingInfo->currentTime = audio.getAudioCurrentTime();
+            this->playingInfo->duration = audio.getAudioFileDuration();
+        }
+    }
 }
 
 shared_ptr<PlayingInfo> AudioPlayer::getPlayingInfo()
@@ -260,6 +271,11 @@ void AudioPlayer::playFromSlot(int iSlot, int increment)
     this->playingInfo->index = index;
     this->playingInfo->total = total;
     this->playingInfo->pausedAtPosition = 0;
+    this->playingInfo->currentTime = 0;
+    this->playingInfo->duration = audio.getAudioFileDuration();
+
+    Log::println("AUDIO", "Started: duration %u", 
+        this->playingInfo->path.c_str(), this->playingInfo->duration);
 }
 
 void AudioPlayer::playNextFromSlot(int iSlot)
@@ -353,4 +369,12 @@ void AudioPlayer::prev()
     }
 
     this->playFromSlot(slot, -1);
+}
+
+int AudioPlayer::getCurrentVolume() {
+    return this->currentVolume;
+}
+
+int AudioPlayer::getMaxVolume() {
+    return this->audioConfig->maxVolume;
 }

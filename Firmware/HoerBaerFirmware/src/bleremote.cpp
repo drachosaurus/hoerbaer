@@ -8,6 +8,7 @@
 #include "bleremote.h"
 
 #include "power_state_characteristic.pb.h"
+#include "player_state_characteristic.pb.h"
 
 uint8_t pbBuffer[128]; // check all "pb.h"
 bool deviceConnected = false;
@@ -25,9 +26,11 @@ class MyServerCallbacks: public BLEServerCallbacks {
     }
 };
 
-BLERemote::BLERemote(shared_ptr<UserConfig> userConfig, shared_ptr<Power> power) {
+BLERemote::BLERemote(shared_ptr<UserConfig> userConfig, shared_ptr<Power> power, shared_ptr<AudioPlayer> audioPlayer) {
     this->userConfig = userConfig;
     this->power = power;
+    this->audioPlayer = audioPlayer;
+    this->lastCharacteristicsUpdate = 0;
 }
 
 void BLERemote::initialize() {
@@ -45,6 +48,7 @@ void BLERemote::initialize() {
     powerCharacteristic->addDescriptor(new BLE2902());
 
     playerCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_PLAYER_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
+    playerCharacteristic->addDescriptor(new BLE2902());
   
     // powerCharacteristic->setValue();
     // playerCharacteristic->setValue();
@@ -71,19 +75,45 @@ void BLERemote::bleRemoteLoop() {
 
     // connected
     if (deviceConnected) {
-        auto state = power->getState();
-        PowerStateCharacteristic message = PowerStateCharacteristic_init_zero;
-        message.batteryPresent = userConfig->getBatteryPresent();
-        message.batteryVoltage = state.voltage;
-        message.batteryPercentage = state.percentage;
-        message.charging = state.charging;
+        auto powerState = power->getState();
+        
+        PowerStateCharacteristic powerMessage = PowerStateCharacteristic_init_zero;
+        powerMessage.batteryPresent = userConfig->getBatteryPresent();
+        powerMessage.batteryVoltage = powerState.voltage;
+        powerMessage.batteryPercentage = powerState.percentage;
+        powerMessage.charging = powerState.charging;
     
-        pb_ostream_t stream = pb_ostream_from_buffer(pbBuffer, sizeof(pbBuffer));
-        if (!pb_encode(&stream, PowerStateCharacteristic_fields, &message))
+        pb_ostream_t powerStream = pb_ostream_from_buffer(pbBuffer, sizeof(pbBuffer));
+        if (!pb_encode(&powerStream, PowerStateCharacteristic_fields, &powerMessage))
             Log::println("BLE", "Failed to encode power state! Send defaults.");
     
-        powerCharacteristic->setValue(pbBuffer, stream.bytes_written);
+        powerCharacteristic->setValue(pbBuffer, powerStream.bytes_written);
         powerCharacteristic->notify();
+        delay(3); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
+
+        auto playingInfo = this->audioPlayer->getPlayingInfo();
+
+        PlayerStateCharacteristic playerMessage = PlayerStateCharacteristic_init_zero;
+        playerMessage.volume = this->audioPlayer->getCurrentVolume();
+        playerMessage.maxVolume = this->audioPlayer->getMaxVolume();
+        if(playingInfo != nullptr)
+        {
+            playerMessage.state = playingInfo->pausedAtPosition > 0 ? PlayerState_PLAYER_PAUSED : PlayerState_PLAYER_PLAYING;
+            playerMessage.slotActive = playingInfo->slot;
+            playerMessage.fileIndex = playingInfo->index;
+            playerMessage.fileCount = playingInfo->total;
+            playerMessage.currentTime = playingInfo->currentTime;
+            playerMessage.duration = playingInfo->duration;
+        }
+        else
+            playerMessage.state = PlayerState_PLAYER_STOPPED;
+
+        pb_ostream_t playerStream = pb_ostream_from_buffer(pbBuffer, sizeof(pbBuffer));
+        if (!pb_encode(&playerStream, PlayerStateCharacteristic_fields, &playerMessage))
+            Log::println("BLE", "Failed to encode player state! Send defaults.");
+    
+        playerCharacteristic->setValue(pbBuffer, playerStream.bytes_written);
+        playerCharacteristic->notify();
         delay(3); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
     }
 

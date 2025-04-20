@@ -19,6 +19,10 @@
 #define BLE_CHARACTERISTIC_PLAYER_UUID "936bc2e0-2ba8-4a15-9c98-b82fcc308d22"
 #define BLE_CHARACTERISTICS_UPDATE_INTERVAL_MILLIS 1000
 
+// Audio playing info update interval
+#define AUDIO_PLAYING_INGO_UPDATE_INTERVAL_MILLIS 500
+
+
 // I2C addresses
 #define I2C_ADDR_LED_DRIVER1 0x40   // (R: 0x81, W: 0x80)
 #define I2C_ADDR_LED_DRIVER2 0x41   // (R: 0x83, W: 0x82)
