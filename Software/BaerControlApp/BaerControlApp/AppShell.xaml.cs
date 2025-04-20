@@ -1,4 +1,6 @@
-﻿namespace BaerControlApp;
+﻿using BaerControlApp.Device;
+
+namespace BaerControlApp;
 
 public partial class AppShell : Shell, INotificationHub
 {

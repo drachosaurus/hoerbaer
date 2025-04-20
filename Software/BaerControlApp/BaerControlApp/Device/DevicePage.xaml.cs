@@ -1,6 +1,6 @@
 using BaerControlApp.Comm;
 
-namespace BaerControlApp;
+namespace BaerControlApp.Device;
 
 [QueryProperty(nameof(Device), "device")]
 public partial class DevicePage : ContentPage

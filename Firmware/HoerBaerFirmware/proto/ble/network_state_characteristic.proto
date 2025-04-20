@@ -1,0 +1,8 @@
+syntax = "proto3";
+option csharp_namespace = "HoerBaer.Ble";
+
+message NetworkStateCharacteristic {
+  bool enabled = 1;
+  bool connected = 2;
+  int32 ipV4Address = 3;
+}

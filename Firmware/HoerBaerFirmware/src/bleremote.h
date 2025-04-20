@@ -23,5 +23,6 @@ class BLERemote {
         BLERemote(shared_ptr<UserConfig> userConfig, shared_ptr<Power> power, shared_ptr<AudioPlayer> audioPlayer);
         void initialize();
         void bleRemoteLoop();
+        void updateWifiState(bool connected, int32_t ipV4);
         void shutdown();
 };

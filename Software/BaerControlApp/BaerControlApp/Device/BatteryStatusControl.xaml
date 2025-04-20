@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:device="clr-namespace:BaerControlApp.Device"
+             x:Class="BaerControlApp.Device.BatteryStatusControl"
+             x:Name="BatteryStatusRoot">
+    
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <device:PercentageToWidthConverter x:Key="PercentageToWidthConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+
+    <Grid RowDefinitions="*, Auto" Padding="10">
+
+        <!-- Battery outline with dynamic fill based on percentage -->
+        <Grid Grid.Row="0" Margin="0,5,0,0">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Main battery body -->
+            <Border Grid.Column="0"
+                    StrokeThickness="2"
+                    Stroke="{AppThemeBinding Light=#333333, Dark=#DDDDDD}"
+                    StrokeShape="RoundRectangle 6,6,6,6">
+                <Grid>
+                    <!-- Battery fill level -->
+                    <Rectangle x:Name="BatteryFillRectangle"
+                               HorizontalOptions="Start"
+                               Fill="{Binding Source={x:Reference BatteryStatusRoot}, Path=BatteryFillColor}"
+                               WidthRequest="{Binding Source={x:Reference BatteryOutline}, Path=Width, Converter={StaticResource PercentageToWidthConverter}, ConverterParameter={Binding Source={x:Reference BatteryStatusRoot}, Path=BatteryPercentageRatio}}" />
+
+                    <!-- Battery outline for reference (invisible) -->
+                    <Rectangle x:Name="BatteryOutline"
+                               Fill="Transparent"
+                               HorizontalOptions="Fill" />
+                </Grid>
+            </Border>
+
+            <!-- Battery terminal -->
+            <Border Grid.Column="1"
+                    WidthRequest="8"
+                    HeightRequest="20"
+                    HorizontalOptions="Start"
+                    VerticalOptions="Center"
+                    Margin="-1,0,0,0"
+                    StrokeThickness="2"
+                    Stroke="{AppThemeBinding Light=#333333, Dark=#DDDDDD}"
+                    StrokeShape="RoundRectangle 2,2,2,2"
+                    BackgroundColor="{AppThemeBinding Light=#333333, Dark=#DDDDDD}" />
+
+            <!-- Charging indicator -->
+            <Grid Grid.Column="0" IsVisible="{Binding Source={x:Reference BatteryStatusRoot}, Path=IsCharging}">
+                <Path Data="M16,20H8V6H16M16.67,4H15V2H9V4H7.33A1.33,1.33 0 0,0 6,5.33V20.67C6,21.4 6.6,22 7.33,22H16.67A1.33,1.33 0 0,0 18,20.67V5.33C18,4.6 17.4,4 16.67,4Z"
+                      Fill="{AppThemeBinding Light=#333333, Dark=#DDDDDD}"
+                      HorizontalOptions="Center"
+                      VerticalOptions="Center"
+                      Scale="0.8" />
+                <Path Data="M11,9L8,13H12L9,17"
+                      Stroke="{AppThemeBinding Light=#FFCC00, Dark=#FFCC00}"
+                      StrokeThickness="2"
+                      HorizontalOptions="Center"
+                      VerticalOptions="Center" />
+            </Grid>
+        </Grid>
+
+        <!-- Battery info text -->
+        <Grid Grid.Row="1" ColumnDefinitions="*, *" Margin="0,10,0,0">
+            <Label Grid.Column="0"
+                   Text="{Binding Source={x:Reference BatteryStatusRoot}, Path=BatteryVoltageDisplay}"
+                   FontSize="14"
+                   HorizontalOptions="Start"
+                   VerticalOptions="Center" />
+            <Label Grid.Column="1"
+                   Text="{Binding Source={x:Reference BatteryStatusRoot}, Path=BatteryPercentageDisplay}"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   HorizontalOptions="End"
+                   VerticalOptions="Center" />
+        </Grid>
+    </Grid>
+
+</ContentView>

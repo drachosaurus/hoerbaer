@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:device="clr-namespace:BaerControlApp.Device"
+             x:Class="BaerControlApp.Device.DevicePage"
+             x:DataType="device:DeviceViewModel">
+    <ScrollView>
+        
+        <Grid Margin="20">
+        
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="90" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="80" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="60" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="60" />
+            </Grid.RowDefinitions>
+            
+            <Label
+                Grid.Column="0" Grid.Row="0"
+                Margin="0,10,0,0"
+                Text="{Binding Name}"
+                FontSize="40"
+                SemanticProperties.HeadingLevel="Level2" />
+
+            <device:BatteryStatusControl
+                Grid.Column="1" Grid.Row="0"
+                Width="120" HorizontalOptions="End"
+                BatteryVoltage="{Binding BatteryVoltage}" 
+                BatteryPercentage="{Binding BatteryPercentage}"
+                IsCharging="{Binding IsCharging}" />
+
+            <Label
+                Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"
+                Text="{Binding StateDisplay}"
+                FontSize="30" />
+            
+            <Label
+                Grid.Column="0" Grid.Row="3"
+                Text="Slot"
+                FontSize="20" />
+            
+            <Label
+                Grid.Column="1" Grid.Row="3"
+                Text="File"
+                FontSize="20" />
+            
+            <Label
+                Grid.Column="0" Grid.Row="4"
+                Text="{Binding SlotDisplay}"
+                FontSize="30" />
+            
+            <Label
+                Grid.Column="1" Grid.Row="4"
+                Text="{Binding FileDisplay}"
+                FontSize="30" />
+            
+            <Label
+                Grid.Column="0" Grid.Row="5"
+                Text="Time"
+                FontSize="20" />
+            
+            <Label
+                Grid.Column="1" Grid.Row="5"
+                Text="Volume"
+                FontSize="20" />
+            
+            <Label
+                Grid.Column="0" Grid.Row="6"
+                Text="{Binding TimeDisplay}"
+                FontSize="30" />
+            
+            <Label
+                Grid.Column="1" Grid.Row="6"
+                Text="{Binding VolumeDisplay}"
+                FontSize="30" />
+
+        </Grid>
+    </ScrollView>
+
+</ContentPage>

@@ -79,4 +79,17 @@
         </Protobuf>
     </ItemGroup>
 
+    <ItemGroup>
+      <MauiXaml Update="Device\DevicePage.xaml">
+        <SubType>Designer</SubType>
+      </MauiXaml>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Device\DevicePage.xaml.cs">
+        <DependentUpon>DevicePage.xaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
 </Project>

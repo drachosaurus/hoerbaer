@@ -9,6 +9,7 @@
 
 #include "power_state_characteristic.pb.h"
 #include "player_state_characteristic.pb.h"
+#include "network_state_characteristic.pb.h"
 
 uint8_t pbBuffer[128]; // check all "pb.h"
 bool deviceConnected = false;
@@ -49,6 +50,10 @@ void BLERemote::initialize() {
 
     playerCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_PLAYER_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
     playerCharacteristic->addDescriptor(new BLE2902());
+
+    // TODO - but need to encapsulate network first
+    // networkCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_NETWORK_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
+    // networkCharacteristic->addDescriptor(new BLE2902());
   
     // powerCharacteristic->setValue();
     // playerCharacteristic->setValue();

@@ -1,4 +1,5 @@
 ﻿using BaerControlApp.Comm;
+using BaerControlApp.Device;
 using Microsoft.Extensions.Logging;
 
 namespace BaerControlApp;
