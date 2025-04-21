@@ -16,6 +16,11 @@ public class DeviceViewModel : ObservableObject
     public float? BatteryPercentage => _connection?.State.Power.BatteryPercentage ?? 0;
     public bool IsCharging => _connection?.State.Power.Charging ?? false;
     
+    public bool WifiIsConnected => _connection?.State.NetworkInfo.Connected ?? false;
+    public bool WifiIsEnabled => _connection?.State.NetworkInfo.Enabled ?? false;
+    public int WifiRssi => _connection?.State.NetworkInfo.Rssi ?? 0;
+    
+    
     public string StateDisplay =>
         _connection != null ? 
             HumanizeState(_connection.State.PlayingInfo.State) : "--";
@@ -61,6 +66,13 @@ public class DeviceViewModel : ObservableObject
                 OnPropertyChanged(nameof(FileDisplay));
                 OnPropertyChanged(nameof(TimeDisplay));
                 OnPropertyChanged(nameof(VolumeDisplay));
+            };
+
+            _connection.State.NetworkInfo.PropertyChanged += (sender, args) =>
+            {
+                OnPropertyChanged(nameof(WifiIsConnected));
+                OnPropertyChanged(nameof(WifiIsEnabled));
+                OnPropertyChanged(nameof(WifiRssi));
             };
         }
         catch(DeviceConnectionException ex)

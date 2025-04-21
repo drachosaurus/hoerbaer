@@ -1,3 +1,4 @@
+using System.Net;
 using HoerBaer.Ble;
 using Plugin.BLE;
 using Plugin.BLE.Abstractions.Contracts;
@@ -32,15 +33,21 @@ public class BearConnection : IDisposable
             throw new InvalidOperationException("Power characteristic not found");
         
         powerChar.ValueUpdated += (o, args) => DeserializeUpdatePowerValues(args.Characteristic.Value);
-
+        await powerChar.StartUpdatesAsync();
+        
         var playerChar = await service.GetCharacteristicAsync(KnownIds.PlayerCharacteristicId);
         if (playerChar == null)
             throw new InvalidOperationException("Player characteristic not found");
 
         playerChar.ValueUpdated += (o, args) => DeserializeUpdatePlayerValues(args.Characteristic.Value);
-
-        await powerChar.StartUpdatesAsync();
         await playerChar.StartUpdatesAsync();
+
+        var networkChar = await service.GetCharacteristicAsync(KnownIds.NetworkCharacteristicId);
+        if (networkChar == null)
+            throw new InvalidOperationException("Network characteristic not found");
+
+        networkChar.ValueUpdated += (o, args) => DeserializeUpdateNetworkValues(args.Characteristic.Value);
+        await networkChar.StartUpdatesAsync();
     }
 
     public void Dispose()
@@ -74,5 +81,29 @@ public class BearConnection : IDisposable
         State.PlayingInfo.Duration = playerStatePayload.Duration;
         State.PlayingInfo.Volume = playerStatePayload.Volume;
         State.PlayingInfo.MaxVolume = playerStatePayload.MaxVolume;
+    }
+
+    private void DeserializeUpdateNetworkValues(byte[]? bytes)
+    {
+        if(bytes == null || bytes.Length == 0)
+            return;
+
+        var networkStatePayload = NetworkStateCharacteristic.Parser.ParseFrom(bytes);
+        State.NetworkInfo.Connected = networkStatePayload.Connected;
+        State.NetworkInfo.Enabled = networkStatePayload.Enabled;
+        State.NetworkInfo.IpV4Address = GetIpAddressFromInt(networkStatePayload.IpV4Address);
+        State.NetworkInfo.Rssi = networkStatePayload.Rssi;
+    }
+
+    private static IPAddress GetIpAddressFromInt(int ipAddress)
+    {
+        // Convert the integer to a byte array
+        var bytes = BitConverter.GetBytes(ipAddress);
+
+        // flip little-endian to big-endian(network order)
+        if (BitConverter.IsLittleEndian)
+            Array.Reverse(bytes);
+
+        return new IPAddress(bytes);
     }
 }

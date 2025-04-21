@@ -9,6 +9,7 @@
 #include "audioplayer.h"
 #include "config.h"
 #include "utils.h"
+#include "wlan.h"
 #include "sdcard.h"
 #include "userconfig.h"
 #include "bleremote.h"
@@ -25,6 +26,7 @@ shared_ptr<AudioPlayer> audioPlayer;
 shared_ptr<UserConfig> userConfig;
 shared_ptr<Power> power;
 unique_ptr<HBI> hbi;
+shared_ptr<WLAN> wlan;
 unique_ptr<BLERemote> bleRemote;
 shared_ptr<WebServer> webServer;
 unique_ptr<USBStorage> usbMsc;
@@ -35,31 +37,6 @@ std::string currentLogFileName;
 
 bool usbStorageMode = false;
 bool shuttingDown = false;
-
-void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
-  Log::println("WiFi", "Connected to AccessPoint.");
-}
-
-void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
-  Log::println("WiFi", "IP Address: %s", WiFi.localIP().toString().c_str());
-  configTime(0, 0, "pool.ntp.org"); // First connect to NTP server, with 0 TZ offset
-  auto tz = userConfig->getTimezone();
-  setenv("TZ", tz.c_str(), 1);         // set timezone
-  tzset();
-  Log::println("WiFi", "NTP time set: %s", tz.c_str());
-  struct tm timeInfo;
-  if (getLocalTime(&timeInfo)) {
-    char timeStringBuff[22]; 
-    strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d_%H%M%S.log", &timeInfo);
-    Log::println("WiFi", "Set timestamp for logfile: %s", timeStringBuff);
-    currentLogFileName = std::string(timeStringBuff);
-  }
-}
-
-void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
-  Log::println("WiFi", "WiFi lost connection. Reason: %d. Trying to Reconnect...", info.wifi_sta_disconnected.reason);
-  WiFi.begin(wifiSsid.c_str(), wifiPwd.c_str());
-}
 
 void shutdown();
 
@@ -106,6 +83,8 @@ void setup() {
   hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer, shutdown);
   hbi->initialize();
 
+  wlan = make_shared<WLAN>(userConfig);
+
   power->initializeChargerAndGauge(userConfig->getBatteryPresent());
   if (power->checkBatteryShutdown()) {
     shutdown();
@@ -121,33 +100,19 @@ void setup() {
     audioPlayer->initialize();
     audioPlayer->populateAudioMetadata();
     
-    bleRemote = make_unique<BLERemote>(userConfig, power, audioPlayer);
+    bleRemote = make_unique<BLERemote>(userConfig, power, audioPlayer, wlan);
     bleRemote->initialize();
     
     hbi->setReadyToPlay(true);
     hbi->setActionButtonsEnabled(true);
 
-    WiFi.disconnect();
-    auto wifi = userConfig->getWifiConfig();
-    if (wifi->enabled)
-    {
-      wifiSsid = wifi->ssid;
-      wifiPwd = wifi->password;
+    wlan->connectIfConfigured();
 
-      WiFi.onEvent(WiFiStationConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
-      WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
-      WiFi.onEvent(WiFiStationDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-
-      Log::println("MAIN", "WiFi connecting to SSID: %s", wifiSsid.c_str());
-      WiFi.mode(WIFI_STA);
-      WiFi.begin(wifiSsid.c_str(), wifiPwd.c_str());
-
-      Log::println("MAIN", "Starting WebServer");
+    if(wlan->getEnabled()) {
+      Log::println("WLAN", "Starting WebServer");
       webServer = make_shared<WebServer>(audioPlayer);
       webServer->start();
     }
-    else
-      Log::println("MAIN", "WiFi disabled");
       
     Log::println("MAIN", "Baer initialized, ready to play!");
   }
@@ -205,6 +170,11 @@ void shutdown() {
     
     Log::println("MAIN", "Wait until encoder button is released!");
     hbi->waitUntilEncoderButtonReleased();
+  }
+
+  if(wlan != nullptr) {
+    wlan->disconnect();
+    wlan.reset();
   }
 
   Log::println("MAIN", "Sleep well, bear!");

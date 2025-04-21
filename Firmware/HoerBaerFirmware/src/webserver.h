@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <WiFi.h>
 #include <FreeRTOS.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>

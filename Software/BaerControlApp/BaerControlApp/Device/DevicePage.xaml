@@ -30,13 +30,22 @@
                 FontSize="40"
                 SemanticProperties.HeadingLevel="Level2" />
 
-            <device:BatteryStatusControl
-                Grid.Column="1" Grid.Row="0"
-                Width="120" HorizontalOptions="End"
-                BatteryVoltage="{Binding BatteryVoltage}" 
-                BatteryPercentage="{Binding BatteryPercentage}"
-                IsCharging="{Binding IsCharging}" />
-
+            <HorizontalStackLayout
+                Grid.Column="1" Grid.Row="0">
+                
+                <device:BatteryStatusControl
+                    Width="120" HorizontalOptions="End"
+                    BatteryVoltage="{Binding BatteryVoltage}" 
+                    BatteryPercentage="{Binding BatteryPercentage}"
+                    IsCharging="{Binding IsCharging}" />
+                
+                <device:WifiStatusView 
+                    WifiIsEnabled="{Binding WifiIsEnabled}"
+                    WifiIsConnected="{Binding WifiIsConnected}"
+                    WifiRssi="{Binding WifiRssi}" />
+                
+            </HorizontalStackLayout>
+            
             <Label
                 Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"
                 Text="{Binding StateDisplay}"

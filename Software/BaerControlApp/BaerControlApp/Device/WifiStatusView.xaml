@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:device="clr-namespace:BaerControlApp.Device"
+             x:Class="BaerControlApp.Device.WifiStatusView"
+             HeightRequest="80"
+             WidthRequest="120">
+    
+    <ContentView.Resources>
+        <Style x:Key="SignalBarStyle" TargetType="BoxView">
+            <Setter Property="WidthRequest" Value="6" />
+            <Setter Property="CornerRadius" Value="1" />
+            <Setter Property="Margin" Value="1,0,1,0" />
+        </Style>
+        <ResourceDictionary>
+            <device:BoolToColorConverter x:Key="BoolToColorConverter" />
+            <device:RssiToColorConverter x:Key="RssiToColorConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+    
+    <Grid Padding="8" RowDefinitions="*,Auto">
+        <!-- Signal Indicator -->
+        <Grid Grid.Row="0" 
+              HorizontalOptions="Start" 
+              VerticalOptions="End"
+              IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=WifiIsEnabled}">
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            
+            <!-- Signal bars -->
+            <BoxView Grid.Column="0" 
+                     Style="{StaticResource SignalBarStyle}"
+                     HeightRequest="5"
+                     VerticalOptions="End"
+                     Color="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=WifiIsConnected, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#007AFF,#999999'}" />
+                     
+            <BoxView Grid.Column="1"
+                     Style="{StaticResource SignalBarStyle}"
+                     HeightRequest="10"
+                     VerticalOptions="End"
+                     Color="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=WifiRssi, Converter={StaticResource RssiToColorConverter}, ConverterParameter='1'}" />
+                     
+            <BoxView Grid.Column="2"
+                     Style="{StaticResource SignalBarStyle}"
+                     HeightRequest="15"
+                     VerticalOptions="End"
+                     Color="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=WifiRssi, Converter={StaticResource RssiToColorConverter}, ConverterParameter='2'}" />
+                     
+            <BoxView Grid.Column="3"
+                     Style="{StaticResource SignalBarStyle}"
+                     HeightRequest="20"
+                     VerticalOptions="End"
+                     Color="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=WifiRssi, Converter={StaticResource RssiToColorConverter}, ConverterParameter='3'}" />
+        </Grid>
+
+        <!-- Status Text -->
+        <Label Grid.Row="1" 
+               x:Name="StatusLabel"
+               FontSize="12"
+               HorizontalOptions="Start"
+               VerticalOptions="Center"
+               TextColor="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=WifiIsConnected, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#007AFF,#999999'}" />
+    </Grid>
+</ContentView>

@@ -5,4 +5,5 @@ message NetworkStateCharacteristic {
   bool enabled = 1;
   bool connected = 2;
   int32 ipV4Address = 3;
+  int32 rssi = 5;
 }

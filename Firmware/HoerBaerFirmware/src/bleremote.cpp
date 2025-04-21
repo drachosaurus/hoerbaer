@@ -27,10 +27,11 @@ class MyServerCallbacks: public BLEServerCallbacks {
     }
 };
 
-BLERemote::BLERemote(shared_ptr<UserConfig> userConfig, shared_ptr<Power> power, shared_ptr<AudioPlayer> audioPlayer) {
+BLERemote::BLERemote(shared_ptr<UserConfig> userConfig, shared_ptr<Power> power, shared_ptr<AudioPlayer> audioPlayer, shared_ptr<WLAN> wlan) {
     this->userConfig = userConfig;
     this->power = power;
     this->audioPlayer = audioPlayer;
+    this->wlan = wlan;
     this->lastCharacteristicsUpdate = 0;
 }
 
@@ -51,9 +52,8 @@ void BLERemote::initialize() {
     playerCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_PLAYER_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
     playerCharacteristic->addDescriptor(new BLE2902());
 
-    // TODO - but need to encapsulate network first
-    // networkCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_NETWORK_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
-    // networkCharacteristic->addDescriptor(new BLE2902());
+    networkCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_NETWORK_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
+    networkCharacteristic->addDescriptor(new BLE2902());
   
     // powerCharacteristic->setValue();
     // playerCharacteristic->setValue();
@@ -70,6 +70,75 @@ void BLERemote::initialize() {
     Log::println("BLE", "Characteristic defined! Now you can read it in your phone!");
 }
 
+void BLERemote::updatePowerCharacteristic() {
+    auto powerState = power->getState();
+
+    PowerStateCharacteristic powerMessage = PowerStateCharacteristic_init_zero;
+    powerMessage.batteryPresent = userConfig->getBatteryPresent();
+    powerMessage.batteryVoltage = powerState.voltage;
+    powerMessage.batteryPercentage = powerState.percentage;
+    powerMessage.charging = powerState.charging;
+
+    pb_ostream_t powerStream = pb_ostream_from_buffer(pbBuffer, sizeof(pbBuffer));
+    if (!pb_encode(&powerStream, PowerStateCharacteristic_fields, &powerMessage))
+        Log::println("BLE", "Failed to encode power state! Send defaults.");
+
+    powerCharacteristic->setValue(pbBuffer, powerStream.bytes_written);
+    powerCharacteristic->notify();
+    delay(3); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
+}
+
+void BLERemote::updatePlayerCharacteristic() {
+    auto playingInfo = this->audioPlayer->getPlayingInfo();
+
+    PlayerStateCharacteristic playerMessage = PlayerStateCharacteristic_init_zero;
+    playerMessage.volume = this->audioPlayer->getCurrentVolume();
+    playerMessage.maxVolume = this->audioPlayer->getMaxVolume();
+    if(playingInfo != nullptr)
+    {
+        playerMessage.state = playingInfo->pausedAtPosition > 0 ? PlayerState_PLAYER_PAUSED : PlayerState_PLAYER_PLAYING;
+        playerMessage.slotActive = playingInfo->slot;
+        playerMessage.fileIndex = playingInfo->index;
+        playerMessage.fileCount = playingInfo->total;
+        playerMessage.currentTime = playingInfo->currentTime;
+        playerMessage.duration = playingInfo->duration;
+    }
+    else
+        playerMessage.state = PlayerState_PLAYER_STOPPED;
+
+    pb_ostream_t playerStream = pb_ostream_from_buffer(pbBuffer, sizeof(pbBuffer));
+    if (!pb_encode(&playerStream, PlayerStateCharacteristic_fields, &playerMessage))
+        Log::println("BLE", "Failed to encode player state! Send defaults.");
+
+    playerCharacteristic->setValue(pbBuffer, playerStream.bytes_written);
+    playerCharacteristic->notify();
+    delay(3); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
+}
+
+void BLERemote::updateNetworkCharacteristic() {
+    
+    NetworkStateCharacteristic networkMessage = NetworkStateCharacteristic_init_zero;
+    std::string ssid = wlan->getSSID();
+
+    if(this->wlan->getEnabled())
+    {
+        networkMessage.enabled = true;
+        networkMessage.connected = wlan->getConnected();
+        networkMessage.ipV4Address = wlan->getIPV4();
+        networkMessage.rssi = wlan->getRSSI();
+    }
+    else
+        networkMessage.enabled = false;
+
+    pb_ostream_t networkStream = pb_ostream_from_buffer(pbBuffer, sizeof(pbBuffer));
+    if (!pb_encode(&networkStream, NetworkStateCharacteristic_fields, &networkMessage))
+        Log::println("BLE", "Failed to network state! Send defaults.");
+
+    networkCharacteristic->setValue(pbBuffer, networkStream.bytes_written);
+    networkCharacteristic->notify();
+    delay(3); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
+}
+
 void BLERemote::bleRemoteLoop() {
 
     auto tickCount = xTaskGetTickCount();
@@ -80,46 +149,9 @@ void BLERemote::bleRemoteLoop() {
 
     // connected
     if (deviceConnected) {
-        auto powerState = power->getState();
-        
-        PowerStateCharacteristic powerMessage = PowerStateCharacteristic_init_zero;
-        powerMessage.batteryPresent = userConfig->getBatteryPresent();
-        powerMessage.batteryVoltage = powerState.voltage;
-        powerMessage.batteryPercentage = powerState.percentage;
-        powerMessage.charging = powerState.charging;
-    
-        pb_ostream_t powerStream = pb_ostream_from_buffer(pbBuffer, sizeof(pbBuffer));
-        if (!pb_encode(&powerStream, PowerStateCharacteristic_fields, &powerMessage))
-            Log::println("BLE", "Failed to encode power state! Send defaults.");
-    
-        powerCharacteristic->setValue(pbBuffer, powerStream.bytes_written);
-        powerCharacteristic->notify();
-        delay(3); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
-
-        auto playingInfo = this->audioPlayer->getPlayingInfo();
-
-        PlayerStateCharacteristic playerMessage = PlayerStateCharacteristic_init_zero;
-        playerMessage.volume = this->audioPlayer->getCurrentVolume();
-        playerMessage.maxVolume = this->audioPlayer->getMaxVolume();
-        if(playingInfo != nullptr)
-        {
-            playerMessage.state = playingInfo->pausedAtPosition > 0 ? PlayerState_PLAYER_PAUSED : PlayerState_PLAYER_PLAYING;
-            playerMessage.slotActive = playingInfo->slot;
-            playerMessage.fileIndex = playingInfo->index;
-            playerMessage.fileCount = playingInfo->total;
-            playerMessage.currentTime = playingInfo->currentTime;
-            playerMessage.duration = playingInfo->duration;
-        }
-        else
-            playerMessage.state = PlayerState_PLAYER_STOPPED;
-
-        pb_ostream_t playerStream = pb_ostream_from_buffer(pbBuffer, sizeof(pbBuffer));
-        if (!pb_encode(&playerStream, PlayerStateCharacteristic_fields, &playerMessage))
-            Log::println("BLE", "Failed to encode player state! Send defaults.");
-    
-        playerCharacteristic->setValue(pbBuffer, playerStream.bytes_written);
-        playerCharacteristic->notify();
-        delay(3); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
+        updatePowerCharacteristic();
+        updatePlayerCharacteristic();
+        updateNetworkCharacteristic();
     }
 
     // disconnecting
