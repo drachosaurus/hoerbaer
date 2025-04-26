@@ -6,8 +6,10 @@
 #endif
 
 // Task priorities
-#define TASK_PRIO_HBI_WORKER 1
-#define TASK_STACK_SIZE_HBI_WORKER 10000
+#define TASK_PRIO_HBI_WORKER 2
+#define TASK_STACK_SIZE_HBI_WORKER_WORDS (30 * 1024 / 4) // 30 kbytes
+#define TASK_PRIO_BLE_WORKER 1
+#define TASK_STACK_SIZE_BLE_WORKER_WORDS (10 * 1024 / 4) // 10 kbytes
 
 // Well known SDCARD files
 #define SDCARD_FILE_CONFIG "/config.json"

@@ -16,7 +16,6 @@ class BLERemote {
         shared_ptr<Power> power;
         shared_ptr<AudioPlayer> audioPlayer;
         shared_ptr<WLAN> wlan;
-        TickType_t lastCharacteristicsUpdate;
         BLEServer* bleServer;
         BLEService* bleService;
         BLECharacteristic* powerCharacteristic;
@@ -25,10 +24,9 @@ class BLERemote {
         void updatePlayerCharacteristic();
         BLECharacteristic* networkCharacteristic;
         void updateNetworkCharacteristic();
-    public:
+        public:
         BLERemote(shared_ptr<UserConfig> userConfig, shared_ptr<Power> power, shared_ptr<AudioPlayer> audioPlayer, shared_ptr<WLAN> wlan);
         void initialize();
-        void bleRemoteLoop();
-        void updateWifiState(bool connected, int32_t ipV4);
+        void runWorkerTask();
         void shutdown();
 };

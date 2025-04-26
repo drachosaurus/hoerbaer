@@ -161,7 +161,7 @@ void HBI::initialize()
     }, CHANGE);
 
     xTaskCreate(HBIWorkerTask, "hbi_worker", 
-        TASK_STACK_SIZE_HBI_WORKER, 
+        TASK_STACK_SIZE_HBI_WORKER_WORDS, 
         this, 
         TASK_PRIO_HBI_WORKER,
         NULL);

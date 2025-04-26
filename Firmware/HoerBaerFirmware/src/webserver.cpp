@@ -22,7 +22,7 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer)
             
         AsyncResponseStream *response = request->beginResponseStream("application/json");
 
-        StaticJsonDocument<JSON_BUFFER_SIZE_TRACK_METADATA> doc;
+        DynamicJsonDocument doc(JSON_BUFFER_SIZE_TRACK_METADATA); // dynamic => malloc => psram
         this->audioPlayer->serializeLoadedSlotsAndMetadata(doc);
 
         serializeJson(doc, *response);

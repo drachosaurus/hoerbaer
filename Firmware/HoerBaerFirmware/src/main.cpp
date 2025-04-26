@@ -37,16 +37,17 @@ std::string currentLogFileName;
 
 bool usbStorageMode = false;
 bool shuttingDown = false;
+TickType_t lastMemoryPrintout = 0;
 
 void shutdown();
 
 void setup() {
-  
+
   shuttingDown = false;
   i2c = make_shared<TwoWire>(0);
   i2cSema = xSemaphoreCreateBinary();
   xSemaphoreGive(i2cSema);
-  
+
   // First (has to be first!), disable 3V3 ~PSAVE
   power = make_shared<Power>(i2c, i2cSema);
   power->disableVCCPowerSave();
@@ -72,18 +73,30 @@ void setup() {
         xPortGetCoreID(), 
         psramFound() ? "available" : "not available",
         PINOUT_PCB_REV);
-  
+
+  Log::logCurrentHeap("Start startup");
+
   sdCard = make_shared<SDCard>();
   userConfig = make_shared<UserConfig>(sdCard);
   userConfig->initializeFromSdCard();
 
+  Log::logCurrentHeap("After user config");
+
+
   // keeps 12V supply off (NPDN down) - has to be before HBI
   audioPlayer = make_shared<AudioPlayer>(i2c, i2cSema, userConfig, sdCard);
+
+  Log::logCurrentHeap("After audio player constructor");
+
 
   hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer, shutdown);
   hbi->initialize();
 
+  Log::logCurrentHeap("After HBI init");
+
   wlan = make_shared<WLAN>(userConfig);
+
+  Log::logCurrentHeap("After WLAN init");
 
   power->initializeChargerAndGauge(userConfig->getBatteryPresent());
   if (power->checkBatteryShutdown()) {
@@ -100,9 +113,13 @@ void setup() {
     audioPlayer->initialize();
     audioPlayer->populateAudioMetadata();
     
+    Log::logCurrentHeap("After Audio init");
+
     bleRemote = make_unique<BLERemote>(userConfig, power, audioPlayer, wlan);
     bleRemote->initialize();
     
+    Log::logCurrentHeap("After BLE init");
+
     hbi->setReadyToPlay(true);
     hbi->setActionButtonsEnabled(true);
 
@@ -136,11 +153,21 @@ void loop() {
   if (!usbStorageMode) {
     // Normal mode: audio loop and check battery
     audioPlayer->loop();
-    bleRemote->bleRemoteLoop();
     if (power->checkBatteryShutdownLoop())
     {
       shutdown();
       return;
+    }
+
+    if(lastMemoryPrintout == 0 || xTaskGetTickCount() - lastMemoryPrintout > pdMS_TO_TICKS(10000))
+    {
+      lastMemoryPrintout = xTaskGetTickCount();
+      #if ( PRINT_MEMORY_INFO == 1 )
+      Log::printMemoryInfo();
+      #endif
+      #if ( PRINT_TASK_INFO == 1 )
+      Log::printTaskInfo();
+      #endif
     }
   }
   else {

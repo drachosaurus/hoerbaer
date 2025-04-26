@@ -17,9 +17,11 @@ void WLAN::connectIfConfigured() {
     WiFi.onEvent([&](WiFiEvent_t event, WiFiEventInfo_t info) {
       this->connected = true;
       Log::println("WiFi", "Connected to AccessPoint.");
+      Log::logCurrentHeap("After ARDUINO_EVENT_WIFI_STA_CONNECTED");
     }, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
 
     WiFi.onEvent([&](WiFiEvent_t event, WiFiEventInfo_t info) {
+      Log::logCurrentHeap("After ARDUINO_EVENT_WIFI_STA_GOT_IP");
       this->connected = true;
       this->ipV4 = WiFi.localIP();
       Log::println("WiFi", "IP Address: %s", WiFi.localIP().toString().c_str());
@@ -37,9 +39,15 @@ void WLAN::connectIfConfigured() {
     }, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 
     Log::println("WLAN", "WiFi connecting to SSID: %s", ssid.c_str());
+
     WiFi.mode(WIFI_STA);
+    Log::logCurrentHeap("After WiFi.mode(WIFI_STA)");
+
     WiFi.begin(ssid.c_str(), password.c_str());
+    Log::logCurrentHeap("After WiFi.begin(...)");
+
     WiFi.setHostname(userConfig->getName().c_str());
+    Log::logCurrentHeap("After WiFi.setHostname(...)");
   }
   else
     Log::println("WLAN", "WiFi disabled");

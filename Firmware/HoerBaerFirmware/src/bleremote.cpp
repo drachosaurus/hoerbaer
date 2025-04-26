@@ -32,29 +32,43 @@ BLERemote::BLERemote(shared_ptr<UserConfig> userConfig, shared_ptr<Power> power,
     this->power = power;
     this->audioPlayer = audioPlayer;
     this->wlan = wlan;
-    this->lastCharacteristicsUpdate = 0;
+}
+
+void BLEWorkerTask(void * param) 
+{
+    BLERemote* ble = (static_cast<BLERemote*>(param));
+    ble->runWorkerTask();
 }
 
 void BLERemote::initialize() {
 
     Log::println("BLE", "Initializing BLE remote");
-
+    
+    Log::logCurrentHeap("Before BLEDevice::init");
     BLEDevice::init(userConfig->getName().c_str());
+
+    Log::logCurrentHeap("After BLEDevice::init");
 
     bleServer = BLEDevice::createServer();
     bleServer->setCallbacks(new MyServerCallbacks());
 
+    Log::logCurrentHeap("After BLEDevice::createServer");
+
     bleService = bleServer->createService(BLE_SERVICE_UUID);
-    
+    Log::logCurrentHeap("After bleServer->createService");
+
     powerCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_POWER_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
     powerCharacteristic->addDescriptor(new BLE2902());
+    Log::logCurrentHeap("After createCharacteristic 1");
 
     playerCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_PLAYER_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
     playerCharacteristic->addDescriptor(new BLE2902());
+    Log::logCurrentHeap("After createCharacteristic 2");
 
     networkCharacteristic = bleService->createCharacteristic(BLE_CHARACTERISTIC_NETWORK_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
     networkCharacteristic->addDescriptor(new BLE2902());
-  
+    Log::logCurrentHeap("After createCharacteristic 3");
+
     // powerCharacteristic->setValue();
     // playerCharacteristic->setValue();
     
@@ -68,7 +82,53 @@ void BLERemote::initialize() {
     BLEDevice::startAdvertising();
 
     Log::println("BLE", "Characteristic defined! Now you can read it in your phone!");
+
+    xTaskCreate(BLEWorkerTask, "ble_worker", 
+        TASK_STACK_SIZE_HBI_WORKER_WORDS, 
+        this, 
+        TASK_PRIO_HBI_WORKER,
+        NULL);
 }
+
+void BLERemote::runWorkerTask() 
+{
+    while(1) 
+    {
+        // connected
+        if (deviceConnected) {
+            updatePowerCharacteristic();
+            updatePlayerCharacteristic();
+            updateNetworkCharacteristic();
+        }
+    
+        // disconnecting
+        if (!deviceConnected && oldDeviceConnected) {
+            vTaskDelay(pdMS_TO_TICKS(500));
+            bleServer->startAdvertising(); // restart advertising
+            Log::println("BLE", "Client disconnecting, start advertising...");
+            oldDeviceConnected = deviceConnected;
+        }
+    
+        // connecting
+        if (deviceConnected && !oldDeviceConnected) {
+            // do stuff here on connecting
+            oldDeviceConnected = deviceConnected;
+            Log::println("BLE", "Client connecting...");
+        }
+        
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+void BLERemote::shutdown() {
+    BLEDevice::deinit(true);
+    bleServer = nullptr;
+    bleService = nullptr;
+    powerCharacteristic = nullptr;
+    playerCharacteristic = nullptr;
+    Log::println("BLE", "BLE shut down");
+}
+
 
 void BLERemote::updatePowerCharacteristic() {
     auto powerState = power->getState();
@@ -137,44 +197,4 @@ void BLERemote::updateNetworkCharacteristic() {
     networkCharacteristic->setValue(pbBuffer, networkStream.bytes_written);
     networkCharacteristic->notify();
     delay(3); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
-}
-
-void BLERemote::bleRemoteLoop() {
-
-    auto tickCount = xTaskGetTickCount();
-    if(tickCount - lastCharacteristicsUpdate < pdMS_TO_TICKS(BLE_CHARACTERISTICS_UPDATE_INTERVAL_MILLIS))
-      return;
-
-    lastCharacteristicsUpdate = tickCount;
-
-    // connected
-    if (deviceConnected) {
-        updatePowerCharacteristic();
-        updatePlayerCharacteristic();
-        updateNetworkCharacteristic();
-    }
-
-    // disconnecting
-    if (!deviceConnected && oldDeviceConnected) {
-        delay(500); // give the bluetooth stack the chance to get things ready
-        bleServer->startAdvertising(); // restart advertising
-        Log::println("BLE", "Client disconnecting, start advertising...");
-        oldDeviceConnected = deviceConnected;
-    }
-
-    // connecting
-    if (deviceConnected && !oldDeviceConnected) {
-        // do stuff here on connecting
-        oldDeviceConnected = deviceConnected;
-        Log::println("BLE", "Client connecting...");
-    }
-}
-
-void BLERemote::shutdown() {
-    BLEDevice::deinit(true);
-    bleServer = nullptr;
-    bleService = nullptr;
-    powerCharacteristic = nullptr;
-    playerCharacteristic = nullptr;
-    Log::println("BLE", "BLE shut down");
 }
