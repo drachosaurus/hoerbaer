@@ -46,7 +46,6 @@ void BLERemote::initialize() {
     
     Log::logCurrentHeap("Before BLEDevice::init");
     BLEDevice::init(userConfig->getName().c_str());
-
     Log::logCurrentHeap("After BLEDevice::init");
 
     bleServer = BLEDevice::createServer();
