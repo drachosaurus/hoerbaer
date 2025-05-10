@@ -30,6 +30,9 @@ public partial class PlayingInfo : ObservableObject
     [ObservableProperty] private int duration;
     [ObservableProperty] private int volume;
     [ObservableProperty] private int maxVolume;
+
+    [ObservableProperty] private string _currentTrackTitle;
+    [ObservableProperty] private string currentTrackArtist;
 }
 
 public partial class NetworkInfo : ObservableObject

@@ -31,7 +31,10 @@ public class DeviceViewModel : ObservableObject, IDisposable
         $"{_connection.State.PlayingInfo.SlotActive + 1}" : "--";
     
     public string TrackDisplay => _connection != null ? 
-        GetCurrentTrackDisplay(_connection.State) : "--";
+        !string.IsNullOrEmpty(_connection.State.PlayingInfo.CurrentTrackArtist) ? 
+            $"{_connection.State.PlayingInfo.CurrentTrackTitle} - {_connection.State.PlayingInfo.CurrentTrackArtist}" :
+            _connection.State.PlayingInfo.CurrentTrackTitle : 
+        "--";
     
     public string FileIndexDisplay => _connection != null ? 
         $"{_connection.State.PlayingInfo.FileIndex + 1}/{_connection.State.PlayingInfo.FileCount}" : "--/--";
@@ -84,14 +87,24 @@ public class DeviceViewModel : ObservableObject, IDisposable
         }
     }
 
+    public void Dispose()
+    {
+        if (_connection == null)
+            return;
+        
+        _connection.State.Power.PropertyChanged -= OnPowerOnPropertyChanged;
+        _connection.State.PlayingInfo.PropertyChanged -= OnPlayingInfoOnPropertyChanged;
+        _connection.State.NetworkInfo.PropertyChanged -= OnNetworkInfoOnPropertyChanged;
+            
+        _connection.Disconnected -= ConnectionOnDisconnected;
+    }
+
     private async void ConnectionOnDisconnected(object? sender, EventArgs e)
     {
         var dispatcher = Dispatcher.GetForCurrentThread();
         if (dispatcher == null)
             return;
 
-        var state = Shell.Current.CurrentState;
-        
         await dispatcher.DispatchAsync(async () =>
         {
             await _notificationHub.ShowMessage("Device disconnected.");
@@ -123,31 +136,6 @@ public class DeviceViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(IsCharging));
     }
 
-    private string GetCurrentTrackDisplay(BearState state)
-    {
-        if (!(_connection?.Slots?.Any() ?? false))
-            return "--";
-
-        var currentSlot = _connection.State.PlayingInfo.SlotActive;
-        var currentTrackIndex = _connection.State.PlayingInfo.FileIndex;
-
-        if(_connection.Slots.Count <= currentSlot)
-            return "--";
-        
-        if(_connection.Slots[currentSlot].Files.Count <= currentTrackIndex)
-            return "--";
-        
-        var trackInfo = _connection.Slots[currentSlot].Files[currentTrackIndex];
-        
-        if(trackInfo.Title != null || trackInfo.Artist != null)
-            return $"{trackInfo.Title} - {trackInfo.Artist}";
-        
-        if(trackInfo.Title != null)
-            return trackInfo.Title;
-
-        return trackInfo.Path ?? "--";
-    }
-
     private static string HumanizeState(PlayerState playingInfoState)
         => playingInfoState switch
         {
@@ -156,16 +144,4 @@ public class DeviceViewModel : ObservableObject, IDisposable
             PlayerState.PlayerPaused => "Pause",
             _ => "--"
         };
-
-    public void Dispose()
-    {
-        if (_connection == null)
-            return;
-        
-        _connection.State.Power.PropertyChanged -= OnPowerOnPropertyChanged;
-        _connection.State.PlayingInfo.PropertyChanged -= OnPlayingInfoOnPropertyChanged;
-        _connection.State.NetworkInfo.PropertyChanged -= OnNetworkInfoOnPropertyChanged;
-            
-        _connection.Disconnected -= ConnectionOnDisconnected;
-    }
 }

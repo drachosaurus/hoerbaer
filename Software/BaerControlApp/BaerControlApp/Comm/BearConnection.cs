@@ -61,6 +61,7 @@ public class BearConnection : IDisposable
         {
             using var client = new HttpClient();
             Slots = await client.GetFromJsonAsync<List<SlotInfo>>($"http://{ip}/api/slots");
+            SetTrackAndArtistName();
         }
         catch (HttpRequestException e)
         {
@@ -146,6 +147,36 @@ public class BearConnection : IDisposable
         State.PlayingInfo.Duration = playerStatePayload.Duration;
         State.PlayingInfo.Volume = playerStatePayload.Volume;
         State.PlayingInfo.MaxVolume = playerStatePayload.MaxVolume;
+
+        SetTrackAndArtistName();
+    }
+
+    private void SetTrackAndArtistName()
+    {
+        State.PlayingInfo.CurrentTrackTitle = "--";
+        State.PlayingInfo.CurrentTrackArtist = "";
+        
+        if (Slots == null)
+            return;
+        
+        var currentSlot = State.PlayingInfo.SlotActive;
+        var currentTrackIndex = State.PlayingInfo.FileIndex;
+        
+        if(Slots.Count <= currentSlot)
+            return;
+    
+        if(Slots[currentSlot].Files.Count <= currentTrackIndex)
+            return;
+    
+        var trackInfo = Slots[currentSlot].Files[currentTrackIndex];
+
+        if (!string.IsNullOrEmpty(trackInfo.Artist))
+            State.PlayingInfo.CurrentTrackArtist = trackInfo.Artist;
+            
+        if (!string.IsNullOrEmpty(trackInfo.Title))
+            State.PlayingInfo.CurrentTrackTitle = trackInfo.Title;
+        else if(trackInfo.Path != null)
+            State.PlayingInfo.CurrentTrackTitle = Path.GetFileName(trackInfo.Path);
     }
 
     private void DeserializeUpdateNetworkValues(byte[]? bytes)

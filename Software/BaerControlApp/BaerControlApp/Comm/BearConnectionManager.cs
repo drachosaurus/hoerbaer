@@ -14,6 +14,7 @@ public class BearConnectionManager
 
     public event EventHandler BluetoothStateChanged;
     public bool BluetoothAvailable => _currentState == BluetoothState.On;
+    public bool IsScanning => _adapter.IsScanning;
 
     public ObservableCollection<DiscoveredDevice> Devices { get; } = new();
     public ObservableCollection<BearConnection> Connections { get; } = new();

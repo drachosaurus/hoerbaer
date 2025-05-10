@@ -30,4 +30,10 @@ public class MainViewModel: ViewModel
         OnPropertyChanged(nameof(Title));
         OnPropertyChanged(nameof(BluetoothAvailable));
     }
+
+    public void CheckDiscovering()
+    {
+        if(!_bearConnectionManager.IsScanning)
+            Task.Run(() => _bearConnectionManager.Discover(CancellationToken.None));
+    }
 }
