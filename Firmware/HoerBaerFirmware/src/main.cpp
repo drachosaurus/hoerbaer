@@ -43,111 +43,122 @@ void shutdown();
 
 void setup() {
 
-  shuttingDown = false;
-  i2c = make_shared<TwoWire>(0);
-  i2cSema = xSemaphoreCreateBinary();
-  xSemaphoreGive(i2cSema);
+  try {
 
-  // First (has to be first!), disable 3V3 ~PSAVE
-  power = make_shared<Power>(i2c, i2cSema);
-  power->disableVCCPowerSave();
-  
-  i2c->begin(GPIO_I2C_SDA, GPIO_I2C_SCL, 100000);
+    shuttingDown = false;
+    i2c = make_shared<TwoWire>(0);
+    i2cSema = xSemaphoreCreateBinary();
+    xSemaphoreGive(i2cSema);
 
-  auto wakeupReason = esp_sleep_get_wakeup_cause();
+    // First (has to be first!), disable 3V3 ~PSAVE
+    power = make_shared<Power>(i2c, i2cSema);
+    power->disableVCCPowerSave();
 
-  Log::init();
-  Log::println("MAIN", "Hello Bear! I woke up because %d", wakeupReason);
+    i2c->begin(GPIO_I2C_SDA, GPIO_I2C_SCL, 100000);
 
-  if(wakeupReason != ESP_SLEEP_WAKEUP_EXT0)
-  {
-    Log::println("MAIN", "Wakeup was not caused from button interrupt, shutting down again.");
-    shutdown();
-    return;
-  }
+    auto wakeupReason = esp_sleep_get_wakeup_cause();
 
-  Log::println("MAIN", "Startup! \n"
-        "\t- Main runs on core: %d \n" 
-        "\t- PSRAM is %s\n"
-        "\t- PINOUT_PCB_REV: %d \n",
-        xPortGetCoreID(), 
-        psramFound() ? "available" : "not available",
-        PINOUT_PCB_REV);
+    Log::init();
+    Log::println("MAIN", "Hello Bear! I woke up because %d", wakeupReason);
 
-  Log::logCurrentHeap("Start startup");
-
-  sdCard = make_shared<SDCard>();
-  userConfig = make_shared<UserConfig>(sdCard);
-  userConfig->initializeFromSdCard();
-
-  Log::logCurrentHeap("After user config");
-
-
-  // keeps 12V supply off (NPDN down) - has to be before HBI
-  audioPlayer = make_shared<AudioPlayer>(i2c, i2cSema, userConfig, sdCard);
-
-  Log::logCurrentHeap("After audio player constructor");
-
-
-  hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer, shutdown);
-  hbi->initialize();
-
-  Log::logCurrentHeap("After HBI init");
-
-  wlan = make_shared<WLAN>(userConfig);
-
-  Log::logCurrentHeap("After WLAN init");
-
-  power->initializeChargerAndGauge(userConfig->getBatteryPresent());
-  if (power->checkBatteryShutdown()) {
-    shutdown();
-    return;
-  }
-
-  usbStorageMode = hbi->getAnyButtonPressed(); // any button pressed during boot will enable USB Storage mode
-
-  if (!usbStorageMode) {
-
-    power->enableAudioVoltage();
-
-    audioPlayer->initialize();
-    audioPlayer->populateAudioMetadata();
-    
-    Log::logCurrentHeap("After Audio init");
-
-    bleRemote = make_unique<BLERemote>(userConfig, power, audioPlayer, wlan);
-    bleRemote->initialize();
-    
-    Log::logCurrentHeap("After BLE init");
-
-    hbi->setReadyToPlay(true);
-    hbi->setActionButtonsEnabled(true);
-
-    wlan->connectIfConfigured();
-
-    if(wlan->getEnabled()) {
-      Log::println("WLAN", "Starting WebServer");
-      webServer = make_shared<WebServer>(audioPlayer);
-      webServer->start();
+    if (wakeupReason != ESP_SLEEP_WAKEUP_EXT0) {
+      Log::println("MAIN", "Wakeup was not caused from button interrupt, shutting down again.");
+      shutdown();
+      return;
     }
-      
-    Log::println("MAIN", "Baer initialized, ready to play!");
+
+    Log::println("MAIN", "Startup! \n"
+      "\t- Main runs on core: %d \n"
+      "\t- PSRAM is %s\n"
+      "\t- PINOUT_PCB_REV: %d \n",
+      xPortGetCoreID(),
+      psramFound() ? "available" : "not available",
+      PINOUT_PCB_REV);
+
+    Log::logCurrentHeap("Start startup");
+
+    sdCard = make_shared<SDCard>();
+    userConfig = make_shared<UserConfig>(sdCard);
+    userConfig->initializeFromSdCard();
+
+    Log::logCurrentHeap("After user config");
+
+
+    // keeps 12V supply off (NPDN down) - has to be before HBI
+    audioPlayer = make_shared<AudioPlayer>(i2c, i2cSema, userConfig, sdCard);
+
+    Log::logCurrentHeap("After audio player constructor");
+
+
+    hbi = make_unique<HBI>(i2c, i2cSema, userConfig->getHBIConfig(), audioPlayer, shutdown);
+    hbi->initialize();
+
+    Log::logCurrentHeap("After HBI init");
+
+    wlan = make_shared<WLAN>(userConfig);
+
+    Log::logCurrentHeap("After WLAN init");
+
+    power->initializeChargerAndGauge(userConfig->getBatteryPresent());
+    if (power->checkBatteryShutdown()) {
+      shutdown();
+      return;
+    }
+
+    usbStorageMode = hbi->getAnyButtonPressed(); // any button pressed during boot will enable USB Storage mode
+
+    if (!usbStorageMode) {
+
+      power->enableAudioVoltage();
+
+      audioPlayer->initialize();
+      audioPlayer->populateAudioMetadata();
+
+      Log::logCurrentHeap("After Audio init");
+
+      bleRemote = make_unique<BLERemote>(userConfig, power, audioPlayer, wlan);
+      bleRemote->initialize();
+
+      Log::logCurrentHeap("After BLE init");
+
+      hbi->setReadyToPlay(true);
+      hbi->setActionButtonsEnabled(true);
+
+      wlan->connectIfConfigured();
+
+      if (wlan->getEnabled()) {
+        Log::println("WLAN", "Starting WebServer");
+        webServer = make_shared<WebServer>(audioPlayer);
+        webServer->start();
+      }
+
+      Log::println("MAIN", "Baer initialized, ready to play!");
+    }
+    else {
+      Log::println("MAIN", "Initialize USB Storage mode.");
+
+      // init USB MSC
+      usbMsc = make_unique<USBStorage>(sdCard);
+      usbMsc->initialize();
+
+      Log::println("MAIN", "Baer initialized in USB Mode, fill my stomache!");
+    }
   }
-  else
-  {
-    Log::println("MAIN", "Initialize USB Storage mode.");
-
-    // init USB MSC
-    usbMsc = make_unique<USBStorage>(sdCard);
-    usbMsc->initialize();
-
-    Log::println("MAIN", "Baer initialized in USB Mode, fill my stomache!");
+  catch (const std::exception& e) {
+    Log::println("MAIN", "Exception during setup: %s", e.what());
+    ESP.restart();
+    return;
+  }
+  catch (...) {
+    Log::println("MAIN", "Unknown exception during setup");
+    ESP.restart();
+    return;
   }
 }
 
 void loop() {
 
-  if(shuttingDown)
+  if (shuttingDown)
     return;
 
   if (!usbStorageMode) {
@@ -159,15 +170,15 @@ void loop() {
       return;
     }
 
-    if(lastMemoryPrintout == 0 || xTaskGetTickCount() - lastMemoryPrintout > pdMS_TO_TICKS(10000))
+    if (lastMemoryPrintout == 0 || xTaskGetTickCount() - lastMemoryPrintout > pdMS_TO_TICKS(10000))
     {
       lastMemoryPrintout = xTaskGetTickCount();
-      #if ( PRINT_MEMORY_INFO == 1 )
+#if ( PRINT_MEMORY_INFO == 1 )
       Log::printMemoryInfo();
-      #endif
-      #if ( PRINT_TASK_INFO == 1 )
+#endif
+#if ( PRINT_TASK_INFO == 1 )
       Log::printTaskInfo();
-      #endif
+#endif
     }
   }
   else {
@@ -181,25 +192,25 @@ void shutdown() {
   Log::println("MAIN", "Shutting down...");
   shuttingDown = true;
 
-  if(bleRemote != nullptr) {
+  if (bleRemote != nullptr) {
     bleRemote->shutdown();
     bleRemote.reset();
   }
 
-  if(audioPlayer != nullptr) {
+  if (audioPlayer != nullptr) {
     audioPlayer->stop();
     audioPlayer.reset();
   }
 
-  if(hbi != nullptr) {
+  if (hbi != nullptr) {
     hbi->setReadyToPlay(false);
     hbi->shutOffAllLeds();
-    
+
     Log::println("MAIN", "Wait until encoder button is released!");
     hbi->waitUntilEncoderButtonReleased();
   }
 
-  if(wlan != nullptr) {
+  if (wlan != nullptr) {
     wlan->disconnect();
     wlan.reset();
   }

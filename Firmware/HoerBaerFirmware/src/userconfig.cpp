@@ -25,6 +25,7 @@ UserConfig::UserConfig(std::shared_ptr<SDCard> sdCard)
     this->hbiConfig = std::make_shared<HBIConfig>();
     this->hbiConfig->reverseNose = false;
     this->hbiConfig->releaseInsteadOfPress = false;
+    this->hbiConfig->ledBrightness = 255;
     this->hbiConfig->ioMapping[0] = IO_MAPPING_TYPE_PLAY_SLOT;
     this->hbiConfig->ioMapping[1] = IO_MAPPING_TYPE_PLAY_SLOT;
     this->hbiConfig->ioMapping[2] = IO_MAPPING_TYPE_PLAY_SLOT;
@@ -153,9 +154,11 @@ void UserConfig::initializeHBI()
         JsonObject hbi = jsonBuffer["hbi"];
         this->hbiConfig->reverseNose = hbi["reverseNose"];
         this->hbiConfig->releaseInsteadOfPress = hbi["releaseInsteadOfPress"] | false;
+        this->hbiConfig->ledBrightness = hbi["ledBrightness"];
         Log::println("USRCFG", "Loaded HBI config:");
         Log::println("USRCFG", "- reverseNose: %s", this->hbiConfig->reverseNose ? "true" : "false");
         Log::println("USRCFG", "- releaseInsteadOfPress: %s", this->hbiConfig->releaseInsteadOfPress ? "true" : "false");
+        Log::println("USRCFG", "- ledBrightness: %d", this->hbiConfig->ledBrightness);
         for (int i = 0; i < 24; i++)
         {
             this->hbiConfig->ioMapping[i] = hbi["ioMapping"][i];

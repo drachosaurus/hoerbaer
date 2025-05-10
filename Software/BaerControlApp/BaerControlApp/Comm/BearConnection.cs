@@ -1,7 +1,10 @@
 using System.Net;
+using System.Net.Http.Json;
+using System.Xml;
 using HoerBaer.Ble;
 using Plugin.BLE;
 using Plugin.BLE.Abstractions.Contracts;
+using Plugin.BLE.Abstractions.EventArgs;
 
 namespace BaerControlApp.Comm;
 
@@ -9,14 +12,24 @@ public class BearConnection : IDisposable
 {
     private readonly DiscoveredDevice _device;
     private readonly IAdapter _adapter;
-
-    public BaerState State { get; }
     
-    public BearConnection(DiscoveredDevice device)
+    public BearState State { get; }
+    
+    private readonly List<(ICharacteristic characteristic, EventHandler<CharacteristicUpdatedEventArgs> eventSubscription)> _subscribedCharacteristics = new();
+
+    public bool NetworkConnected => Slots != null;
+    public List<SlotInfo>? Slots { get; private set; }
+
+    public bool IsConnected => _device.IsConnected;
+    public Guid Id => _device.Id;
+
+    internal BearConnection(DiscoveredDevice device)
     {
         _device = device;
         _adapter = CrossBluetoothLE.Current.Adapter;
-        State = new BaerState();
+        State = new BearState();
+        
+        _adapter.DeviceDisconnected += AdapterOnDeviceDisconnected;
     }
 
     public async Task ConnectAndSubscribe()
@@ -28,31 +41,77 @@ public class BearConnection : IDisposable
         if (service == null)
             throw new InvalidOperationException("Service not found");
         
-        var powerChar = await service.GetCharacteristicAsync(KnownIds.PowerCharacteristicId);
-        if (powerChar == null)
-            throw new InvalidOperationException("Power characteristic not found");
-        
-        powerChar.ValueUpdated += (o, args) => DeserializeUpdatePowerValues(args.Characteristic.Value);
-        await powerChar.StartUpdatesAsync();
-        
-        var playerChar = await service.GetCharacteristicAsync(KnownIds.PlayerCharacteristicId);
-        if (playerChar == null)
-            throw new InvalidOperationException("Player characteristic not found");
+        await ReadAndSubscribeCharacteristic(service, KnownIds.PowerCharacteristicId, DeserializeUpdatePowerValues);
+        await ReadAndSubscribeCharacteristic(service, KnownIds.PlayerCharacteristicId, DeserializeUpdatePlayerValues);
+        await ReadAndSubscribeCharacteristic(service, KnownIds.NetworkCharacteristicId, DeserializeUpdateNetworkValues);
 
-        playerChar.ValueUpdated += (o, args) => DeserializeUpdatePlayerValues(args.Characteristic.Value);
-        await playerChar.StartUpdatesAsync();
-
-        var networkChar = await service.GetCharacteristicAsync(KnownIds.NetworkCharacteristicId);
-        if (networkChar == null)
-            throw new InvalidOperationException("Network characteristic not found");
-
-        networkChar.ValueUpdated += (o, args) => DeserializeUpdateNetworkValues(args.Characteristic.Value);
-        await networkChar.StartUpdatesAsync();
+        await DownloadTracksIfConnected();
     }
 
+    private async Task DownloadTracksIfConnected()
+    {
+        var ip = State.NetworkInfo.IpV4Address;
+        
+        if (ip.Equals(IPAddress.Parse("0.0.0.0")) || !State.NetworkInfo.Connected)
+            return;
+
+        try
+        {
+            using var client = new HttpClient();
+            Slots = await client.GetFromJsonAsync<List<SlotInfo>>($"http://{ip}/api/slots");
+        }
+        catch (HttpRequestException e)
+        {
+            // unable to download slots - keep null
+            Slots = null;
+        }
+    }
+
+    public async Task DisconnectAndUnsubscribe()
+    {
+        RemoveUpdateEventHandlers();
+
+        var bleDevice = _device.DeviceRef;
+        await _adapter.DisconnectDeviceAsync(bleDevice);
+    }
+    
     public void Dispose()
     {
+        _adapter.DeviceDisconnected -= AdapterOnDeviceDisconnected;
         _adapter.DisconnectDeviceAsync(_device.DeviceRef);
+        RemoveUpdateEventHandlers();
+    }
+
+    private async Task ReadAndSubscribeCharacteristic(IService service, Guid id, Action<byte[]> updatedHandler)
+    {
+        var characteristic = await service.GetCharacteristicAsync(id);
+        if (characteristic == null)
+            throw new InvalidOperationException($"Characteristic {id} not found");
+
+        var initialValue = await characteristic.ReadAsync();
+        updatedHandler(initialValue.data);
+
+        EventHandler<CharacteristicUpdatedEventArgs> eventSubscription = (_, e) => updatedHandler(e.Characteristic.Value);
+        characteristic.ValueUpdated += eventSubscription;
+        await characteristic.StartUpdatesAsync();
+        
+        _subscribedCharacteristics.Add((characteristic, eventSubscription));
+    }
+
+    private void RemoveUpdateEventHandlers()
+    {
+        foreach (var (characteristic, handler) in _subscribedCharacteristics)
+            characteristic.ValueUpdated -= handler;
+        
+        _subscribedCharacteristics.Clear();
+    }
+
+    private void AdapterOnDeviceDisconnected(object? sender, DeviceEventArgs e)
+    {
+        if (e.Device.Id != _device.DeviceRef.Id)
+            return;
+
+        RemoveUpdateEventHandlers();
     }
 
     private void DeserializeUpdatePowerValues(byte[]? bytes)
@@ -73,6 +132,8 @@ public class BearConnection : IDisposable
             return;
 
         var playerStatePayload = PlayerStateCharacteristic.Parser.ParseFrom(bytes);
+        Console.WriteLine(string.Join(",", bytes.Select(b => $"{b:X2}")));
+        
         State.PlayingInfo.State = playerStatePayload.State;
         State.PlayingInfo.SlotActive = playerStatePayload.SlotActive;
         State.PlayingInfo.FileIndex = playerStatePayload.FileIndex;
@@ -97,13 +158,7 @@ public class BearConnection : IDisposable
 
     private static IPAddress GetIpAddressFromInt(int ipAddress)
     {
-        // Convert the integer to a byte array
         var bytes = BitConverter.GetBytes(ipAddress);
-
-        // flip little-endian to big-endian(network order)
-        if (BitConverter.IsLittleEndian)
-            Array.Reverse(bytes);
-
         return new IPAddress(bytes);
     }
 }

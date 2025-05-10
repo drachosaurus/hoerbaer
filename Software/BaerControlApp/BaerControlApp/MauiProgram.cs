@@ -20,7 +20,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<AppShell>();
         builder.Services.AddSingleton<INotificationHub>(r => r.GetRequiredService<AppShell>());
         
-        builder.Services.AddSingleton<BearDiscovery>();
+        builder.Services.AddSingleton<BearConnectionManager>();
         builder.Services.AddSingleton<MainViewModel>();
         builder.Services.AddScoped<DeviceViewModel>();
 

@@ -6,23 +6,23 @@ namespace BaerControlApp;
 
 public class MainViewModel: ViewModel
 {
-    private readonly BearDiscovery _bearDiscovery;
+    private readonly BearConnectionManager _bearConnectionManager;
 
-    public string Title => _bearDiscovery.BluetoothAvailable ? "Scanning..." : "Bluetooth not available!";
-    public bool BluetoothAvailable => _bearDiscovery.BluetoothAvailable;
-    public ObservableCollection<DiscoveredDevice> Devices => _bearDiscovery.Devices;
+    public string Title => _bearConnectionManager.BluetoothAvailable ? "Scanning..." : "Bluetooth not available!";
+    public bool BluetoothAvailable => _bearConnectionManager.BluetoothAvailable;
+    public ObservableCollection<DiscoveredDevice> Devices => _bearConnectionManager.Devices;
 
     public IAsyncRelayCommand NavigateDetailsCommand { get; }
     
-    public MainViewModel(BearDiscovery bearDiscovery)
+    public MainViewModel(BearConnectionManager bearConnectionManager)
     {
-        _bearDiscovery = bearDiscovery;
-        _bearDiscovery.BluetoothStateChanged += BearBluetoothOnBluetoothStateChanged;
+        _bearConnectionManager = bearConnectionManager;
+        _bearConnectionManager.BluetoothStateChanged += BearBluetoothOnBluetoothStateChanged;
 
         NavigateDetailsCommand = new AsyncRelayCommand<DiscoveredDevice>(async device => 
             await Shell.Current.GoToAsync($"/device", new ShellNavigationQueryParameters { { "device", device! } }));
         
-        Task.Run(() => _bearDiscovery.Discover(CancellationToken.None));
+        Task.Run(() => _bearConnectionManager.Discover(CancellationToken.None));
     }
 
     private void BearBluetoothOnBluetoothStateChanged(object? sender, EventArgs e)

@@ -177,6 +177,7 @@ void AudioPlayer::loop()
         lastPlayingInfoUpdate = tickCount;
         if(this->playingInfo != nullptr)
         {
+            this->playingInfo->serial++;
             this->playingInfo->currentTime = audio.getAudioCurrentTime();
             this->playingInfo->duration = audio.getAudioFileDuration();
         }
@@ -241,6 +242,7 @@ void AudioPlayer::playFromSlot(int iSlot, int increment)
     {
         total = this->playingInfo->total;
         index = this->playingInfo->index + increment;
+        this->playingInfo->serial++;
 
         if(index >= total)
         {
@@ -273,6 +275,7 @@ void AudioPlayer::playFromSlot(int iSlot, int increment)
     this->playingInfo->pausedAtPosition = 0;
     this->playingInfo->currentTime = 0;
     this->playingInfo->duration = audio.getAudioFileDuration();
+    this->playingInfo->serial++;
 
     Log::println("AUDIO", "Started: duration %u", 
         this->playingInfo->path.c_str(), this->playingInfo->duration);
@@ -296,6 +299,7 @@ void AudioPlayer::play()
 
     this->playSong(this->playingInfo->path, this->playingInfo->pausedAtPosition);
     this->playingInfo->pausedAtPosition = 0;
+    this->playingInfo->serial++;
 }
 
 void AudioPlayer::stop()
@@ -321,6 +325,8 @@ void AudioPlayer::pause()
 
     this->playingInfo->pausedAtPosition = audio.getFilePos();
     audio.stopSong();
+    this->playingInfo->serial++;
+
     Log::println("AUDIO", "Pause: %s, position %u.", 
         this->playingInfo->path.c_str(), this->playingInfo->pausedAtPosition);
 }
@@ -332,19 +338,19 @@ void AudioPlayer::next()
 
     Log::println("AUDIO", "Next track");
     auto slot = this->playingInfo->slot;
-
+    
     if(this->playingInfo->index == this->playingInfo->total - 1) 
     {
         Log::println("AUDIO", "Next: End of slot %d reached, jump to next slot", slot);
         slot++;
     }
-
+    
     if(slot >= this->slotDirectories->size()) 
     {
         Log::println("AUDIO", "Next: End of slots reached, jump next slot 0");
         slot = 0;
     }
-
+    
     this->playFromSlot(slot, 1);
 }
 

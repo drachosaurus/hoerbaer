@@ -284,6 +284,7 @@ void HBI::dispatchEncoderButton(bool longPress)
 void HBI::setLedState() 
 {
     uint32_t ledState = 0;
+    uint8_t brightness = this->hbiConfig->ledBrightness;
 
     // set leds from current playing slot
     auto playingInfo = this->audioPlayer->getPlayingInfo();
@@ -319,11 +320,11 @@ void HBI::setLedState()
         if(ledState & (1 << i))
         {
             if(i < 8)
-                this->ledDriver1->setBrightness(i, (uint8_t)0xFF);
+                this->ledDriver1->setBrightness(i, brightness);
             else if(i < 16)
-                this->ledDriver2->setBrightness(i - 8, (uint8_t)0xFF);
+                this->ledDriver2->setBrightness(i - 8, brightness);
             else
-                this->ledDriver3->setBrightness(i - 16, (uint8_t)0xFF);
+                this->ledDriver3->setBrightness(i - 16, brightness);
         }
     }
 
@@ -331,12 +332,13 @@ void HBI::setLedState()
 }
 
 void HBI::lightUpAllLeds() {
+    uint8_t brightness = this->hbiConfig->ledBrightness;
     xSemaphoreTake(this->i2cSema, portMAX_DELAY);
-    this->ledDriver1->setAllBrightness((uint8_t)0xFF);
+    this->ledDriver1->setAllBrightness(brightness);
     this->ledDriver1->setLedOutputMode(TLC59108::LED_MODE::PWM_IND);
-    this->ledDriver2->setAllBrightness((uint8_t)0xFF);
+    this->ledDriver2->setAllBrightness(brightness);
     this->ledDriver2->setLedOutputMode(TLC59108::LED_MODE::PWM_IND);
-    this->ledDriver3->setAllBrightness((uint8_t)0xFF);
+    this->ledDriver3->setAllBrightness(brightness);
     this->ledDriver3->setLedOutputMode(TLC59108::LED_MODE::PWM_IND);
     xSemaphoreGive(this->i2cSema);
 }

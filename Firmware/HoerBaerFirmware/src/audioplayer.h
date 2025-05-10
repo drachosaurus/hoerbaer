@@ -17,6 +17,7 @@ typedef struct {
     uint32_t pausedAtPosition;
     uint32_t duration;
     uint32_t currentTime;
+    int serial;
 } PlayingInfo;
 
 class AudioPlayer {

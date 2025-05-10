@@ -24,6 +24,7 @@ const char *defaultUserConfig =
     "  \"hbi\": {\n"
     "    \"reverseNose\": false,\n"
     "    \"releaseInsteadOfPress\": false,\n"
+    "    \"ledBrightness\": 255,\n"
     "    \"ioMapping\": [\n"
     "        1,\n"
     "        1,\n"

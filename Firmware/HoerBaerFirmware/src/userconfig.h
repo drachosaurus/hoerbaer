@@ -26,6 +26,7 @@ typedef struct {
 typedef struct {
     bool reverseNose;
     bool releaseInsteadOfPress;
+    uint8_t ledBrightness;
     uint8_t ioMapping[32];
 } HBIConfig;
 

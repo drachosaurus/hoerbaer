@@ -8,12 +8,12 @@
              x:DataType="local:MainViewModel">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
+            <RowDefinition Height="80" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         
         <Label
-            Grid.Row="0"
+            Grid.Row="0" VerticalTextAlignment="Center"
             Text="{Binding Title}"
             Style="{StaticResource Headline}" />
 
@@ -50,10 +50,10 @@
                                    Grid.Column="0"
                                    Text="{Binding Id}"
                                    FontAttributes="Italic"
-                                   FontSize="20" />
+                                   FontSize="14" />
                             <HorizontalStackLayout Grid.Row="1"
                                                    Grid.Column="1">
-                                <Label Text="RSSI: " FontSize="20" />
+                                <Label Text="RSSI: " FontSize="14" />
                                 <Label Text="{Binding Rssi}" FontSize="20" />
                             </HorizontalStackLayout>
                             <controls:RssiIndicator

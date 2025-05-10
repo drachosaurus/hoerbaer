@@ -26,6 +26,8 @@ public class DiscoveredDevice : ObservableObject
         set => SetProperty(ref _rssi, value);
     }
     
+    public bool IsConnected => DeviceRef?.State == Plugin.BLE.Abstractions.DeviceState.Connected;
+    
     public IDevice DeviceRef { get; }
 
     public DiscoveredDevice(IDevice device)

@@ -5,7 +5,7 @@ using Plugin.BLE.Abstractions.Contracts;
 
 namespace BaerControlApp.Comm;
 
-public class BearDiscovery
+public class BearConnectionManager
 {
     private readonly IAdapter _adapter;
     private readonly IBluetoothLE _ble;
@@ -16,8 +16,9 @@ public class BearDiscovery
     public bool BluetoothAvailable => _currentState == BluetoothState.On;
 
     public ObservableCollection<DiscoveredDevice> Devices { get; } = new();
+    public ObservableCollection<BearConnection> Connections { get; } = new();
     
-    public BearDiscovery()
+    public BearConnectionManager()
     {
         _ble = CrossBluetoothLE.Current;
         _adapter = CrossBluetoothLE.Current.Adapter;
@@ -32,6 +33,24 @@ public class BearDiscovery
         
         _adapter.DeviceDiscovered += (s,a) => AddOrUpdateDevice(a.Device);
         _adapter.DeviceAdvertised += (s,a) => AddOrUpdateDevice(a.Device);
+    }
+
+    public async Task<BearConnection> GetConnectedBaer(DiscoveredDevice device)
+    {
+        var connection = Connections.SingleOrDefault(c => c.Id == device.Id);
+        if (connection != null)
+        {
+            if(!connection.IsConnected)
+                await connection.ConnectAndSubscribe();
+            
+            return connection;
+        }
+
+        connection = new BearConnection(device);
+        await connection.ConnectAndSubscribe();
+        Connections.Add(connection);
+
+        return connection;
     }
     
     public async Task Discover(CancellationToken ct)

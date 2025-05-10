@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace BaerControlApp.Comm;
 
-public class BaerState
+public class BearState
 {
     public DevicePower Power { get; } = new DevicePower();
     
