@@ -33,6 +33,7 @@ public class BearConnectionManager
         
         _adapter.DeviceDiscovered += (s,a) => AddOrUpdateDevice(a.Device);
         _adapter.DeviceAdvertised += (s,a) => AddOrUpdateDevice(a.Device);
+        _adapter.DeviceDisconnected += (s, a) => RemoveDevice(a.Device);
     }
 
     public async Task<BearConnection> GetConnectedBaer(DiscoveredDevice device)
@@ -75,6 +76,16 @@ public class BearConnectionManager
         {
             Devices.Add(new DiscoveredDevice(device));
             Console.WriteLine($"Added device: {device.Name} ({device.Id})");
+        }
+    }
+
+    private void RemoveDevice(IDevice device)
+    {
+        var existing = Devices.SingleOrDefault(d => d.Id == device.Id);
+        if (existing != null)
+        {
+            Devices.Remove(existing);
+            Console.WriteLine($"Removed device: {device.Name} ({device.Id})");
         }
     }
 }

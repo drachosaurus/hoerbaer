@@ -2,29 +2,32 @@ using BaerControlApp.Comm;
 
 namespace BaerControlApp.Device;
 
-[QueryProperty(nameof(Device), "device")]
+[QueryProperty(nameof(DeviceId), "deviceId")]
 public partial class DevicePage : ContentPage
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
     
     private IServiceScope? _currentScope;
     
-    DiscoveredDevice _device;
-    public DiscoveredDevice Device
+    string _deviceId;
+    public string DeviceId
     {
-        get => _device;
+        get => _deviceId;
         set
         {
-            if (_device?.Id == value.Id)
+            if (_deviceId == value)
                 return;
             
-            _device = value;
+            _deviceId = value;
             
             _currentScope?.Dispose();
             _currentScope = _serviceScopeFactory.CreateScope();
             var viewModel = _currentScope.ServiceProvider.GetRequiredService<DeviceViewModel>();
             BindingContext = viewModel;
-            _ = viewModel.Initialize(_device);
+            
+            var mgr = _currentScope.ServiceProvider.GetRequiredService<BearConnectionManager>();
+            var discoveredDevice = mgr.Devices.Single(d => d.Id == Guid.Parse(value));
+            _ = viewModel.Initialize(discoveredDevice);
         }
     }
     
@@ -32,5 +35,12 @@ public partial class DevicePage : ContentPage
     {
         InitializeComponent();
         _serviceScopeFactory = serviceScopeFactory;
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        _currentScope?.Dispose();
+        _currentScope = null;
     }
 }

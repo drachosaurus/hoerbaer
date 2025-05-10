@@ -7,7 +7,7 @@ using Plugin.BLE.Abstractions.Exceptions;
 
 namespace BaerControlApp.Device;
 
-public class DeviceViewModel : ObservableObject
+public class DeviceViewModel : ObservableObject, IDisposable
 {
     private readonly INotificationHub _notificationHub;
     private readonly BearConnectionManager _connectionManager;
@@ -69,17 +69,34 @@ public class DeviceViewModel : ObservableObject
             _connection.State.Power.PropertyChanged += OnPowerOnPropertyChanged;
             _connection.State.PlayingInfo.PropertyChanged += OnPlayingInfoOnPropertyChanged;
             _connection.State.NetworkInfo.PropertyChanged += OnNetworkInfoOnPropertyChanged;
+            
+            _connection.Disconnected += ConnectionOnDisconnected;
         }
         catch(DeviceConnectionException ex)
         {
             await _notificationHub.ShowMessage("Unable to connect.");
-            await Shell.Current.GoToAsync("main");
+            await Shell.Current.GoToAsync("//main");
         }
         catch(Exception ex)
         {
             await _notificationHub.ShowException("Unexpected error while connecting.", ex);
-            await Shell.Current.GoToAsync("main");
+            await Shell.Current.GoToAsync("//main");
         }
+    }
+
+    private async void ConnectionOnDisconnected(object? sender, EventArgs e)
+    {
+        var dispatcher = Dispatcher.GetForCurrentThread();
+        if (dispatcher == null)
+            return;
+
+        var state = Shell.Current.CurrentState;
+        
+        await dispatcher.DispatchAsync(async () =>
+        {
+            await _notificationHub.ShowMessage("Device disconnected.");
+            await Shell.Current.GoToAsync("//main");
+        });
     }
 
     private void OnNetworkInfoOnPropertyChanged(object? sender, PropertyChangedEventArgs? args)
@@ -139,4 +156,16 @@ public class DeviceViewModel : ObservableObject
             PlayerState.PlayerPaused => "Pause",
             _ => "--"
         };
+
+    public void Dispose()
+    {
+        if (_connection == null)
+            return;
+        
+        _connection.State.Power.PropertyChanged -= OnPowerOnPropertyChanged;
+        _connection.State.PlayingInfo.PropertyChanged -= OnPlayingInfoOnPropertyChanged;
+        _connection.State.NetworkInfo.PropertyChanged -= OnNetworkInfoOnPropertyChanged;
+            
+        _connection.Disconnected -= ConnectionOnDisconnected;
+    }
 }

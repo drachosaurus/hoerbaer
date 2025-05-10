@@ -20,7 +20,7 @@ public class MainViewModel: ViewModel
         _bearConnectionManager.BluetoothStateChanged += BearBluetoothOnBluetoothStateChanged;
 
         NavigateDetailsCommand = new AsyncRelayCommand<DiscoveredDevice>(async device => 
-            await Shell.Current.GoToAsync($"/device", new ShellNavigationQueryParameters { { "device", device! } }));
+            await Shell.Current.GoToAsync($"device?deviceId={device!.Id}"));
         
         Task.Run(() => _bearConnectionManager.Discover(CancellationToken.None));
     }

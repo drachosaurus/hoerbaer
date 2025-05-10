@@ -22,6 +22,8 @@ public class BearConnection : IDisposable
 
     public bool IsConnected => _device.IsConnected;
     public Guid Id => _device.Id;
+    
+    public event EventHandler? Disconnected;
 
     internal BearConnection(DiscoveredDevice device)
     {
@@ -112,6 +114,8 @@ public class BearConnection : IDisposable
             return;
 
         RemoveUpdateEventHandlers();
+
+        Disconnected?.Invoke(this, EventArgs.Empty);
     }
 
     private void DeserializeUpdatePowerValues(byte[]? bytes)

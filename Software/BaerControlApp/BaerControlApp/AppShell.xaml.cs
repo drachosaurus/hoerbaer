@@ -10,7 +10,7 @@ public partial class AppShell : Shell, INotificationHub
         
         Routing.RegisterRoute("main", typeof(MainPage));
         Routing.RegisterRoute("device", typeof(DevicePage));
-        Routing.RegisterRoute("device//tracklist", typeof(TracklistPage));
+        Routing.RegisterRoute("device/tracklist", typeof(TracklistPage));
     }
 
     public async Task ShowMessage(string message)
