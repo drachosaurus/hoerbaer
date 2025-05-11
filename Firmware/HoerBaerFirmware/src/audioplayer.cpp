@@ -257,20 +257,33 @@ void AudioPlayer::playFromSlot(int iSlot, int increment)
             index = total - 1;
     }
 
-    string nextFile = this->sdCard->nextFile(slotDir, index);
-    if(nextFile.empty())
-    {
-        Log::println("AUDIO", "No files anymore in slot %d after index %d", iSlot, index);
+    playSlotIndex(iSlot, index);
+}
+
+void AudioPlayer::playSlotIndex(int iSlot, int iTrack)
+{
+    string slotDir = this->slotDirectories->at(iSlot);
+    
+    auto total = this->sdCard->countFiles(slotDir);
+    if (iTrack < 0 || iTrack >= total) {
+        Log::println("AUDIO", "Invalid track index: %d for slot %d", iTrack, iSlot);
         return;
     }
 
-    Log::println("AUDIO", "Play slot %d, index %d, total %d, path %s", iSlot, index, total, nextFile.c_str());
+    string nextFile = this->sdCard->nextFile(slotDir, iTrack);
+    if(nextFile.empty())
+    {
+        Log::println("AUDIO", "No files anymore in slot %d after index %d", iSlot, iTrack);
+        return;
+    }
+
+    Log::println("AUDIO", "Play slot %d, index %d, total %d, path %s", iSlot, iTrack, total, nextFile.c_str());
     this->playSong(nextFile, 0);
 
     this->playingInfo = make_shared<PlayingInfo>();
     this->playingInfo->path = nextFile;
     this->playingInfo->slot = iSlot;
-    this->playingInfo->index = index;
+    this->playingInfo->index = iTrack;
     this->playingInfo->total = total;
     this->playingInfo->pausedAtPosition = 0;
     this->playingInfo->currentTime = 0;
@@ -278,7 +291,7 @@ void AudioPlayer::playFromSlot(int iSlot, int increment)
     this->playingInfo->serial++;
 
     Log::println("AUDIO", "Started: duration %u", 
-        this->playingInfo->path.c_str(), this->playingInfo->duration);
+        this->playingInfo->duration);
 }
 
 void AudioPlayer::playNextFromSlot(int iSlot)

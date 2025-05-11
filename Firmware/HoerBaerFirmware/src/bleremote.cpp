@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <pb_encode.h>
+#include <pb_decode.h>
 #include "log.h"
 #include "config.h"
 #include "bleremote.h"
@@ -7,6 +8,7 @@
 #include "power_state_characteristic.pb.h"
 #include "player_state_characteristic.pb.h"
 #include "network_state_characteristic.pb.h"
+#include "player_command_characteristic.pb.h"
 
 #define BLE_MAX_CONNECTIONS 5 // Configure: how many simultaneous connections you allow
 #define PB_BUFFER_SIZE 512 // Buffer size for protobuf encoding (in PSRAM)
@@ -32,6 +34,12 @@ void BLERemoteServerCallbacks::onDisconnect(NimBLEServer* pServer, NimBLEConnInf
 void BLERemoteControlCallbacks::onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) {
     if (bleRemote) {
         bleRemote->onControlReceived(pCharacteristic);
+    }
+}
+
+void BLERemotePlayerCommandCallbacks::onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) {
+    if (bleRemote) {
+        bleRemote->onPlayerCommandReceived(pCharacteristic);
     }
 }
 
@@ -91,6 +99,13 @@ void BLERemote::initialize() {
     );
 
     controlCharacteristic->setCallbacks(new BLERemoteControlCallbacks(this));
+    
+    playerCmdCharacteristic = bleService->createCharacteristic(
+        BLE_CHARACTERISTIC_PLAYER_CMD_UUID,
+        NIMBLE_PROPERTY::WRITE
+    );
+    
+    playerCmdCharacteristic->setCallbacks(new BLERemotePlayerCommandCallbacks(this));
 
 
     bleService->start();
@@ -232,5 +247,54 @@ void BLERemote::updateNetworkCharacteristic() {
 }
 
 void BLERemote::onControlReceived(NimBLECharacteristic* pCharacteristic) {
+}
+
+void BLERemote::onPlayerCommandReceived(NimBLECharacteristic* pCharacteristic) {
+    std::string value = pCharacteristic->getValue();
+    if (value.length() > 0) {
+        Log::println("BLE", "Player command received (%d bytes)", value.length());
+        processPlayerCommand((const uint8_t*)value.data(), value.length());
+    }
+}
+
+void BLERemote::processPlayerCommand(const uint8_t* data, size_t length) {
+    PlayerCommandCharacteristic cmd = PlayerCommandCharacteristic_init_zero;
+    pb_istream_t stream = pb_istream_from_buffer(data, length);
+
+    if (!pb_decode(&stream, PlayerCommandCharacteristic_fields, &cmd)) {
+        Log::println("BLE", "Error decoding player command");
+        return;
+    }
+
+    Log::println("BLE", "Player command: %d, slot: %d, fileIndex: %d", 
+                 cmd.command, cmd.slotIndex, cmd.fileIndex);
+
+    switch (cmd.command) {
+        case PlayerCommand_PLAY:
+            audioPlayer->play();
+            break;
+        case PlayerCommand_PAUSE:
+            audioPlayer->pause();
+            break;
+        case PlayerCommand_NEXT:
+            audioPlayer->next();
+            break;
+        case PlayerCommand_PREVIOUS:
+            audioPlayer->prev();
+            break;
+        case PlayerCommand_SEEK:
+            // Not implemented yet - would need to add seek functionality to AudioPlayer
+            Log::println("BLE", "SEEK command not implemented yet, seekTime: %d", cmd.seekTime);
+            break;
+        case PlayerCommand_PLAY_SLOT_INDEX:
+            if (cmd.slotIndex >= 0 && cmd.fileIndex >= 0)
+                audioPlayer->playSlotIndex(cmd.slotIndex, cmd.fileIndex);
+            else
+                Log::println("BLE", "Invalid slot or file index");
+            break;
+        default:
+            Log::println("BLE", "Unknown player command: %d", cmd.command);
+            break;
+    }
 }
 

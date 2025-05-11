@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:device="clr-namespace:BaerControlApp.Device"
-             x:Class="BaerControlApp.Device.DevicePage"
-             x:DataType="device:DeviceViewModel">
+<device:DevicePageBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   xmlns:device="clr-namespace:BaerControlApp.Device"
+                   x:Class="BaerControlApp.Device.DevicePage"
+                   x:TypeArguments="device:DeviceViewModel"
+                   x:DataType="device:DeviceViewModel">
     <ScrollView>
         
         <Grid Margin="20">
@@ -100,4 +101,4 @@
         </Grid>
     </ScrollView>
 
-</ContentPage>
+</device:DevicePageBase>

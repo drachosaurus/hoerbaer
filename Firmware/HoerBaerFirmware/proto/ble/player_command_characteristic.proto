@@ -1,0 +1,19 @@
+syntax = "proto3";
+option csharp_namespace = "HoerBaer.Ble";
+
+enum PlayerCommand {
+    PLAY = 0;
+    PAUSE = 1;
+    NEXT = 2;
+    PREVIOUS = 3;
+    SEEK = 4;
+    PLAY_SLOT_INDEX = 5;
+}
+
+message PlayerCommandCharacteristic {
+    PlayerCommand command = 1;
+    int32 slotIndex = 2;
+    int32 fileIndex = 3;
+    int32 seekTime = 4;
+}
+  

@@ -7,7 +7,7 @@ using Plugin.BLE.Abstractions.Exceptions;
 
 namespace BaerControlApp.Device;
 
-public class DeviceViewModel : ObservableObject, IDisposable
+public class DeviceViewModel : ObservableObject, IDeviceViewModel, IDisposable
 {
     private readonly INotificationHub _notificationHub;
     private readonly BearConnectionManager _connectionManager;
@@ -95,7 +95,7 @@ public class DeviceViewModel : ObservableObject, IDisposable
         _connection.State.Power.PropertyChanged -= OnPowerOnPropertyChanged;
         _connection.State.PlayingInfo.PropertyChanged -= OnPlayingInfoOnPropertyChanged;
         _connection.State.NetworkInfo.PropertyChanged -= OnNetworkInfoOnPropertyChanged;
-            
+        
         _connection.Disconnected -= ConnectionOnDisconnected;
     }
 

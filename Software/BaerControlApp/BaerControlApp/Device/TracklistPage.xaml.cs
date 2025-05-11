@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace BaerControlApp.Device;
 
-public partial class TracklistPage : ContentPage
+[QueryProperty(nameof(DeviceId), "deviceId")]
+public partial class TracklistPage : DevicePageBase<TracklistViewModel>
 {
-    public TracklistPage()
+    public TracklistPage(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
     {
         InitializeComponent();
     }

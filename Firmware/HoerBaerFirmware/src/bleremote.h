@@ -15,6 +15,7 @@ class BLERemote {
 
     friend class BLERemoteServerCallbacks;
     friend class BLERemoteControlCallbacks;
+    friend class BLERemotePlayerCommandCallbacks;
 
     private:
         shared_ptr<UserConfig> userConfig;
@@ -37,6 +38,11 @@ class BLERemote {
 
         BLECharacteristic* controlCharacteristic;
         void onControlReceived(NimBLECharacteristic* pCharacteristic); // has to be public for callbacks
+        
+        BLECharacteristic* playerCmdCharacteristic;
+        void onPlayerCommandReceived(NimBLECharacteristic* pCharacteristic);
+        void processPlayerCommand(const uint8_t* data, size_t length);
+        
         std::set<uint16_t> connectedClients; // has to be public for callbacks
         
     public:
@@ -61,5 +67,13 @@ class BLERemoteControlCallbacks : public NimBLECharacteristicCallbacks {
         BLERemote* bleRemote;
     public:
         BLERemoteControlCallbacks(BLERemote* ble) : bleRemote(ble) {}        
+        void onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) override;
+};
+
+class BLERemotePlayerCommandCallbacks : public NimBLECharacteristicCallbacks {
+    private:
+        BLERemote* bleRemote;
+    public:
+        BLERemotePlayerCommandCallbacks(BLERemote* ble) : bleRemote(ble) {}        
         void onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) override;
 };

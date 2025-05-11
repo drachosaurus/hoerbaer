@@ -45,6 +45,7 @@ class AudioPlayer {
         shared_ptr<PlayingInfo> getPlayingInfo();
         void volumeUp();
         void volumeDown();
+        void playSlotIndex(int iSlot, int iTrack);
         void playNextFromSlot(int iSlot);
         void play();
         void stop();
