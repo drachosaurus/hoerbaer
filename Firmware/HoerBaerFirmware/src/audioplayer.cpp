@@ -27,7 +27,9 @@ AudioPlayer::AudioPlayer(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema, sha
     currentInstance = unique_ptr<AudioPlayer>(this);
 
     // Define a map to store file names per slot directory with artist and title in PSRAM
-    this->slotFiles = std::make_unique<std::vector<std::vector<std::tuple<std::string, std::string, std::string>>>>();
+    this->slotFiles = std::unique_ptr<std::vector<std::vector<std::tuple<std::string, std::string, std::string>>>>(
+        new (heap_caps_malloc(sizeof(std::vector<std::vector<std::tuple<std::string, std::string, std::string>>>), MALLOC_CAP_SPIRAM)) 
+        std::vector<std::vector<std::tuple<std::string, std::string, std::string>>>());
 
     // TODO: 
     // - slotFiles anstatt slotDirectories verwenden?
@@ -252,7 +254,7 @@ void AudioPlayer::playFromSlot(int iSlot, int increment)
     }
     else 
     {
-        total = this->sdCard->countFiles(slotDir);
+        total = this->slotFiles->at(iSlot).size();
         if(increment == -1) // start from behind, when we are skipping back
             index = total - 1;
     }
@@ -264,13 +266,13 @@ void AudioPlayer::playSlotIndex(int iSlot, int iTrack)
 {
     string slotDir = this->slotDirectories->at(iSlot);
     
-    auto total = this->sdCard->countFiles(slotDir);
+    auto total = this->slotFiles->at(iSlot).size();
     if (iTrack < 0 || iTrack >= total) {
         Log::println("AUDIO", "Invalid track index: %d for slot %d", iTrack, iSlot);
         return;
     }
 
-    string nextFile = this->sdCard->nextFile(slotDir, iTrack);
+    string nextFile = get<0>(this->slotFiles->at(iSlot).at(iTrack));
     if(nextFile.empty())
     {
         Log::println("AUDIO", "No files anymore in slot %d after index %d", iSlot, iTrack);

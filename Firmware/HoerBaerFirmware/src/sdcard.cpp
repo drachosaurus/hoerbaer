@@ -155,16 +155,18 @@ std::string SDCard::nextFile(std::string dir, int skip)
             continue;
         }
 
-        return file.path();
+        auto path = file.path();
+        root.close();
+        return path;
     }
 
     root.close();
-
     return "";
 }
 
 int SDCard::countFiles(std::string dir)
 {
+    Serial.println("COUNTING FILES IN: " + String(dir.c_str()));
     this->mountOrThrow();
 
     File root = SDLIB.open(dir.c_str());
