@@ -1,11 +1,13 @@
 #pragma once
 
 #include <Arduino.h>
-#include <MFRC522.h>
+
+#define byte uint8_t // MFRC522 library uses 'byte' (std::byte is C++17 - leads to conflict here)
+#include <MFRC522v2.h>
+#include <MFRC522DriverI2C.h>
+
 #include <Wire.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/queue.h>
-#include <freertos/task.h>
+#include <FreeRTOS.h>
 #include <memory>
 
 #include "config.h"
@@ -30,7 +32,7 @@ private:
     std::shared_ptr<UserConfig> _userConfig;
     std::shared_ptr<AudioPlayer> _audioPlayer;
     std::unique_ptr<TwoWire> _bus;
-    std::unique_ptr<MFRC522_I2C> _driver;
+    std::unique_ptr<MFRC522DriverI2C> _driver;
     std::unique_ptr<MFRC522> _reader;
     QueueHandle_t _irqQueue;
     TaskHandle_t _workerTaskHandle;

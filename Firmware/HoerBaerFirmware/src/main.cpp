@@ -15,8 +15,7 @@
 #include "bleremote.h"
 #include "webserver.h"
 #include "usb_msc.h"
-
-using namespace std;
+#include "rfid.h"
 
 shared_ptr<TwoWire> i2c;
 SemaphoreHandle_t i2cSema;
@@ -29,6 +28,7 @@ unique_ptr<HBI> hbi;
 shared_ptr<WLAN> wlan;
 unique_ptr<BLERemote> bleRemote;
 shared_ptr<WebServer> webServer;
+unique_ptr<RFID> rfid;
 unique_ptr<USBStorage> usbMsc;
 
 std::string wifiSsid;
@@ -120,6 +120,11 @@ void setup() {
       bleRemote->initialize();
 
       Log::logCurrentHeap("After BLE init");
+
+      rfid = make_unique<RFID>(userConfig, audioPlayer);
+      rfid->initialize();
+
+      Log::logCurrentHeap("After RFID init");
 
       hbi->setReadyToPlay(true);
       hbi->setActionButtonsEnabled(true);

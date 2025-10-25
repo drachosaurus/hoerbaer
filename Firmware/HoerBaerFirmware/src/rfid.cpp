@@ -19,8 +19,8 @@ RFID::RFID(std::shared_ptr<UserConfig> userConfig, std::shared_ptr<AudioPlayer> 
             _reader(nullptr),
             _irqQueue(nullptr),
             _workerTaskHandle(nullptr) {
-        _driver = std::make_unique<MFRC522_I2C>(GPIO_RFID_RST, RFID_I2C_ADDRESS, *_bus);
-        _reader = std::make_unique<MFRC522>(_driver.get());
+        _driver = std::make_unique<MFRC522DriverI2C>(RFID_I2C_ADDRESS, *_bus);
+        _reader = std::make_unique<MFRC522>(*_driver);
 }
 
 void RFID::initialize() {
@@ -48,12 +48,15 @@ void RFID::configureReader() {
     digitalWrite(GPIO_RFID_RST, HIGH);
     delay(5);
 
-    _reader->PCD_Init();
+    if (!_reader->PCD_Init()) {
+        Log::println("RFID", "Failed to initialize MFRC522 over I2C");
+        return;
+    }
     _reader->PCD_SetAntennaGain(MFRC522::PCD_RxGain::RxGain_max);
 
-    _reader->PCD_WriteRegister(MFRC522::PCD_Register::ComIEnReg, 0xA0 | 0x20 | 0x10);
-    _reader->PCD_WriteRegister(MFRC522::PCD_Register::DivIEnReg, 0x80);
-    _reader->PCD_WriteRegister(MFRC522::PCD_Register::ComIrqReg, 0x7F);
+    _driver->PCD_WriteRegister(MFRC522::PCD_Register::ComIEnReg, 0xA0 | 0x20 | 0x10);
+    _driver->PCD_WriteRegister(MFRC522::PCD_Register::DivIEnReg, 0x80);
+    _driver->PCD_WriteRegister(MFRC522::PCD_Register::ComIrqReg, 0x7F);
 
     Log::println("RFID", "MFRC522 ready on I2C address 0x%02X", RFID_I2C_ADDRESS);
 }
@@ -125,11 +128,11 @@ void RFID::workerLoop() {
 }
 
 void RFID::processTag() {
-    if (!_reader) {
+    if (!_reader || !_driver) {
         return;
     }
 
-    _reader->PCD_WriteRegister(MFRC522::PCD_Register::ComIrqReg, 0x7F);
+    _driver->PCD_WriteRegister(MFRC522::PCD_Register::ComIrqReg, 0x7F);
 
     if (!_reader->PICC_IsNewCardPresent()) {
         return;

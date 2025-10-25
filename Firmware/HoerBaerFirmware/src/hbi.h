@@ -8,8 +8,6 @@
 #include "userconfig.h"
 #include "audioplayer.h"
 
-using namespace std;
-
 class HBI;
 
 class HBI {
