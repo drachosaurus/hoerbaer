@@ -54,7 +54,7 @@ public class BearConnection : IDisposable
     {
         var ip = State.NetworkInfo.IpV4Address;
         
-        if (ip.Equals(IPAddress.Parse("0.0.0.0")) || !State.NetworkInfo.Connected)
+        if (ip == null || ip.Equals(IPAddress.Parse("0.0.0.0")) || !State.NetworkInfo.Connected)
             return;
 
         try
