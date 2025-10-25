@@ -2,17 +2,20 @@
 
 #include <Arduino.h>
 
-#define byte uint8_t // MFRC522 library uses 'byte' (std::byte is C++17 - leads to conflict here)
+#define byte uint8_t
+#include <MFRC522DriverPinSimple.h>
+#include <MFRC522DriverSPI.h>
 #include <MFRC522v2.h>
-#include <MFRC522DriverI2C.h>
 
-#include <Wire.h>
-#include <FreeRTOS.h>
+#include <SPI.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <array>
 #include <memory>
 
+#include "audioplayer.h"
 #include "config.h"
 #include "userconfig.h"
-#include "audioplayer.h"
 
 class RFID {
 public:
@@ -21,19 +24,21 @@ public:
 
 private:
     void beginBus();
-    void configureReader();
-    void configureInterrupt();
-    static void IRAM_ATTR onInterruptStatic(void* arg);
+    bool configureReader();
     static void workerTaskEntry(void* arg);
-    void handleInterruptFromISR();
     void workerLoop();
     void processTag();
+    bool isSameUid(const MFRC522::Uid& uid) const;
+    void rememberUid(const MFRC522::Uid& uid);
 
     std::shared_ptr<UserConfig> _userConfig;
     std::shared_ptr<AudioPlayer> _audioPlayer;
-    std::unique_ptr<TwoWire> _bus;
-    std::unique_ptr<MFRC522DriverI2C> _driver;
+    std::unique_ptr<SPIClass> _spiBus;
+    std::unique_ptr<MFRC522DriverPinSimple> _chipSelectPin;
+    std::unique_ptr<MFRC522DriverSPI> _driver;
     std::unique_ptr<MFRC522> _reader;
-    QueueHandle_t _irqQueue;
     TaskHandle_t _workerTaskHandle;
+    std::array<uint8_t, 10> _lastUidBytes;
+    uint8_t _lastUidSize;
+    bool _hasLastUid;
 };

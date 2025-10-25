@@ -11,7 +11,7 @@
 #define TASK_PRIO_BLE_WORKER 1
 #define TASK_STACK_SIZE_BLE_WORKER_WORDS (10 * 1024 / 4) // 10 kbytes
 #define TASK_PRIO_RFID_WORKER 2
-#define TASK_STACK_SIZE_RFID_WORKER_WORDS (8 * 1024 / 4) // 8 kbytes
+#define TASK_STACK_SIZE_RFID_WORKER_WORDS (10 * 1024 / 4) // 10 kbytes
 
 // Well known SDCARD files
 #define SDCARD_FILE_CONFIG "/config.json"
@@ -41,10 +41,6 @@
 #define I2C_ADDR_AUDIO_CODEC 0x2C   // (R: 0x59, W: 0x58)
 // 0x36 (R: 0x6d, W: 0x6c) -> Fuel gauge, set in the  MAX17048 library
 
-// RFID settings
-#define RFID_I2C_PORT 1
-#define RFID_I2C_FREQUENCY 400000
-#define RFID_I2C_ADDRESS 0x28
 
 // TODO: who is this?
 // I2C device found at address 0x48 (R: 0x91, W: 0x90)
@@ -76,10 +72,11 @@
     #define GPIO_HBI_ENCODER_B 5
     #define GPIO_HBI_ENCODER_BTN 6
 
-    // RFID pins
-    #define GPIO_RFID_SDA 16
-    #define GPIO_RFID_SCL 17
-    #define GPIO_RFID_IRQ 18
+    // RFID pins (SPI)
+    #define GPIO_RFID_SS 8
+    #define GPIO_RFID_MOSI 16
+    #define GPIO_RFID_CLK 17
+    #define GPIO_RFID_MISO 18
     #define GPIO_RFID_RST 2
 
     // Audio pins
@@ -120,10 +117,11 @@
     #define GPIO_HBI_ENCODER_B 17
     #define GPIO_HBI_ENCODER_BTN 18
 
-    // RFID pins
-    #define GPIO_RFID_SDA 16
-    #define GPIO_RFID_SCL 17
-    #define GPIO_RFID_IRQ 18
+    // RFID pins (SPI)
+    #define GPIO_RFID_SS 8
+    #define GPIO_RFID_MOSI 16
+    #define GPIO_RFID_CLK 17
+    #define GPIO_RFID_MISO 18
     #define GPIO_RFID_RST 2
 
     // Audio pins
