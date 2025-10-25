@@ -12,7 +12,7 @@
 #define DEFAULT_WIFI_SSID "myssid"
 #define DEFAULT_WIFI_PASSWORD "mypassword"
 
-DynamicJsonDocument jsonBuffer(2048); // size calculated with https://arduinojson.org/v6/assistant
+DynamicJsonDocument jsonBuffer(4096); // size calculated with https://arduinojson.org/v6/assistant
 
 namespace {
 template <typename T, typename... Args>
