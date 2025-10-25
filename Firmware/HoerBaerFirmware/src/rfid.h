@@ -30,6 +30,7 @@ private:
     void processTag();
     bool isSameUid(const MFRC522::Uid& uid) const;
     void rememberUid(const MFRC522::Uid& uid);
+    void handleMappedTag(const MFRC522::Uid& uid, const char* uidString);
 
     std::shared_ptr<UserConfig> _userConfig;
     std::shared_ptr<AudioPlayer> _audioPlayer;

@@ -90,11 +90,12 @@ void AudioPlayer::populateAudioMetadata()
         TickType_t start = xTaskGetTickCount();
         int nFound = 0;
         int nNoMeta = 0;
-        for(int iDir = 0; iDir < this->slotDirectories->size(); iDir++)
+        for(size_t iDir = 0; iDir < this->slotDirectories->size(); iDir++)
         {
             std::vector<std::tuple<std::string, std::string, std::string>> files;
-    
-            this->sdCard->listFiles(this->slotDirectories->at(iDir), [&](const std::string& filePath) {
+            std::string slotPath(this->slotDirectories->at(iDir).c_str());
+
+            this->sdCard->listFiles(slotPath, [&](const std::string& filePath) {
                 auto [title, artist] = ID3Parser::readId3Tags(sdCard->getFs(), filePath);
                 if (title.empty() && artist.empty())
                     nNoMeta++;
@@ -119,7 +120,7 @@ void AudioPlayer::populateAudioMetadata()
 
 void AudioPlayer::serializeLoadedSlotsAndMetadata(JsonDocument& doc) 
 {
-    for(int iDir = 0; iDir < this->slotDirectories->size(); iDir++) 
+    for(size_t iDir = 0; iDir < this->slotDirectories->size(); iDir++) 
     {
         JsonObject slot = doc.createNestedObject();
         slot["path"] = this->slotDirectories->at(iDir).c_str();
@@ -138,7 +139,7 @@ void AudioPlayer::serializeLoadedSlotsAndMetadata(JsonDocument& doc)
 
 void AudioPlayer::deserializeLoadedSlotsAndMetadata(JsonDocument& doc) 
 {
-    for(int iDir = 0; iDir < this->slotDirectories->size(); iDir++) 
+    for(size_t iDir = 0; iDir < this->slotDirectories->size(); iDir++) 
     {
         std::vector<std::tuple<std::string, std::string, std::string>> files;
 
@@ -227,13 +228,12 @@ void AudioPlayer::playSong(std::string path, uint32_t position)
 
 void AudioPlayer::playFromSlot(int iSlot, int increment)
 {
-    if(iSlot < 0 || iSlot >= this->slotDirectories->size())
+    if (iSlot < 0 || static_cast<size_t>(iSlot) >= this->slotDirectories->size())
     {
         Log::println("AUDIO", "Invalid slot: %d", iSlot);
         return;
     }
 
-    string slotDir = this->slotDirectories->at(iSlot);
     Log::println("AUDIO", "Play next from slot: %d", iSlot);
     
     auto index = 0;
@@ -264,8 +264,6 @@ void AudioPlayer::playFromSlot(int iSlot, int increment)
 
 void AudioPlayer::playSlotIndex(int iSlot, int iTrack)
 {
-    string slotDir = this->slotDirectories->at(iSlot);
-    
     auto total = this->slotFiles->at(iSlot).size();
     if (iTrack < 0 || iTrack >= total) {
         Log::println("AUDIO", "Invalid track index: %d for slot %d", iTrack, iSlot);
@@ -294,6 +292,29 @@ void AudioPlayer::playSlotIndex(int iSlot, int iTrack)
 
     Log::println("AUDIO", "Started: duration %u", 
         this->playingInfo->duration);
+}
+
+bool AudioPlayer::playFileByPath(std::string_view path)
+{
+    if (!this->slotFiles) {
+        std::string pathStr(path);
+        Log::println("AUDIO", "Cannot play %s: slot files not initialized", pathStr.c_str());
+        return false;
+    }
+
+    for (size_t slot = 0; slot < this->slotFiles->size(); ++slot) {
+        auto& files = this->slotFiles->at(slot);
+        for (size_t index = 0; index < files.size(); ++index) {
+            if (std::get<0>(files.at(index)) == path) {
+                this->playSlotIndex(static_cast<int>(slot), static_cast<int>(index));
+                return true;
+            }
+        }
+    }
+
+    std::string pathStr(path);
+    Log::println("AUDIO", "File %s not found in loaded slot metadata", pathStr.c_str());
+    return false;
 }
 
 void AudioPlayer::playNextFromSlot(int iSlot)

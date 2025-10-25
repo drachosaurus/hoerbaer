@@ -16,6 +16,7 @@ const char *defaultUserConfig =
     "    \"/PAW03\",\n"
     "    \"/PAW04\"\n"
     "  ],\n"
+    "  \"rfid\": { },\n"
     "  \"wifi\": {\n"
     "    \"enabled\": false,\n"
     "    \"ssid\": \"myssid\",\n"

@@ -11,8 +11,8 @@ void WLAN::connectIfConfigured() {
   auto wifi = userConfig->getWifiConfig();
   if (wifi->enabled)
   {
-    ssid = wifi->ssid;
-    password = wifi->password;
+    ssid = std::string(wifi->ssid.c_str());
+    password = std::string(wifi->password.c_str());
 
     WiFi.onEvent([&](WiFiEvent_t event, WiFiEventInfo_t info) {
       this->connected = true;

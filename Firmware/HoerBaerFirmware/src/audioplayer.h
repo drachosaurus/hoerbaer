@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string_view>
 #include <Wire.h>
 #include "userconfig.h"
 #include "devices/TAS5806.h"
@@ -24,8 +25,8 @@ class AudioPlayer {
     private:
         shared_ptr<TwoWire> i2c;
         SemaphoreHandle_t i2cSema;
-        shared_ptr<AudioConfig> audioConfig;
-        shared_ptr<vector<string>> slotDirectories;
+    shared_ptr<AudioConfig> audioConfig;
+    shared_ptr<SlotDirectoryList> slotDirectories;
         unique_ptr<TAS5806> codec;
         shared_ptr<PlayingInfo> playingInfo;
         shared_ptr<SDCard> sdCard;
@@ -46,6 +47,7 @@ class AudioPlayer {
         void volumeUp();
         void volumeDown();
         void playSlotIndex(int iSlot, int iTrack);
+        bool playFileByPath(std::string_view path);
         void playNextFromSlot(int iSlot);
         void play();
         void stop();
