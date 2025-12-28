@@ -129,6 +129,11 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
                             if (strcmp(action, "play") == 0) {
                                 audioPlayerPtr->play();
                             } 
+                            else if(strcmp(action, "playSlot") == 0) {
+                                int slot = incommingCommand["slot"];
+                                int index = incommingCommand["index"];
+                                audioPlayerPtr->playSlotIndex(slot, index);
+                            }
                             else if (strcmp(action, "pause") == 0) {
                                 audioPlayerPtr->pause();
                             } 

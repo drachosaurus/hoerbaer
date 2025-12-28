@@ -7,12 +7,16 @@ import {
   previousSong,
   setVolume,
 } from "../store/playerSlice";
-import { sendCommand } from "../api/websocket";
+import { sendCommand, ConnectionStatus } from "../api/websocket";
 import AlbumArt from "./AlbumArt";
 import PlayerControls from "./PlayerControls";
 import VolumeControl from "./VolumeControl";
 
-const Player = () => {
+interface PlayerProps {
+  connectionStatus: ConnectionStatus;
+}
+
+const Player = ({ connectionStatus }: PlayerProps) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentSong, isPlaying, currentTime, volume } = useSelector(
@@ -46,9 +50,19 @@ const Player = () => {
         {/* Header */}
         <header className="flex justify-between items-center mb-8 px-2">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            <span className={`w-2 h-2 rounded-full ${
+              connectionStatus === "connected" 
+                ? "bg-green-500 animate-pulse" 
+                : connectionStatus === "reconnecting" 
+                ? "bg-yellow-500 animate-pulse" 
+                : "bg-red-500"
+            }`}></span>
             <span className="text-sm font-bold tracking-wide text-wood-DEFAULT dark:text-wood-light uppercase">
-              Connected
+              {connectionStatus === "connected" 
+                ? "Connected" 
+                : connectionStatus === "reconnecting" 
+                ? "Reconnecting..." 
+                : "Disconnected"}
             </span>
           </div>
           <button 

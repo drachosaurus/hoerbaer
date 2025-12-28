@@ -1,9 +1,9 @@
 import { Route, Routes } from "react-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useGetSlotsQuery } from "./api/deviceApi";
 import { setPaws, updateFromWebSocket } from "./store/playerSlice";
-import { createWebSocketService, setWebSocketInstance, WebSocketMessage } from "./api/websocket";
+import { createWebSocketService, setWebSocketInstance, WebSocketMessage, ConnectionStatus } from "./api/websocket";
 import Player from "./player/Player";
 import SongList from "./songlist/SongList";
 
@@ -11,6 +11,7 @@ function App() {
   const dispatch = useDispatch();
   const { data: slots, isSuccess } = useGetSlotsQuery();
   const wsRef = useRef<ReturnType<typeof createWebSocketService> | null>(null);
+  const [wsStatus, setWsStatus] = useState<ConnectionStatus>("disconnected");
 
   useEffect(() => {
     if (isSuccess && slots) {
@@ -24,12 +25,17 @@ function App() {
     wsRef.current = ws;
     setWebSocketInstance(ws);
 
-    ws.connect((message: WebSocketMessage) => {
-      if (message.t === "state") {
-        console.log("WebSocket state update:", message);
-        dispatch(updateFromWebSocket(message));
+    ws.connect(
+      (message: WebSocketMessage) => {
+        if (message.t === "state") {
+          console.log("WebSocket state update:", message);
+          dispatch(updateFromWebSocket(message));
+        }
+      },
+      (status: ConnectionStatus) => {
+        setWsStatus(status);
       }
-    });
+    );
 
     // Cleanup on unmount
     return () => {
@@ -40,7 +46,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Player />} />
+      <Route path="/" element={<Player connectionStatus={wsStatus} />} />
       <Route path="/songs" element={<SongList />} />
     </Routes>
   );

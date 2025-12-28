@@ -2,15 +2,34 @@ import { Song } from "../store/playerSlice";
 
 interface MiniPlayerProps {
   currentSong: Song;
+  currentTime: number;
   isPlaying: boolean;
   pawName?: string;
+  onTogglePlay: () => void;
+  onNext: () => void;
+  onPrevious: () => void;
 }
 
-const MiniPlayer = ({ currentSong, isPlaying, pawName }: MiniPlayerProps) => {
+const MiniPlayer = ({ 
+  currentSong, 
+  currentTime,
+  isPlaying, 
+  pawName,
+  onTogglePlay,
+  onNext,
+  onPrevious
+}: MiniPlayerProps) => {
+  const progress = currentSong.duration > 0 
+    ? (currentTime / currentSong.duration) * 100 
+    : 0;
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-[#3D3028]/95 backdrop-blur-lg border-t border-gray-100 dark:border-white/5">
       <div className="w-full bg-gray-200 dark:bg-white/10 h-1">
-        <div className="bg-primary h-1 w-1/3 rounded-r-full"></div>
+        <div 
+          className="bg-primary h-1 rounded-r-full transition-all duration-300"
+          style={{ width: `${progress}%` }}
+        ></div>
       </div>
       <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -30,15 +49,24 @@ const MiniPlayer = ({ currentSong, isPlaying, pawName }: MiniPlayerProps) => {
           </div>
         </div>
         <div className="flex items-center space-x-4 pl-4">
-          <button className="text-gray-400 hover:text-primary dark:text-gray-400 dark:hover:text-accent transition-colors">
+          <button 
+            onClick={onPrevious}
+            className="text-gray-400 hover:text-primary dark:text-gray-400 dark:hover:text-accent transition-colors"
+          >
             <span className="material-icons-round text-3xl">skip_previous</span>
           </button>
-          <button className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:bg-primary/90 transition-transform active:scale-95 border-2 border-[#6d4a30]">
+          <button 
+            onClick={onTogglePlay}
+            className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:bg-primary/90 transition-transform active:scale-95 border-2 border-[#6d4a30]"
+          >
             <span className="material-icons-round text-3xl">
               {isPlaying ? "pause" : "play_arrow"}
             </span>
           </button>
-          <button className="text-gray-400 hover:text-primary dark:text-gray-400 dark:hover:text-accent transition-colors">
+          <button 
+            onClick={onNext}
+            className="text-gray-400 hover:text-primary dark:text-gray-400 dark:hover:text-accent transition-colors"
+          >
             <span className="material-icons-round text-3xl">skip_next</span>
           </button>
         </div>
