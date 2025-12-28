@@ -1,3 +1,41 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-primary: #8d6e63;
+  --color-secondary: #d7ccc8;
+  --color-accent: #ffab40;
+  --color-wood-light: #efebe9;
+  --color-wood: #a1887f;
+  --color-wood-dark: #5d4037;
+  --color-wood-red: #8d6e63;
+  --color-background-light: #fdfbf7;
+  --color-background-dark: #2d2420;
+
+  /* Fonts */
+  --font-display: "Fredoka", sans-serif;
+  --font-body: "Nunito", sans-serif;
+
+  /* Border Radius */
+  --radius: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+
+  /* Box Shadows */
+  --shadow-wood: 4px 4px 10px rgba(0, 0, 0, 0.15), -2px -2px 8px rgba(255, 255, 255, 0.4);
+  --shadow-wood-pressed: inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -2px -2px 5px rgba(255, 255, 255, 0.3);
+  --shadow-floating: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Animation delays for music visualizer bars */
+.animate-delay-0 {
+  animation-delay: 0ms;
+}
+
+.animate-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animate-delay-200 {
+  animation-delay: 200ms;
+}

@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { deviceApi } from "./api/deviceApi";
+import playerReducer from "./store/playerSlice";
 
 export const store = configureStore({
   reducer: {
-    [deviceApi.reducerPath]: deviceApi.reducer
+    [deviceApi.reducerPath]: deviceApi.reducer,
+    player: playerReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(deviceApi.middleware)
 });
