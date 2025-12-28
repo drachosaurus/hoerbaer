@@ -66,7 +66,7 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
     // this->server->serveStatic("/", spiffs, "/webinterface/")
     //     .setDefaultFile("index.html");
 
-    this->server->onNotFound([&](AsyncWebServerRequest *request){
+    this->server->onNotFound([](AsyncWebServerRequest *request){
         if (request->method() == HTTP_OPTIONS) {
             request->send(200); // CORS preflight requests
             return;
@@ -78,7 +78,11 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
         request->send(404);
     });
 
-    this->ws->onEvent([&](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+    // Capture shared pointers by value to ensure they remain valid in async callbacks
+    auto audioPlayerPtr = this->audioPlayer;
+    auto wsPtr = this->ws.get();
+    
+    this->ws->onEvent([this, audioPlayerPtr, wsPtr](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
         (void)len;
 
         if (type == WS_EVT_CONNECT) {
@@ -94,7 +98,7 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
             client->ping();
         } 
         else if (type == WS_EVT_DISCONNECT) {
-            ws->textAll("client disconnected");
+            wsPtr->textAll("client disconnected");
             Log::println("WEBSERVER", "ws disconnect");
 
         } 
@@ -123,16 +127,16 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
                             const char* action = incommingCommand["cmd"];
                             Log::println("WEBSERVER", "Command received over websocket: %s", action);
                             if (strcmp(action, "play") == 0) {
-                                audioPlayer->play();
+                                audioPlayerPtr->play();
                             } 
                             else if (strcmp(action, "pause") == 0) {
-                                audioPlayer->pause();
+                                audioPlayerPtr->pause();
                             } 
                             else if (strcmp(action, "next") == 0) {
-                                audioPlayer->next();
+                                audioPlayerPtr->next();
                             } 
                             else if (strcmp(action, "previous") == 0) {
-                                audioPlayer->prev();
+                                audioPlayerPtr->prev();
                             }
                             else {
                                 Log::println("WEBSERVER", "ws: Unknown action %s", action);

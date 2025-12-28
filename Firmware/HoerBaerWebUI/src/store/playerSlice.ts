@@ -196,9 +196,8 @@ export const playerSlice = createSlice({
       state.isPlaying = wsState.state === "playing";
       state.currentTime = wsState.currentTime || 0;
       
-      // Find the paw and song based on slot and index
-      const pawId = `PAW${String(wsState.slot).padStart(2, "0")}`;
-      const paw = state.paws.find((p) => p.id === pawId);
+      // Find the paw and song based on slot and index (both are zero-based array indices)
+      const paw = state.paws[wsState.slot];
       
       if (paw && wsState.index < paw.songs.length) {
         const song = paw.songs[wsState.index];
