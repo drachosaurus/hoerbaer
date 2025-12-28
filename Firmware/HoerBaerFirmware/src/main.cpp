@@ -12,7 +12,7 @@
 #include "wlan.h"
 #include "sdcard.h"
 #include "userconfig.h"
-#include "bleremote.h"
+// #include "bleremote.h"
 #include "webserver.h"
 #include "usb_msc.h"
 #include "rfid.h"
@@ -26,7 +26,7 @@ shared_ptr<UserConfig> userConfig;
 shared_ptr<Power> power;
 unique_ptr<HBI> hbi;
 shared_ptr<WLAN> wlan;
-unique_ptr<BLERemote> bleRemote;
+// unique_ptr<BLERemote> bleRemote;
 shared_ptr<WebServer> webServer;
 unique_ptr<RFID> rfid;
 unique_ptr<USBStorage> usbMsc;
@@ -116,10 +116,10 @@ void setup() {
 
       Log::logCurrentHeap("After Audio init");
 
-      bleRemote = make_unique<BLERemote>(userConfig, power, audioPlayer, wlan);
-      bleRemote->initialize();
+      // bleRemote = make_unique<BLERemote>(userConfig, power, audioPlayer, wlan);
+      // bleRemote->initialize();
 
-      Log::logCurrentHeap("After BLE init");
+      // Log::logCurrentHeap("After BLE init");
 
       rfid = make_unique<RFID>(userConfig, audioPlayer);
       rfid->initialize();
@@ -133,8 +133,10 @@ void setup() {
 
       if (wlan->getEnabled()) {
         Log::println("WLAN", "Starting WebServer");
-        webServer = make_shared<WebServer>(audioPlayer);
+        Log::logCurrentHeap("Before WebServer init");
+        webServer = make_shared<WebServer>(audioPlayer, sdCard);
         webServer->start();
+        Log::logCurrentHeap("After WebServer start");
       }
 
       Log::println("MAIN", "Baer initialized, ready to play!");
@@ -197,10 +199,10 @@ void shutdown() {
   Log::println("MAIN", "Shutting down...");
   shuttingDown = true;
 
-  if (bleRemote != nullptr) {
-    bleRemote->shutdown();
-    bleRemote.reset();
-  }
+  // if (bleRemote != nullptr) {
+  //   bleRemote->shutdown();
+  //   bleRemote.reset();
+  // }
 
   if (audioPlayer != nullptr) {
     audioPlayer->stop();

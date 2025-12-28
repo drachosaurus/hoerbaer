@@ -2,7 +2,18 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { WifiStatus } from "./WifiStatus";
 import { AlarmClockSettings } from "./AlarmClockSettings";
 
-const baseUrl = process.env.NODE_ENV === "development" ? "http://192.168.15.131/api" : "/api";
+const baseUrl = import.meta.env.DEV ? "http://192.168.15.164/api" : "/api";
+
+export interface SlotFile {
+  path: string;
+  title: string;
+  artist: string;
+}
+
+export interface Slot {
+  path: string;
+  files: SlotFile[];
+}
 
 // Define a service using a base URL and expected endpoints
 export const deviceApi = createApi({
@@ -41,6 +52,9 @@ export const deviceApi = createApi({
         method: "POST",
         body: patch
       })
+    }),
+    getSlots: builder.query<Slot[], void>({
+      query: () => `/slots`
     })
   })
 });
@@ -54,5 +68,6 @@ export const {
   useGetTimeQuery,
   useGetWifiStatusQuery,
   useSetWifiCredentialsMutation,
-  useSetWifiOffWhenEyesClosedMutation
+  useSetWifiOffWhenEyesClosedMutation,
+  useGetSlotsQuery
 } = deviceApi;

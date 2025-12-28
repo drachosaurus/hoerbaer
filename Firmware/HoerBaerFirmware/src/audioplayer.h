@@ -25,14 +25,16 @@ class AudioPlayer {
     private:
         shared_ptr<TwoWire> i2c;
         SemaphoreHandle_t i2cSema;
-    shared_ptr<AudioConfig> audioConfig;
-    shared_ptr<SlotDirectoryList> slotDirectories;
+        shared_ptr<AudioConfig> audioConfig;
+        shared_ptr<SlotDirectoryList> slotDirectories;
         unique_ptr<TAS5806> codec;
         shared_ptr<PlayingInfo> playingInfo;
         shared_ptr<SDCard> sdCard;
         std::unique_ptr<std::vector<std::vector<std::tuple<std::string, std::string, std::string>>>> slotFiles;
         TickType_t lastPlayingInfoUpdate;
         int currentVolume;
+        void serializeLoadedSlotsAndMetadata(JsonDocument& doc);
+        void deserializeLoadedSlotsAndMetadata(JsonDocument& doc);
         void playSong(std::string path, uint32_t position);
         void playFromSlot(int iSlot, int increment);
     public:
@@ -40,8 +42,6 @@ class AudioPlayer {
         ~AudioPlayer();
         void initialize();
         void populateAudioMetadata();
-        void serializeLoadedSlotsAndMetadata(JsonDocument& doc);
-        void deserializeLoadedSlotsAndMetadata(JsonDocument& doc);
         void loop();
         shared_ptr<PlayingInfo> getPlayingInfo();
         void volumeUp();

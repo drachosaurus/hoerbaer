@@ -1,9 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Slot } from "../api/deviceApi";
 
 export interface Song {
   id: string;
   title: string;
   artist: string;
+  path: string;
   paw: string;
   duration: number;
 }
@@ -40,9 +42,9 @@ const initialState: PlayerState = {
       icon: "play_arrow",
       color: "blue",
       songs: [
-        { id: "1", title: "Teddy Bear Picnic", artist: "Classic Kids", paw: "play-paw", duration: 225 },
-        { id: "2", title: "Baby Shark", artist: "Pinkfong", paw: "play-paw", duration: 210 },
-        { id: "3", title: "Twinkle Twinkle", artist: "Lullabies", paw: "play-paw", duration: 180 },
+        { id: "1", title: "Teddy Bear Picnic", artist: "Classic Kids", path: "/mock/1.mp3", paw: "play-paw", duration: 225 },
+        { id: "2", title: "Baby Shark", artist: "Pinkfong", path: "/mock/2.mp3", paw: "play-paw", duration: 210 },
+        { id: "3", title: "Twinkle Twinkle", artist: "Lullabies", path: "/mock/3.mp3", paw: "play-paw", duration: 180 },
       ]
     },
     {
@@ -51,8 +53,8 @@ const initialState: PlayerState = {
       icon: "bedtime",
       color: "indigo",
       songs: [
-        { id: "4", title: "White Noise: Rain", artist: "Nature Sounds", paw: "sleepy-paw", duration: 600 },
-        { id: "5", title: "Brahms' Lullaby", artist: "Piano Classics", paw: "sleepy-paw", duration: 240 },
+        { id: "4", title: "White Noise: Rain", artist: "Nature Sounds", path: "/mock/4.mp3", paw: "sleepy-paw", duration: 600 },
+        { id: "5", title: "Brahms' Lullaby", artist: "Piano Classics", path: "/mock/5.mp3", paw: "sleepy-paw", duration: 240 },
       ]
     },
     {
@@ -61,8 +63,8 @@ const initialState: PlayerState = {
       icon: "auto_stories",
       color: "green",
       songs: [
-        { id: "6", title: "Three Little Pigs", artist: "Fairy Tales", paw: "story-paw", duration: 420 },
-        { id: "7", title: "Little Red Riding Hood", artist: "Fairy Tales", paw: "story-paw", duration: 390 },
+        { id: "6", title: "Three Little Pigs", artist: "Fairy Tales", path: "/mock/6.mp3", paw: "story-paw", duration: 420 },
+        { id: "7", title: "Little Red Riding Hood", artist: "Fairy Tales", path: "/mock/7.mp3", paw: "story-paw", duration: 390 },
       ]
     },
     {
@@ -71,8 +73,8 @@ const initialState: PlayerState = {
       icon: "school",
       color: "orange",
       songs: [
-        { id: "8", title: "The ABC Song", artist: "Learning", paw: "learn-paw", duration: 150 },
-        { id: "9", title: "Numbers Song", artist: "Learning", paw: "learn-paw", duration: 165 },
+        { id: "8", title: "The ABC Song", artist: "Learning", path: "/mock/8.mp3", paw: "learn-paw", duration: 150 },
+        { id: "9", title: "Numbers Song", artist: "Learning", path: "/mock/9.mp3", paw: "learn-paw", duration: 165 },
       ]
     },
   ]
@@ -132,6 +134,47 @@ export const playerSlice = createSlice({
     toggleRepeat: (state) => {
       state.repeat = !state.repeat;
     },
+    setPaws: (state, action: PayloadAction<Slot[]>) => {
+      // Map paw numbers to colors and icons
+      const pawConfig: Record<string, { icon: string; color: string }> = {
+        PAW01: { icon: "play_arrow", color: "blue" },
+        PAW02: { icon: "bedtime", color: "indigo" },
+        PAW03: { icon: "auto_stories", color: "green" },
+        PAW04: { icon: "school", color: "orange" },
+        PAW05: { icon: "music_note", color: "purple" },
+        PAW06: { icon: "favorite", color: "pink" },
+        PAW07: { icon: "star", color: "yellow" },
+        PAW08: { icon: "nightlight", color: "teal" },
+        PAW09: { icon: "celebration", color: "red" },
+        PAW10: { icon: "sports_soccer", color: "lime" },
+        PAW11: { icon: "rocket_launch", color: "cyan" },
+        PAW12: { icon: "pets", color: "amber" },
+        PAW13: { icon: "landscape", color: "emerald" },
+        PAW14: { icon: "cake", color: "rose" },
+        PAW15: { icon: "train", color: "violet" },
+        PAW16: { icon: "beach_access", color: "sky" },
+      };
+
+      state.paws = action.payload.map((slot) => {
+        const pawId = slot.path.replace("/", "");
+        const config = pawConfig[pawId] || { icon: "music_note", color: "gray" };
+        
+        return {
+          id: pawId,
+          name: pawId,
+          icon: config.icon,
+          color: config.color,
+          songs: slot.files.map((file) => ({
+            id: file.path,
+            title: file.title || file.path.split("/").pop()?.replace(".mp3", "") || "Unknown",
+            artist: file.artist || "Unknown Artist",
+            path: file.path,
+            paw: pawId,
+            duration: 0, // Duration not provided by API
+          })),
+        };
+      });
+    },
   },
 });
 
@@ -146,6 +189,7 @@ export const {
   setVolume,
   toggleShuffle,
   toggleRepeat,
+  setPaws,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

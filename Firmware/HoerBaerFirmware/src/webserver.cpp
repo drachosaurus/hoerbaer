@@ -1,14 +1,33 @@
 #include <Arduino.h>
 #include <SPIFFS.h>
 #include <AsyncTCP.h>
+#include <esp_heap_caps.h>
+#include <esp_task_wdt.h>
 #include "log.h"
+#include "config.h"
 #include "webserver.h"
 
-WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer) 
+struct SpiRamAllocator {
+  void* allocate(size_t size) {
+    return heap_caps_malloc(size, MALLOC_CAP_SPIRAM);
+  }
+
+  void deallocate(void* pointer) {
+    heap_caps_free(pointer);
+  }
+
+  void* reallocate(void* ptr, size_t new_size) {
+    return heap_caps_realloc(ptr, new_size, MALLOC_CAP_SPIRAM);
+  }
+};
+
+WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<SDCard> sdCard) 
 {    
     this->audioPlayer = audioPlayer;
+    this->sdCard = sdCard;
     this->actionQueue = xQueueCreate(10, sizeof (uint8_t));
 
+    // Allocate AsyncWebServer in PSRAM to reduce internal heap pressure
     // auto spiffs = fsAccess->getFs();
     this->server = std::make_unique<AsyncWebServer>(80);
 
@@ -16,18 +35,7 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer)
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, X-Requested-With");
     
-    this->server->on("/api/slots", HTTP_GET, [&](AsyncWebServerRequest *request) {
-        Log::println("WEBSRV", "GET /api/slots FROM %s - get slots",
-            request->client()->remoteIP().toString().c_str());
-            
-        AsyncResponseStream *response = request->beginResponseStream("application/json");
-
-        DynamicJsonDocument doc(JSON_BUFFER_SIZE_TRACK_METADATA); // dynamic => malloc => psram
-        this->audioPlayer->serializeLoadedSlotsAndMetadata(doc);
-
-        serializeJson(doc, *response);
-        request->send(response);
-    });
+    this->server->serveStatic("/api/slots", sdCard->getFs(), SDCARD_FILE_META_CACHE);
 
     // this->server->serveStatic("/alarmclock", spiffs, "/webinterface/index.html");
     // this->server->serveStatic("/wifi", spiffs, "/webinterface/index.html");
