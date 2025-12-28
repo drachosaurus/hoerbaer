@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useGetSlotsQuery } from "./api/deviceApi";
-import { setPaws, updateFromWebSocket } from "./store/playerSlice";
+import { useGetSlotsQuery, useGetInfoQuery } from "./api/deviceApi";
+import { setPaws, setDeviceName, updateFromWebSocket } from "./store/playerSlice";
 import { createWebSocketService, setWebSocketInstance, WebSocketMessage, ConnectionStatus } from "./api/websocket";
 import Player from "./player/Player";
 import SongList from "./songlist/SongList";
@@ -10,6 +10,7 @@ import SongList from "./songlist/SongList";
 function App() {
   const dispatch = useDispatch();
   const { data: slots, isSuccess } = useGetSlotsQuery();
+  const { data: deviceInfo, isSuccess: isInfoSuccess } = useGetInfoQuery();
   const wsRef = useRef<ReturnType<typeof createWebSocketService> | null>(null);
   const [wsStatus, setWsStatus] = useState<ConnectionStatus>("disconnected");
 
@@ -18,6 +19,12 @@ function App() {
       dispatch(setPaws(slots));
     }
   }, [isSuccess, slots, dispatch]);
+
+  useEffect(() => {
+    if (isInfoSuccess && deviceInfo) {
+      dispatch(setDeviceName(deviceInfo.name));
+    }
+  }, [isInfoSuccess, deviceInfo, dispatch]);
 
   useEffect(() => {
     // Create and connect WebSocket

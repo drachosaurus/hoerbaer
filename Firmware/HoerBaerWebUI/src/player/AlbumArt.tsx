@@ -56,10 +56,11 @@ const AlbumArt = ({ currentSong, currentTime, formatTime }: AlbumArtProps) => {
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md"></div>
             </div>
           </div>
-          <div className="flex justify-between text-xs font-bold text-wood-DEFAULT/60 dark:text-wood-light/60 mt-2">
-            <span>{formatTime(currentTime)}</span>
-            <span>{currentSong ? formatTime(currentSong.duration) : "0:00"}</span>
-          </div>
+        </div>
+
+        {/* Time Display - Centered below progress bar */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs font-bold text-wood-DEFAULT/60 dark:text-wood-light/60 whitespace-nowrap">
+          {formatTime(currentTime)} / {currentSong ? formatTime(currentSong.duration) : "0:00"}
         </div>
       </div>
     </div>

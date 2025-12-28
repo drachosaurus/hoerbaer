@@ -134,7 +134,7 @@ void setup() {
       if (wlan->getEnabled()) {
         Log::println("WLAN", "Starting WebServer");
         Log::logCurrentHeap("Before WebServer init");
-        webServer = make_shared<WebServer>(audioPlayer, sdCard);
+        webServer = make_shared<WebServer>(audioPlayer, sdCard, power, userConfig);
         webServer->start();
         Log::logCurrentHeap("After WebServer start");
       }

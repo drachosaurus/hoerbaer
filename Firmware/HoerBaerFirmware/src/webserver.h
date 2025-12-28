@@ -7,6 +7,7 @@
 #include <ESPAsyncWebServer.h>
 
 #include "audioplayer.h"
+#include "power.h"
 
 class WebServer {
     private:
@@ -14,11 +15,13 @@ class WebServer {
         std::unique_ptr<AsyncWebSocket> ws;
         std::shared_ptr<AudioPlayer> audioPlayer;
         std::shared_ptr<SDCard> sdCard;
+        std::shared_ptr<Power> power;
+        std::shared_ptr<UserConfig> userConfig;
 
         void updateWsCurrentStateBuffer();
         
     public:
-        WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<SDCard> sdCard);
+        WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<SDCard> sdCard, std::shared_ptr<Power> power, std::shared_ptr<UserConfig> userConfig);
         void start();
         void runUpdateWorkerTask();
 };

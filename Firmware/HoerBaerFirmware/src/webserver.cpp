@@ -7,7 +7,9 @@
 #include "config.h"
 #include "webserver.h"
 
-static StaticJsonDocument<192> statusJsonBuffer;
+static StaticJsonDocument<256> statusJsonBuffer;
+static StaticJsonDocument<256> infoJsonBuffer;
+
 
 void WSUpdateWorkerTask(void* param) 
 {
@@ -19,7 +21,9 @@ void WebServer::updateWsCurrentStateBuffer() {
     auto playingInfo = this->audioPlayer->getPlayingInfo();
     auto volume = this->audioPlayer->getCurrentVolume();
     auto maxVolume = this->audioPlayer->getMaxVolume();
+    auto powerState = this->power->getState();
 
+    statusJsonBuffer.clear();
     statusJsonBuffer["t"] = "state";
 
     if(playingInfo != nullptr) {
@@ -29,7 +33,6 @@ void WebServer::updateWsCurrentStateBuffer() {
         statusJsonBuffer["total"] = playingInfo->total;
         statusJsonBuffer["duration"] = playingInfo->duration;
         statusJsonBuffer["currentTime"] = playingInfo->currentTime;
-        statusJsonBuffer["serial"] = playingInfo->serial;
     }
     else {
         statusJsonBuffer["state"] = "idle";
@@ -38,17 +41,23 @@ void WebServer::updateWsCurrentStateBuffer() {
         statusJsonBuffer["total"] = nullptr;
         statusJsonBuffer["duration"] = nullptr;
         statusJsonBuffer["currentTime"] = nullptr;
-        statusJsonBuffer["serial"] = nullptr;
     }
 
     statusJsonBuffer["volume"] = volume;
     statusJsonBuffer["maxVolume"] = maxVolume;
+
+    JsonObject bat = statusJsonBuffer.createNestedObject("bat");
+    bat["v"] = powerState.voltage;
+    bat["pct"] = powerState.percentage;
+    bat["chg"] = powerState.charging;
 }
 
-WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<SDCard> sdCard) 
+WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<SDCard> sdCard, std::shared_ptr<Power> power, std::shared_ptr<UserConfig> userConfig) 
 {    
     this->audioPlayer = audioPlayer;
     this->sdCard = sdCard;
+    this->power = power;
+    this->userConfig = userConfig;
 
     // Allocate AsyncWebServer in PSRAM to reduce internal heap pressure
     // auto spiffs = fsAccess->getFs();
@@ -59,12 +68,38 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, X-Requested-With");
     
-    this->server->serveStatic("/api/slots", sdCard->getFs(), SDCARD_FILE_META_CACHE);
+    // Capture sdCard shared_ptr to get non-const fs reference in lambda
+    auto sdCardPtr = this->sdCard;
+    this->server->on("/api/slots", HTTP_GET, [sdCardPtr](AsyncWebServerRequest *request){
+        Log::println("WEBSERVER", "HTTP GET /api/slots FROM %s", request->client()->remoteIP().toString().c_str());
+        AsyncWebServerResponse *response = request->beginResponse(sdCardPtr->getFs(), SDCARD_FILE_META_CACHE, "application/json; charset=utf-8");
+        request->send(response);
+    });
 
     // this->server->serveStatic("/alarmclock", spiffs, "/webinterface/index.html");
     // this->server->serveStatic("/wifi", spiffs, "/webinterface/index.html");
     // this->server->serveStatic("/", spiffs, "/webinterface/")
     //     .setDefaultFile("index.html");
+
+    this->server->on("/api/info", HTTP_GET, [this](AsyncWebServerRequest *request){
+
+        Log::println("WEBSERVER", "HTTP GET /api/info FROM %s", 
+            request->client()->remoteIP().toString().c_str());
+
+        infoJsonBuffer.clear();
+        infoJsonBuffer["name"] = this->userConfig->getName();
+        infoJsonBuffer["timezone"] = this->userConfig->getTimezone();
+
+        auto wifiConfig = this->userConfig->getWifiConfig();
+        JsonObject wifi = infoJsonBuffer.createNestedObject("wifi");
+        wifi["enabled"] = wifiConfig->enabled;
+        wifi["ssid"] = wifiConfig->ssid;
+
+        String jsonResponse;
+        serializeJson(infoJsonBuffer, jsonResponse);
+
+        request->send(200, "application/json", jsonResponse);
+    });
 
     this->server->onNotFound([](AsyncWebServerRequest *request){
         if (request->method() == HTTP_OPTIONS) {

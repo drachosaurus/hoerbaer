@@ -6,6 +6,7 @@ interface PawSectionProps {
   pawIcon: string;
   pawColor: string;
   songs: Song[];
+  totalSongs?: number;
   currentSong: Song | null;
   isPlaying: boolean;
   onSongClick: (song: Song) => void;
@@ -15,7 +16,8 @@ const PawSection = ({
   pawName, 
   pawIcon, 
   pawColor, 
-  songs, 
+  songs,
+  totalSongs, 
   currentSong, 
   isPlaying, 
   onSongClick 
@@ -54,7 +56,9 @@ const PawSection = ({
             pawColor
           )} px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider`}
         >
-          {songs.length} songs
+          {totalSongs !== undefined && totalSongs !== songs.length
+            ? `${songs.length} of ${totalSongs} songs`
+            : `${songs.length} songs`}
         </span>
       </div>
 

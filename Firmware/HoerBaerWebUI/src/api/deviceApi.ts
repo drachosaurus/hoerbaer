@@ -1,6 +1,4 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { WifiStatus } from "./WifiStatus";
-import { AlarmClockSettings } from "./AlarmClockSettings";
 
 const baseUrl = import.meta.env.DEV ? "http://192.168.15.164/api" : "/api";
 
@@ -15,6 +13,15 @@ export interface Slot {
   files: SlotFile[];
 }
 
+export interface DeviceInfo {
+  name: string;
+  timezone: string;
+  wifi: {
+    enabled: boolean;
+    ssid: string;
+  };
+}
+
 // Define a service using a base URL and expected endpoints
 export const deviceApi = createApi({
   reducerPath: "deviceApi",
@@ -22,6 +29,9 @@ export const deviceApi = createApi({
   endpoints: (builder) => ({
     getSlots: builder.query<Slot[], void>({
       query: () => `/slots`
+    }),
+    getInfo: builder.query<DeviceInfo, void>({
+      query: () => `/info`
     })
   })
 });
@@ -29,5 +39,6 @@ export const deviceApi = createApi({
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
 export const {
-  useGetSlotsQuery
+  useGetSlotsQuery,
+  useGetInfoQuery
 } = deviceApi;

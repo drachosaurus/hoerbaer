@@ -9,6 +9,11 @@ export interface StateMessage {
   serial: number | null;
   volume: number;
   maxVolume: number;
+  bat?: {
+    v: number;
+    pct: number;
+    chg: boolean;
+  };
 }
 
 export type WebSocketMessage = StateMessage;

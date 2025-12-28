@@ -27,6 +27,12 @@ export interface PlayerState {
   shuffle: boolean;
   repeat: boolean;
   paws: Paw[];
+  battery: {
+    voltage: number;
+    percentage: number;
+    charging: boolean;
+  } | null;
+  deviceName: string | null;
 }
 
 const initialState: PlayerState = {
@@ -36,49 +42,9 @@ const initialState: PlayerState = {
   volume: 0.66,
   shuffle: false,
   repeat: true,
-  paws: [
-    {
-      id: "play-paw",
-      name: "Play Paw",
-      icon: "play_arrow",
-      color: "blue",
-      songs: [
-        { id: "1", title: "Teddy Bear Picnic", artist: "Classic Kids", path: "/mock/1.mp3", paw: "play-paw", duration: 225 },
-        { id: "2", title: "Baby Shark", artist: "Pinkfong", path: "/mock/2.mp3", paw: "play-paw", duration: 210 },
-        { id: "3", title: "Twinkle Twinkle", artist: "Lullabies", path: "/mock/3.mp3", paw: "play-paw", duration: 180 },
-      ]
-    },
-    {
-      id: "sleepy-paw",
-      name: "Sleepy Paw",
-      icon: "bedtime",
-      color: "indigo",
-      songs: [
-        { id: "4", title: "White Noise: Rain", artist: "Nature Sounds", path: "/mock/4.mp3", paw: "sleepy-paw", duration: 600 },
-        { id: "5", title: "Brahms' Lullaby", artist: "Piano Classics", path: "/mock/5.mp3", paw: "sleepy-paw", duration: 240 },
-      ]
-    },
-    {
-      id: "story-paw",
-      name: "Story Paw",
-      icon: "auto_stories",
-      color: "green",
-      songs: [
-        { id: "6", title: "Three Little Pigs", artist: "Fairy Tales", path: "/mock/6.mp3", paw: "story-paw", duration: 420 },
-        { id: "7", title: "Little Red Riding Hood", artist: "Fairy Tales", path: "/mock/7.mp3", paw: "story-paw", duration: 390 },
-      ]
-    },
-    {
-      id: "learn-paw",
-      name: "Learn Paw",
-      icon: "school",
-      color: "orange",
-      songs: [
-        { id: "8", title: "The ABC Song", artist: "Learning", path: "/mock/8.mp3", paw: "learn-paw", duration: 150 },
-        { id: "9", title: "Numbers Song", artist: "Learning", path: "/mock/9.mp3", paw: "learn-paw", duration: 165 },
-      ]
-    },
-  ]
+  battery: null,
+  deviceName: null,
+  paws: [],
 };
 
 export const playerSlice = createSlice({
@@ -135,6 +101,9 @@ export const playerSlice = createSlice({
     toggleRepeat: (state) => {
       state.repeat = !state.repeat;
     },
+    setDeviceName: (state, action: PayloadAction<string>) => {
+      state.deviceName = action.payload;
+    },
     setPaws: (state, action: PayloadAction<Slot[]>) => {
       // Map paw numbers to colors and icons
       const pawConfig: Record<string, { icon: string; color: string }> = {
@@ -184,6 +153,15 @@ export const playerSlice = createSlice({
         state.volume = wsState.volume / wsState.maxVolume;
       }
       
+      // Update battery state
+      if (wsState.bat) {
+        state.battery = {
+          voltage: Math.round(wsState.bat.v * 10) / 10,
+          percentage: Math.round(wsState.bat.pct),
+          charging: wsState.bat.chg,
+        };
+      }
+      
       // Handle idle state
       if (wsState.state === "idle" || wsState.slot === null || wsState.index === null) {
         state.currentSong = null;
@@ -227,6 +205,7 @@ export const {
   setVolume,
   toggleShuffle,
   toggleRepeat,
+  setDeviceName,
   setPaws,
   updateFromWebSocket,
 } = playerSlice.actions;
