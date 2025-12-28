@@ -2,10 +2,14 @@ import { Song } from "../store/playerSlice";
 
 interface AlbumArtProps {
   currentSong: Song | null;
+  currentTime: number;
   formatTime: (seconds: number) => string;
 }
 
-const AlbumArt = ({ currentSong, formatTime }: AlbumArtProps) => {
+const AlbumArt = ({ currentSong, currentTime, formatTime }: AlbumArtProps) => {
+  const progress = currentSong && currentSong.duration > 0 
+    ? (currentTime / currentSong.duration) * 100 
+    : 0;
   return (
     <div className="relative w-full aspect-square mb-10 group">
       <div className="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-full scale-110 blur-xl"></div>
@@ -45,12 +49,15 @@ const AlbumArt = ({ currentSong, formatTime }: AlbumArtProps) => {
         {/* Progress Bar */}
         <div className="w-3/4 mt-6">
           <div className="h-2 bg-secondary/50 dark:bg-wood-dark/50 rounded-full overflow-hidden">
-            <div className="h-full bg-primary w-2/3 rounded-full relative">
+            <div 
+              className="h-full bg-primary rounded-full relative transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            >
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md"></div>
             </div>
           </div>
           <div className="flex justify-between text-xs font-bold text-wood-DEFAULT/60 dark:text-wood-light/60 mt-2">
-            <span>1:24</span>
+            <span>{formatTime(currentTime)}</span>
             <span>{currentSong ? formatTime(currentSong.duration) : "0:00"}</span>
           </div>
         </div>

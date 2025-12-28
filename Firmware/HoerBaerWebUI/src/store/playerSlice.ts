@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Slot } from "../api/deviceApi";
+import { StateMessage } from "../api/websocket";
 
 export interface Song {
   id: string;
@@ -175,6 +176,44 @@ export const playerSlice = createSlice({
         };
       });
     },
+    updateFromWebSocket: (state, action: PayloadAction<StateMessage>) => {
+      const wsState = action.payload;
+      
+      // Update volume (convert from device scale to 0-1)
+      if (wsState.maxVolume > 0) {
+        state.volume = wsState.volume / wsState.maxVolume;
+      }
+      
+      // Handle idle state
+      if (wsState.state === "idle" || wsState.slot === null || wsState.index === null) {
+        state.currentSong = null;
+        state.isPlaying = false;
+        state.currentTime = 0;
+        return;
+      }
+      
+      // Update playing state
+      state.isPlaying = wsState.state === "playing";
+      state.currentTime = wsState.currentTime || 0;
+      
+      // Find the paw and song based on slot and index
+      const pawId = `PAW${String(wsState.slot).padStart(2, "0")}`;
+      const paw = state.paws.find((p) => p.id === pawId);
+      
+      if (paw && wsState.index < paw.songs.length) {
+        const song = paw.songs[wsState.index];
+        // Update current song if it's different
+        if (state.currentSong?.id !== song.id) {
+          state.currentSong = {
+            ...song,
+            duration: wsState.duration || song.duration,
+          };
+        } else if (wsState.duration && state.currentSong) {
+          // Update duration if provided
+          state.currentSong.duration = wsState.duration;
+        }
+      }
+    },
   },
 });
 
@@ -190,6 +229,7 @@ export const {
   toggleShuffle,
   toggleRepeat,
   setPaws,
+  updateFromWebSocket,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

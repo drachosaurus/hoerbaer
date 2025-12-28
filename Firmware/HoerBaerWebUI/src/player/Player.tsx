@@ -14,7 +14,7 @@ import VolumeControl from "./VolumeControl";
 const Player = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { currentSong, isPlaying, volume } = useSelector(
+  const { currentSong, isPlaying, currentTime, volume } = useSelector(
     (state: RootState) => state.player
   );
 
@@ -45,7 +45,7 @@ const Player = () => {
           </button>
         </header>
 
-        <AlbumArt currentSong={currentSong} formatTime={formatTime} />
+        <AlbumArt currentSong={currentSong} currentTime={currentTime} formatTime={formatTime} />
 
         <PlayerControls
           isPlaying={isPlaying}
