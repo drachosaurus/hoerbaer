@@ -1,6 +1,27 @@
 #include "log.h"
 #include "id3parser.h"
 
+// Function to convert ISO-8859-1 (Latin-1) to UTF-8
+std::string ID3Parser::convertISO8859_1ToUTF8(const char* iso8859_1Buffer, size_t bufferLength) {
+    std::string result;
+    result.reserve(bufferLength * 2); // Reserve space (worst case: each char becomes 2 bytes)
+
+    for (size_t i = 0; i < bufferLength && iso8859_1Buffer[i] != '\0'; i++) {
+        unsigned char ch = (unsigned char)iso8859_1Buffer[i];
+        
+        if (ch < 0x80) {
+            // ASCII character (0x00-0x7F) - single byte in UTF-8
+            result.push_back((char)ch);
+        } else {
+            // Extended ASCII (0x80-0xFF) - two bytes in UTF-8
+            result.push_back((char)(0xC0 | (ch >> 6)));
+            result.push_back((char)(0x80 | (ch & 0x3F)));
+        }
+    }
+
+    return result;
+}
+
 // Function to convert UTF-16 to UTF-8
 std::string ID3Parser::convertUTF16ToUTF8(const char* utf16Buffer, size_t bufferLength, bool hasBOM) {
     std::string result;
@@ -110,7 +131,7 @@ std::string ID3Parser::readID3v2FrameContent(File& file, uint32_t frameSize, uin
     // Handle different encodings
     switch (encoding) {
         case 0: // ISO-8859-1 (Latin-1)
-            result = std::string(buffer);
+            result = convertISO8859_1ToUTF8(buffer, frameSize);
             break;
         case 1: // UTF-16 with BOM
             // Convert UTF-16 with BOM to UTF-8
@@ -260,8 +281,9 @@ std::tuple<std::string, std::string> ID3Parser::readId3Tags(FSTYPE& fs, const st
                 albumBuffer[30] = '\0';
 
                 // Use ID3v1 data only if ID3v2 didn't provide it
-                if (title.empty()) title = std::string(titleBuffer);
-                if (artist.empty()) artist = std::string(artistBuffer);
+                // ID3v1 uses ISO-8859-1 encoding, convert to UTF-8
+                if (title.empty()) title = convertISO8859_1ToUTF8(titleBuffer, 30);
+                if (artist.empty()) artist = convertISO8859_1ToUTF8(artistBuffer, 30);
                 //   if (album.empty()) album = std::string(albumBuffer);
             }
         }

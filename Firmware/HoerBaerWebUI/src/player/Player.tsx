@@ -7,7 +7,7 @@ import {
   previousSong,
   setVolume,
 } from "../store/playerSlice";
-import { sendCommand, ConnectionStatus } from "../api/websocket";
+import { sendCommand, sendSetVolume, ConnectionStatus } from "../api/websocket";
 import AlbumArt from "./AlbumArt";
 import PlayerControls from "./PlayerControls";
 import VolumeControl from "./VolumeControl";
@@ -19,7 +19,7 @@ interface PlayerProps {
 const Player = ({ connectionStatus }: PlayerProps) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { currentSong, isPlaying, currentTime, volume, battery, deviceName } = useSelector(
+  const { currentSong, isPlaying, currentTime, volume, battery, deviceName, maxVolume } = useSelector(
     (state: RootState) => state.player
   );
 
@@ -42,6 +42,13 @@ const Player = ({ connectionStatus }: PlayerProps) => {
   const handlePrevious = () => {
     sendCommand("previous");
     dispatch(previousSong());
+  };
+
+  const handleVolumeChange = (v: number) => {
+    // Convert 0-1 range to device volume range (0-maxVolume)
+    const deviceVolume = Math.round(v * maxVolume);
+    sendSetVolume(deviceVolume);
+    dispatch(setVolume(v));
   };
 
   return (
@@ -94,7 +101,7 @@ const Player = ({ connectionStatus }: PlayerProps) => {
           onPrevious={handlePrevious}
         />
 
-        <VolumeControl volume={volume} onVolumeChange={(v) => dispatch(setVolume(v))} />
+        <VolumeControl volume={volume} onVolumeChange={handleVolumeChange} />
 
         {/* Song List Button */}
         <button

@@ -168,3 +168,11 @@ export const sendPlaySlot = (slot: number, index: number) => {
     console.warn("WebSocket instance not initialized");
   }
 };
+
+export const sendSetVolume = (volume: number) => {
+  if (wsInstance) {
+    wsInstance.send({ t: "cmd", cmd: "setVol", volume });
+  } else {
+    console.warn("WebSocket instance not initialized");
+  }
+};

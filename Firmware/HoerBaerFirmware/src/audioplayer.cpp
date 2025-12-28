@@ -92,6 +92,8 @@ void AudioPlayer::populateAudioMetadata()
         int nNoMeta = 0;
         for(size_t iDir = 0; iDir < this->slotDirectories->size(); iDir++)
         {
+            Log::println("AUDIO", "Scanning slot directory: %s", this->slotDirectories->at(iDir).c_str());
+
             std::vector<std::tuple<std::string, std::string, std::string>> files;
             std::string slotPath(this->slotDirectories->at(iDir).c_str());
 
@@ -217,6 +219,22 @@ void AudioPlayer::volumeDown()
 
     Log::println("AUDIO", "Decrease volume to: %d", this->currentVolume);
 }
+
+void AudioPlayer::setVolume(int volume)
+{
+    if(volume < this->audioConfig->minVolume)
+        volume = this->audioConfig->minVolume;
+    if(volume > this->audioConfig->maxVolume)
+        volume = this->audioConfig->maxVolume;
+
+    this->currentVolume = volume;
+
+    xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+    this->codec->setVolume(this->currentVolume);
+    xSemaphoreGive(this->i2cSema);
+
+    Log::println("AUDIO", "Set volume to: %d", this->currentVolume);
+}   
 
 void AudioPlayer::playSong(std::string path, uint32_t position)
 {

@@ -24,6 +24,7 @@ export interface PlayerState {
   isPlaying: boolean;
   currentTime: number;
   volume: number;
+  maxVolume: number;
   shuffle: boolean;
   repeat: boolean;
   paws: Paw[];
@@ -40,6 +41,7 @@ const initialState: PlayerState = {
   isPlaying: false,
   currentTime: 0,
   volume: 0.66,
+  maxVolume: 255,
   shuffle: false,
   repeat: true,
   battery: null,
@@ -147,6 +149,11 @@ export const playerSlice = createSlice({
     },
     updateFromWebSocket: (state, action: PayloadAction<StateMessage>) => {
       const wsState = action.payload;
+      
+      // Update maxVolume
+      if (wsState.maxVolume > 0) {
+        state.maxVolume = wsState.maxVolume;
+      }
       
       // Update volume (convert from device scale to 0-1)
       if (wsState.maxVolume > 0) {

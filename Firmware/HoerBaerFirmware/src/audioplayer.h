@@ -46,6 +46,7 @@ class AudioPlayer {
         shared_ptr<PlayingInfo> getPlayingInfo();
         void volumeUp();
         void volumeDown();
+        void setVolume(int volume);
         void playSlotIndex(int iSlot, int iTrack);
         bool playFileByPath(std::string_view path);
         void playNextFromSlot(int iSlot);

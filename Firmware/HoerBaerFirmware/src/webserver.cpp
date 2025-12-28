@@ -69,18 +69,8 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, X-Requested-With");
     
     // Capture sdCard shared_ptr to get non-const fs reference in lambda
-    auto sdCardPtr = this->sdCard;
-    this->server->on("/api/slots", HTTP_GET, [sdCardPtr](AsyncWebServerRequest *request){
-        Log::println("WEBSERVER", "HTTP GET /api/slots FROM %s", request->client()->remoteIP().toString().c_str());
-        AsyncWebServerResponse *response = request->beginResponse(sdCardPtr->getFs(), SDCARD_FILE_META_CACHE, "application/json; charset=utf-8");
-        request->send(response);
-    });
-
-    // this->server->serveStatic("/alarmclock", spiffs, "/webinterface/index.html");
-    // this->server->serveStatic("/wifi", spiffs, "/webinterface/index.html");
-    // this->server->serveStatic("/", spiffs, "/webinterface/")
-    //     .setDefaultFile("index.html");
-
+    this->server->serveStatic("/api/slots", this->sdCard->getFs(), SDCARD_FILE_META_CACHE);
+    
     this->server->on("/api/info", HTTP_GET, [this](AsyncWebServerRequest *request){
 
         Log::println("WEBSERVER", "HTTP GET /api/info FROM %s", 
@@ -178,6 +168,10 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
                             else if (strcmp(action, "previous") == 0) {
                                 audioPlayerPtr->prev();
                             }
+                            else if (strcmp(action, "setVol") == 0) {
+                                int volume = incommingCommand["volume"];
+                                audioPlayerPtr->setVolume(volume);
+                            } 
                             else {
                                 Log::println("WEBSERVER", "ws: Unknown action %s", action);
                             }
