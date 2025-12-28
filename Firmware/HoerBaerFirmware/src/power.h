@@ -20,6 +20,8 @@ class Power {
         bool isCharging();
         bool initialized;
         bool batteryPresent;
+        bool wasCharging;
+        void performQuickStart();
     public:
         Power(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema);
         void disableVCCPowerSave();

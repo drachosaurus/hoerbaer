@@ -182,9 +182,13 @@ void AudioPlayer::loop()
         lastPlayingInfoUpdate = tickCount;
         if(this->playingInfo != nullptr)
         {
-            this->playingInfo->serial++;
-            this->playingInfo->currentTime = audio.getAudioCurrentTime();
-            this->playingInfo->duration = audio.getAudioFileDuration();
+            // dont update current time and duration when paused. - it will be zero
+            if(this->playingInfo->pausedAtPosition == 0)
+            {
+                this->playingInfo->serial++;
+                this->playingInfo->currentTime = audio.getAudioCurrentTime();
+                this->playingInfo->duration = audio.getAudioFileDuration();
+            }
         }
     }
 }

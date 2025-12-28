@@ -25,6 +25,7 @@ Power::Power(shared_ptr<TwoWire> i2c, SemaphoreHandle_t i2cSema)
   initialized = false;
   batteryPresent = false;
   lastBatteryCheck = 0;
+  wasCharging = false;
 }
 
 void Power::disableVCCPowerSave() 
@@ -96,9 +97,19 @@ void Power::initializeChargerAndGauge(bool batteryPresent)
   auto chipId = fuelGauge.getChipID();
   fuelGauge.getAlertVoltages(minV, maxV);
   auto hyber = fuelGauge.getHibernationThreshold();
+  
+  // Configure empty voltage alert for Li-ion (3.0V for dual cell setup)
+  fuelGauge.setAlertVoltages(3.0, 4.2);
+  
+  // Perform quick start to recalibrate SOC if currently charging
+  wasCharging = isCharging();
+  if(wasCharging) {
+    Log::println("POWER", "Battery is charging, performing quick start calibration");
+    fuelGauge.quickStart();
+  }
   xSemaphoreGive(this->i2cSema);
 
-  Log::println("POWER", "Fuel gauge initialized, chip ID: 0x%x, minV: %f, maxV %f, hybernation: %f", chipId, minV, maxV, hyber);
+  Log::println("POWER", "Fuel gauge initialized, chip ID: 0x%x, minV: %f, maxV %f, hybernation: %f, charging: %d", chipId, minV, maxV, hyber, wasCharging);
 }
 
 void Power::setGaugeToSleep() 
@@ -127,6 +138,13 @@ void Power::updateState()
   xSemaphoreGive(this->i2cSema);
 
   state.charging = isCharging();
+  
+  // Detect charging state change - perform quick start when charging completes
+  if(wasCharging && !state.charging) {
+    Log::println("POWER", "Charging completed, performing quick start calibration");
+    performQuickStart();
+  }
+  wasCharging = state.charging;
 }
 
 bool Power::checkBatteryShutdownLoop() 
@@ -144,6 +162,26 @@ bool Power::checkBatteryShutdownLoop()
 
 PowerState& Power::getState() {
   return state;
+}
+
+void Power::performQuickStart()
+{
+  if(!initialized) {
+    return;
+  }
+  
+  xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+  fuelGauge.quickStart();
+  xSemaphoreGive(this->i2cSema);
+  
+  // Wait a moment for the quick start to complete
+  delay(200);
+  
+  // Re-read the state after quick start
+  xSemaphoreTake(this->i2cSema, portMAX_DELAY);
+  state.voltage = fuelGauge.cellVoltage();
+  state.percentage = fuelGauge.cellPercent();
+  xSemaphoreGive(this->i2cSema);
 }
 
 bool Power::checkBatteryShutdown()
