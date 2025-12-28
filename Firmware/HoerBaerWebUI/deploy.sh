@@ -1,5 +1,7 @@
 #!/bin/bash
 
-rm ../WeckerFirmware/data/webinterface/app.*
-cp build/static/js/main.*.js ../WeckerFirmware/data/webinterface/app.js
-cp build/static/css/main.*.css ../WeckerFirmware/data/webinterface/app.css
+rm -rf ../HoerBaerFirmware/data/webui/*.js
+rm -rf ../HoerBaerFirmware/data/webui/*.css
+cp build/index.html ../HoerBaerFirmware/data/webui/index.html
+cp build/static/index-*.js ../HoerBaerFirmware/data/webui/app.js
+cp build/static/index-*.css ../HoerBaerFirmware/data/webui/app.css

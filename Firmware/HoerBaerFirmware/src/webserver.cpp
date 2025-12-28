@@ -10,7 +10,6 @@
 static StaticJsonDocument<256> statusJsonBuffer;
 static StaticJsonDocument<256> infoJsonBuffer;
 
-
 void WSUpdateWorkerTask(void* param) 
 {
     WebServer* webServer = static_cast<WebServer*>(param);
@@ -67,8 +66,8 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
     // CORS headers
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, X-Requested-With");
-    
-    // Capture sdCard shared_ptr to get non-const fs reference in lambda
+
+    // serve /api/slots from the cache file on the SD card
     this->server->serveStatic("/api/slots", this->sdCard->getFs(), SDCARD_FILE_META_CACHE);
     
     this->server->on("/api/info", HTTP_GET, [this](AsyncWebServerRequest *request){
@@ -90,6 +89,10 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
 
         request->send(200, "application/json", jsonResponse);
     });
+    
+    // serve app files from SPIFFS
+    this->server->serveStatic("/", SPIFFS, "/webui").setDefaultFile("index.html");
+    this->server->serveStatic("/songs", SPIFFS, "/webui/index.html");
 
     this->server->onNotFound([](AsyncWebServerRequest *request){
         if (request->method() == HTTP_OPTIONS) {
@@ -153,24 +156,30 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
                             Log::println("WEBSERVER", "Command received over websocket: %s", action);
                             if (strcmp(action, "play") == 0) {
                                 audioPlayerPtr->play();
+                                broadcastCurrentState();
                             } 
                             else if(strcmp(action, "playSlot") == 0) {
                                 int slot = incommingCommand["slot"];
                                 int index = incommingCommand["index"];
                                 audioPlayerPtr->playSlotIndex(slot, index);
+                                broadcastCurrentState();
                             }
                             else if (strcmp(action, "pause") == 0) {
                                 audioPlayerPtr->pause();
+                                broadcastCurrentState();
                             } 
                             else if (strcmp(action, "next") == 0) {
                                 audioPlayerPtr->next();
+                                broadcastCurrentState();
                             } 
                             else if (strcmp(action, "previous") == 0) {
                                 audioPlayerPtr->prev();
+                                broadcastCurrentState();
                             }
                             else if (strcmp(action, "setVol") == 0) {
                                 int volume = incommingCommand["volume"];
                                 audioPlayerPtr->setVolume(volume);
+                                broadcastCurrentState();
                             } 
                             else {
                                 Log::println("WEBSERVER", "ws: Unknown action %s", action);
@@ -190,6 +199,13 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
 }
 
 void WebServer::start() {
+
+    // we use SPIFFS to store the web UI files
+    if(!SPIFFS.begin(true)) {
+        Log::println("WEBSERVER", "An error has occurred while mounting SPIFFS");
+        return;
+    }
+
     this->server->begin();
 
     xTaskCreate(
@@ -202,16 +218,17 @@ void WebServer::start() {
 }
 
 void WebServer::runUpdateWorkerTask() {
-    while (true) 
-    {
-        if (ws->count() > 0)
-        {
-            this->updateWsCurrentStateBuffer();
-            String jsonResponse;
-            serializeJson(statusJsonBuffer, jsonResponse);
-            ws->textAll(jsonResponse);
-        }
-        
+    while (true) {
+        broadcastCurrentState();
         vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+void WebServer::broadcastCurrentState() {
+    if (ws->count() > 0) {
+        this->updateWsCurrentStateBuffer();
+        String jsonResponse;
+        serializeJson(statusJsonBuffer, jsonResponse);
+        ws->textAll(jsonResponse);
     }
 }

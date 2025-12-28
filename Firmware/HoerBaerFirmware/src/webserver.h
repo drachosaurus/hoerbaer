@@ -19,6 +19,7 @@ class WebServer {
         std::shared_ptr<UserConfig> userConfig;
 
         void updateWsCurrentStateBuffer();
+        void broadcastCurrentState();
         
     public:
         WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<SDCard> sdCard, std::shared_ptr<Power> power, std::shared_ptr<UserConfig> userConfig);
