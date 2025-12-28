@@ -100,3 +100,18 @@ export const createWebSocketService = () => {
   const wsUrl = import.meta.env.DEV ? "ws://192.168.15.164/ws" : `ws://${window.location.host}/ws`;
   return new WebSocketService(wsUrl);
 };
+
+// Singleton instance for sending commands
+let wsInstance: WebSocketService | null = null;
+
+export const setWebSocketInstance = (instance: WebSocketService) => {
+  wsInstance = instance;
+};
+
+export const sendCommand = (cmd: "play" | "pause" | "next" | "previous") => {
+  if (wsInstance) {
+    wsInstance.send({ t: "cmd", cmd });
+  } else {
+    console.warn("WebSocket instance not initialized");
+  }
+};

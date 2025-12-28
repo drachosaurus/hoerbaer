@@ -49,7 +49,6 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
 {    
     this->audioPlayer = audioPlayer;
     this->sdCard = sdCard;
-    this->actionQueue = xQueueCreate(10, sizeof (uint8_t));
 
     // Allocate AsyncWebServer in PSRAM to reduce internal heap pressure
     // auto spiffs = fsAccess->getFs();
@@ -96,25 +95,54 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
         } 
         else if (type == WS_EVT_DISCONNECT) {
             ws->textAll("client disconnected");
-            Serial.println("ws disconnect");
+            Log::println("WEBSERVER", "ws disconnect");
 
         } 
         else if (type == WS_EVT_ERROR) {
-            Serial.println("ws error");
-
+            Log::println("WEBSERVER", "ws error");
         } 
         else if (type == WS_EVT_PONG) {
-            Serial.println("ws pong");
-
-        } 
+            Log::println("WEBSERVER", "ws pong");
+       } 
         else if (type == WS_EVT_DATA) {
             AwsFrameInfo *info = (AwsFrameInfo *)arg;
-            Serial.printf("index: %" PRIu64 ", len: %" PRIu64 ", final: %" PRIu8 ", opcode: %" PRIu8 "\n", info->index, info->len, info->final, info->opcode);
+            // Serial.printf("index: %" PRIu64 ", len: %" PRIu64 ", final: %" PRIu8 ", opcode: %" PRIu8 "\n", info->index, info->len, info->final, info->opcode);
             String msg = "";
             if (info->final && info->index == 0 && info->len == len) {
                 if (info->opcode == WS_TEXT) {
-                data[len] = 0;
-                Serial.printf("ws text: %s\n", (char *)data);
+                    data[len] = 0;
+                    Log::println("WEBSERVER", "ws : %s", (char *)data);
+
+                    // deserialize incoming message
+
+                    StaticJsonDocument<128> incommingCommand;
+                    auto error = deserializeJson(incommingCommand, data);
+                    if (!error) {
+                        const char* commandType = incommingCommand["t"];
+                        if (strcmp(commandType, "cmd") == 0) {
+                            const char* action = incommingCommand["cmd"];
+                            Log::println("WEBSERVER", "Command received over websocket: %s", action);
+                            if (strcmp(action, "play") == 0) {
+                                audioPlayer->play();
+                            } 
+                            else if (strcmp(action, "pause") == 0) {
+                                audioPlayer->pause();
+                            } 
+                            else if (strcmp(action, "next") == 0) {
+                                audioPlayer->next();
+                            } 
+                            else if (strcmp(action, "previous") == 0) {
+                                audioPlayer->prev();
+                            }
+                            else {
+                                Log::println("WEBSERVER", "ws: Unknown action %s", action);
+                            }
+                        }
+                    } 
+                    else {
+                        Log::println("WEBSERVER", "ws: Failed to parse JSON");
+                        return;
+                    }
                 }
             }
         }
@@ -148,8 +176,4 @@ void WebServer::runUpdateWorkerTask() {
         
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
-}
-
-QueueHandle_t WebServer::getActionQueueHandle() {
-    return this->actionQueue;
 }

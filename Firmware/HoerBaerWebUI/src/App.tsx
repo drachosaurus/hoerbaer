@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useGetSlotsQuery } from "./api/deviceApi";
 import { setPaws, updateFromWebSocket } from "./store/playerSlice";
-import { createWebSocketService, WebSocketMessage } from "./api/websocket";
+import { createWebSocketService, setWebSocketInstance, WebSocketMessage } from "./api/websocket";
 import Player from "./player/Player";
 import SongList from "./songlist/SongList";
 
@@ -22,6 +22,7 @@ function App() {
     // Create and connect WebSocket
     const ws = createWebSocketService();
     wsRef.current = ws;
+    setWebSocketInstance(ws);
 
     ws.connect((message: WebSocketMessage) => {
       if (message.t === "state") {
@@ -33,6 +34,7 @@ function App() {
     // Cleanup on unmount
     return () => {
       ws.disconnect();
+      setWebSocketInstance(null as any);
     };
   }, [dispatch]);
 

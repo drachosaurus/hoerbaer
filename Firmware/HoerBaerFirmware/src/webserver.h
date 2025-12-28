@@ -14,7 +14,6 @@ class WebServer {
         std::unique_ptr<AsyncWebSocket> ws;
         std::shared_ptr<AudioPlayer> audioPlayer;
         std::shared_ptr<SDCard> sdCard;
-        QueueHandle_t actionQueue;
 
         void updateWsCurrentStateBuffer();
         
@@ -22,5 +21,4 @@ class WebServer {
         WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<SDCard> sdCard);
         void start();
         void runUpdateWorkerTask();
-        QueueHandle_t getActionQueueHandle();
 };

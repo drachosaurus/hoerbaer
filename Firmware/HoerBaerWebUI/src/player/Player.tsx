@@ -7,6 +7,7 @@ import {
   previousSong,
   setVolume,
 } from "../store/playerSlice";
+import { sendCommand } from "../api/websocket";
 import AlbumArt from "./AlbumArt";
 import PlayerControls from "./PlayerControls";
 import VolumeControl from "./VolumeControl";
@@ -22,6 +23,21 @@ const Player = () => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handleTogglePlay = () => {
+    sendCommand(isPlaying ? "pause" : "play");
+    dispatch(togglePlay());
+  };
+
+  const handleNext = () => {
+    sendCommand("next");
+    dispatch(nextSong());
+  };
+
+  const handlePrevious = () => {
+    sendCommand("previous");
+    dispatch(previousSong());
   };
 
   return (
@@ -49,9 +65,9 @@ const Player = () => {
 
         <PlayerControls
           isPlaying={isPlaying}
-          onTogglePlay={() => dispatch(togglePlay())}
-          onNext={() => dispatch(nextSong())}
-          onPrevious={() => dispatch(previousSong())}
+          onTogglePlay={handleTogglePlay}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
         />
 
         <VolumeControl volume={volume} onVolumeChange={(v) => dispatch(setVolume(v))} />
