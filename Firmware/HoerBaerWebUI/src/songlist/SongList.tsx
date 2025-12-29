@@ -13,6 +13,26 @@ const SongList = () => {
   const navigate = useNavigate();
   const { paws, currentSong, currentTime, isPlaying, deviceName } = useSelector((state: RootState) => state.player);
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedPaws, setExpandedPaws] = useState<Set<string>>(
+    new Set(paws.map(p => p.id)) // All expanded by default
+  );
+
+  // Update expanded paws when paws change (e.g., on first load)
+  useState(() => {
+    setExpandedPaws(new Set(paws.map(p => p.id)));
+  });
+
+  const togglePaw = (pawId: string) => {
+    setExpandedPaws(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(pawId)) {
+        newSet.delete(pawId);
+      } else {
+        newSet.add(pawId);
+      }
+      return newSet;
+    });
+  };
 
   const handlePlaySong = (song: Song) => {
     // Find the slot (paw index) and song index
@@ -102,6 +122,8 @@ const SongList = () => {
                 currentSong={currentSong}
                 isPlaying={isPlaying}
                 onSongClick={handlePlaySong}
+                isExpanded={searchQuery ? true : expandedPaws.has(paw.id)}
+                onToggle={() => !searchQuery && togglePaw(paw.id)}
               />
             );
           })

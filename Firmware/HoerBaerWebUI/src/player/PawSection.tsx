@@ -10,6 +10,8 @@ interface PawSectionProps {
   currentSong: Song | null;
   isPlaying: boolean;
   onSongClick: (song: Song) => void;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
 const PawSection = ({ 
@@ -20,49 +22,34 @@ const PawSection = ({
   totalSongs, 
   currentSong, 
   isPlaying, 
-  onSongClick 
+  onSongClick,
+  isExpanded,
+  onToggle
 }: PawSectionProps) => {
-  const getPawColorClass = (color: string) => {
-    const colors: { [key: string]: string } = {
-      blue: "bg-blue-100 text-blue-500",
-      indigo: "bg-indigo-100 text-indigo-500",
-      green: "bg-green-100 text-green-600",
-      orange: "bg-orange-100 text-orange-500",
-    };
-    return colors[color] || "bg-gray-100 text-gray-500";
-  };
-
-  const getPawBadgeClass = (color: string) => {
-    const colors: { [key: string]: string } = {
-      blue: "bg-primary/10 dark:bg-accent/10 text-primary dark:text-accent",
-      indigo: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-200",
-      green: "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-200",
-      orange: "bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-200",
-    };
-    return colors[color] || "bg-gray-100 text-gray-600";
-  };
-
   return (
     <section>
-      <div className="flex items-center mb-4 space-x-3">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center mb-4 space-x-3 hover:opacity-80 transition-opacity"
+      >
         <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center shadow-lg border-2 border-[#B88A5C]">
           <span className="material-icons-round text-white text-2xl drop-shadow-md">
             {pawIcon}
           </span>
         </div>
         <h2 className="text-2xl font-bold text-primary dark:text-accent">{pawName}</h2>
-        <span
-          className={`${getPawBadgeClass(
-            pawColor
-          )} px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider`}
-        >
+        <span className="bg-wood-light/50 dark:bg-wood-dark/50 text-wood-DEFAULT dark:text-wood-light px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
           {totalSongs !== undefined && totalSongs !== songs.length
             ? `${songs.length} of ${totalSongs} songs`
             : `${songs.length} songs`}
         </span>
-      </div>
+        <span className="material-icons-round text-primary dark:text-accent ml-auto transition-transform duration-200" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+          expand_more
+        </span>
+      </button>
 
-      <div className="bg-white dark:bg-wood-dark rounded-3xl p-2 shadow-wood dark:shadow-none dark:border dark:border-white/5 space-y-1">
+      {isExpanded && (
+        <div className="bg-white dark:bg-wood-dark rounded-3xl p-2 shadow-wood dark:shadow-none dark:border dark:border-white/5 space-y-1">
         {songs.map((song, index) => {
           const isCurrentSong = currentSong?.id === song.id;
           return (
@@ -79,7 +66,7 @@ const PawSection = ({
                 className={`w-12 h-12 rounded-xl flex items-center justify-center mr-4 shrink-0 font-bold text-lg ${
                   isCurrentSong
                     ? "bg-primary text-white relative overflow-hidden"
-                    : `${getPawColorClass(pawColor)} group-hover:scale-105 transition-transform`
+                    : "bg-wood-light/30 dark:bg-wood-dark/30 text-wood-DEFAULT dark:text-wood-light group-hover:scale-105 transition-transform"
                 }`}
               >
                 {isCurrentSong && isPlaying ? (
@@ -125,6 +112,7 @@ const PawSection = ({
           );
         })}
       </div>
+      )}
     </section>
   );
 };
