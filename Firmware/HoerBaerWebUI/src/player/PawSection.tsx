@@ -17,7 +17,6 @@ interface PawSectionProps {
 const PawSection = ({ 
   pawName, 
   pawIcon, 
-  pawColor, 
   songs,
   totalSongs, 
   currentSong, 
