@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useGetSlotsQuery, useGetInfoQuery } from "./api/deviceApi";
 import { setPaws, setDeviceName, updateFromWebSocket } from "./store/playerSlice";
-import { createWebSocketService, setWebSocketInstance, WebSocketMessage, ConnectionStatus } from "./api/websocket";
+import { createWebSocketService, WebSocketMessage, ConnectionStatus } from "./api/websocket";
 import Player from "./player/Player";
 import SongList from "./songlist/SongList";
 
@@ -27,10 +27,9 @@ function App() {
   }, [isInfoSuccess, deviceInfo, dispatch]);
 
   useEffect(() => {
-    // Create and connect WebSocket
+    // Create and connect WebSocket (singleton pattern prevents duplicates)
     const ws = createWebSocketService();
     wsRef.current = ws;
-    setWebSocketInstance(ws);
 
     ws.connect(
       (message: WebSocketMessage) => {
@@ -44,10 +43,10 @@ function App() {
       }
     );
 
-    // Cleanup on unmount
+    // Cleanup on unmount - don't disconnect singleton, just clear ref
     return () => {
-      ws.disconnect();
-      setWebSocketInstance(null as any);
+      console.log("Cleaning up WebSocket ref");
+      wsRef.current = null;
     };
   }, [dispatch]);
 

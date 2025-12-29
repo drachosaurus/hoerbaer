@@ -36,6 +36,15 @@ export class WebSocketService {
   }
 
   connect(onMessage: (message: WebSocketMessage) => void, onStatusChange?: (status: ConnectionStatus) => void) {
+    // If already connected or connecting, just update callbacks
+    if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
+      console.log("WebSocket already connected/connecting, updating callbacks only");
+      this.onMessageCallback = onMessage;
+      this.onStatusChangeCallback = onStatusChange || null;
+      return;
+    }
+    
+    console.log("Starting new WebSocket connection");
     this.onMessageCallback = onMessage;
     this.onStatusChangeCallback = onStatusChange || null;
     this.createConnection();
@@ -62,6 +71,8 @@ export class WebSocketService {
           }
         } catch (error) {
           console.error("Failed to parse WebSocket message:", error);
+          console.error("Raw message data:", event.data);
+          // Ignore non-JSON messages (e.g., connection acknowledgments)
         }
       };
 
@@ -134,45 +145,70 @@ export class WebSocketService {
 
   send(message: any) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(message));
+      try {
+        const jsonString = JSON.stringify(message);
+        console.log("Sending WebSocket message:", jsonString);
+        this.ws.send(jsonString);
+      } catch (error) {
+        console.error("Failed to send WebSocket message:", error, message);
+      }
     } else {
-      console.warn("WebSocket is not connected, cannot send message");
+      console.warn("WebSocket is not connected, cannot send message. ReadyState:", this.ws?.readyState);
+      console.warn("WebSocket states - CONNECTING:", WebSocket.CONNECTING, "OPEN:", WebSocket.OPEN, "CLOSING:", WebSocket.CLOSING, "CLOSED:", WebSocket.CLOSED);
     }
   }
 }
 
-export const createWebSocketService = () => {
-  const wsUrl = import.meta.env.DEV ? "ws://192.168.15.164/ws" : `ws://${window.location.host}/ws`;
-  return new WebSocketService(wsUrl);
-};
-
-// Singleton instance for sending commands
+// Singleton instance for sending commands and connection management
 let wsInstance: WebSocketService | null = null;
 
-export const setWebSocketInstance = (instance: WebSocketService) => {
+export const createWebSocketService = () => {
+  // Return existing instance if already created (prevents duplicate connections in React Strict Mode)
+  if (wsInstance) {
+    console.log("Reusing existing WebSocket instance");
+    return wsInstance;
+  }
+  
+  console.log("Creating new WebSocket instance");
+  const wsUrl = import.meta.env.DEV ? "ws://192.168.15.164/ws" : `ws://${window.location.host}/ws`;
+  const instance = new WebSocketService(wsUrl);
+  wsInstance = instance;
+  return instance;
+};
+
+export const setWebSocketInstance = (instance: WebSocketService | null) => {
   wsInstance = instance;
 };
 
-export const sendCommand = (cmd: "play" | "pause" | "next" | "previous") => {
-  if (wsInstance) {
-    wsInstance.send({ t: "cmd", cmd });
-  } else {
-    console.warn("WebSocket instance not initialized");
+// Commands are now sent via REST API instead of WebSocket
+// Import and use the deviceApi mutation in components instead
+// These functions are kept for backward compatibility but will use fetch
+const sendCommandViaREST = async (command: any) => {
+  const baseUrl = import.meta.env.DEV ? "http://192.168.15.164/api" : "/api";
+  try {
+    const response = await fetch(`${baseUrl}/cmd`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(command),
+    });
+    if (!response.ok) {
+      console.error("Command failed:", response.status, response.statusText);
+    }
+  } catch (error) {
+    console.error("Failed to send command:", error);
   }
+};
+
+export const sendCommand = (cmd: "play" | "pause" | "next" | "previous") => {
+  sendCommandViaREST({ cmd });
 };
 
 export const sendPlaySlot = (slot: number, index: number) => {
-  if (wsInstance) {
-    wsInstance.send({ t: "cmd", cmd: "playSlot", slot, index });
-  } else {
-    console.warn("WebSocket instance not initialized");
-  }
+  sendCommandViaREST({ cmd: "playSlot", slot, index });
 };
 
 export const sendSetVolume = (volume: number) => {
-  if (wsInstance) {
-    wsInstance.send({ t: "cmd", cmd: "setVol", volume });
-  } else {
-    console.warn("WebSocket instance not initialized");
-  }
+  sendCommandViaREST({ cmd: "setVol", volume });
 };

@@ -20,6 +20,7 @@ class WebServer {
 
         void updateWsCurrentStateBuffer();
         void broadcastCurrentState();
+        void processCommand(const char* action, JsonDocument& commandDoc);
         
     public:
         WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<SDCard> sdCard, std::shared_ptr<Power> power, std::shared_ptr<UserConfig> userConfig);

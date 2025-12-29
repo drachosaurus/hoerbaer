@@ -32,7 +32,14 @@ export const deviceApi = createApi({
     }),
     getInfo: builder.query<DeviceInfo, void>({
       query: () => `/info`
-    })
+    }),
+    sendCommand: builder.mutation<void, any>({
+      query: (command) => ({
+        url: `/cmd`,
+        method: "POST",
+        body: command,
+      }),
+    }),
   })
 });
 
@@ -40,5 +47,6 @@ export const deviceApi = createApi({
 // auto-generated based on the defined endpoints
 export const {
   useGetSlotsQuery,
-  useGetInfoQuery
+  useGetInfoQuery,
+  useSendCommandMutation,
 } = deviceApi;

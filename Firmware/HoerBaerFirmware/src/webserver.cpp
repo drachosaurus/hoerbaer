@@ -10,8 +10,7 @@
 static StaticJsonDocument<256> statusJsonBuffer;
 static StaticJsonDocument<256> infoJsonBuffer;
 
-void WSUpdateWorkerTask(void* param) 
-{
+void WSUpdateWorkerTask(void* param) {
     WebServer* webServer = static_cast<WebServer*>(param);
     webServer->runUpdateWorkerTask();
 }
@@ -92,6 +91,7 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
     
     // serve app files from SPIFFS
     this->server->serveStatic("/", SPIFFS, "/webui").setDefaultFile("index.html");
+    this->server->serveStatic("/static", SPIFFS, "/webui");
     this->server->serveStatic("/songs", SPIFFS, "/webui/index.html");
 
     this->server->onNotFound([](AsyncWebServerRequest *request){
@@ -110,9 +110,7 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
     auto audioPlayerPtr = this->audioPlayer;
     auto wsPtr = this->ws.get();
     
-    this->ws->onEvent([this, audioPlayerPtr, wsPtr](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
-        (void)len;
-
+    this->ws->onEvent([this](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
         if (type == WS_EVT_CONNECT) {
             Log::println("WEBSERVER", "ws client connected: %u from %s", 
                 client->id(), client->remoteIP().toString().c_str());
@@ -123,79 +121,82 @@ WebServer::WebServer(std::shared_ptr<AudioPlayer> audioPlayer, std::shared_ptr<S
             client->text(jsonResponse);
 
             client->setCloseClientOnQueueFull(false);
-            client->ping();
         } 
         else if (type == WS_EVT_DISCONNECT) {
-            wsPtr->textAll("client disconnected");
-            Log::println("WEBSERVER", "ws disconnect");
-
+            Log::println("WEBSERVER", "ws client %u disconnected", client->id());
         } 
         else if (type == WS_EVT_ERROR) {
-            Log::println("WEBSERVER", "ws error");
-        } 
-        else if (type == WS_EVT_PONG) {
-            Log::println("WEBSERVER", "ws pong");
-       } 
-        else if (type == WS_EVT_DATA) {
-            AwsFrameInfo *info = (AwsFrameInfo *)arg;
-            // Serial.printf("index: %" PRIu64 ", len: %" PRIu64 ", final: %" PRIu8 ", opcode: %" PRIu8 "\n", info->index, info->len, info->final, info->opcode);
-            String msg = "";
-            if (info->final && info->index == 0 && info->len == len) {
-                if (info->opcode == WS_TEXT) {
-                    data[len] = 0;
-                    Log::println("WEBSERVER", "ws : %s", (char *)data);
-
-                    // deserialize incoming message
-
-                    StaticJsonDocument<128> incommingCommand;
-                    auto error = deserializeJson(incommingCommand, data);
-                    if (!error) {
-                        const char* commandType = incommingCommand["t"];
-                        if (strcmp(commandType, "cmd") == 0) {
-                            const char* action = incommingCommand["cmd"];
-                            Log::println("WEBSERVER", "Command received over websocket: %s", action);
-                            if (strcmp(action, "play") == 0) {
-                                audioPlayerPtr->play();
-                                broadcastCurrentState();
-                            } 
-                            else if(strcmp(action, "playSlot") == 0) {
-                                int slot = incommingCommand["slot"];
-                                int index = incommingCommand["index"];
-                                audioPlayerPtr->playSlotIndex(slot, index);
-                                broadcastCurrentState();
-                            }
-                            else if (strcmp(action, "pause") == 0) {
-                                audioPlayerPtr->pause();
-                                broadcastCurrentState();
-                            } 
-                            else if (strcmp(action, "next") == 0) {
-                                audioPlayerPtr->next();
-                                broadcastCurrentState();
-                            } 
-                            else if (strcmp(action, "previous") == 0) {
-                                audioPlayerPtr->prev();
-                                broadcastCurrentState();
-                            }
-                            else if (strcmp(action, "setVol") == 0) {
-                                int volume = incommingCommand["volume"];
-                                audioPlayerPtr->setVolume(volume);
-                                broadcastCurrentState();
-                            } 
-                            else {
-                                Log::println("WEBSERVER", "ws: Unknown action %s", action);
-                            }
-                        }
-                    } 
-                    else {
-                        Log::println("WEBSERVER", "ws: Failed to parse JSON");
-                        return;
-                    }
-                }
-            }
+            Log::println("WEBSERVER", "ws error from client %u", client->id());
         }
     });
 
+    // REST API endpoint for commands
+    this->server->on("/api/cmd", HTTP_POST, [this](AsyncWebServerRequest *request){}, NULL,
+        [this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+            
+            Log::println("WEBSERVER", "HTTP POST /api/cmd FROM %s, len=%zu", 
+                request->client()->remoteIP().toString().c_str(), len);
+
+            StaticJsonDocument<128> commandDoc;
+            auto error = deserializeJson(commandDoc, data, len);
+            
+            if (!error) {
+                const char* action = commandDoc["cmd"];
+                
+                if (action) {
+                    Log::println("WEBSERVER", "Command received: %s", action);
+                    this->processCommand(action, commandDoc);
+                    request->send(200, "application/json", "{\"status\":\"ok\"}");
+                } else {
+                    Log::println("WEBSERVER", "Command missing 'cmd' field");
+                    request->send(400, "application/json", "{\"error\":\"missing cmd field\"}");
+                }
+            } else {
+                Log::println("WEBSERVER", "Failed to parse command JSON: %s", error.c_str());
+                request->send(400, "application/json", "{\"error\":\"invalid json\"}");
+            }
+        });
+
     this->server->addHandler(ws.get());
+}
+
+void WebServer::processCommand(const char* action, JsonDocument& commandDoc) {
+    if (strcmp(action, "play") == 0) {
+        Log::println("WEBSERVER", "Executing PLAY command");
+        this->audioPlayer->play();
+        broadcastCurrentState();
+    } 
+    else if(strcmp(action, "playSlot") == 0) {
+        int slot = commandDoc["slot"];
+        int index = commandDoc["index"];
+        Log::println("WEBSERVER", "Executing PLAYSLOT command: slot=%d, index=%d", slot, index);
+        this->audioPlayer->playSlotIndex(slot, index);
+        broadcastCurrentState();
+    }
+    else if (strcmp(action, "pause") == 0) {
+        Log::println("WEBSERVER", "Executing PAUSE command");
+        this->audioPlayer->pause();
+        broadcastCurrentState();
+    } 
+    else if (strcmp(action, "next") == 0) {
+        Log::println("WEBSERVER", "Executing NEXT command");
+        this->audioPlayer->next();
+        broadcastCurrentState();
+    } 
+    else if (strcmp(action, "previous") == 0) {
+        Log::println("WEBSERVER", "Executing PREVIOUS command");
+        this->audioPlayer->prev();
+        broadcastCurrentState();
+    }
+    else if (strcmp(action, "setVol") == 0) {
+        int volume = commandDoc["volume"];
+        Log::println("WEBSERVER", "Executing SETVOL command: volume=%d", volume);
+        this->audioPlayer->setVolume(volume);
+        broadcastCurrentState();
+    } 
+    else {
+        Log::println("WEBSERVER", "Unknown action: %s", action);
+    }
 }
 
 void WebServer::start() {
