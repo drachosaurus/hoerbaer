@@ -40,14 +40,15 @@ void WLAN::connectIfConfigured() {
 
     Log::println("WLAN", "WiFi connecting to SSID: %s", ssid.c_str());
 
+    WiFi.setHostname(userConfig->getName().c_str());
+    Log::println("WLAN", "Set hostname to: %s", userConfig->getName().c_str());
+    Log::logCurrentHeap("After WiFi.setHostname(...)");
+
     WiFi.mode(WIFI_STA);
     Log::logCurrentHeap("After WiFi.mode(WIFI_STA)");
 
     WiFi.begin(ssid.c_str(), password.c_str());
     Log::logCurrentHeap("After WiFi.begin(...)");
-
-    WiFi.setHostname(userConfig->getName().c_str());
-    Log::logCurrentHeap("After WiFi.setHostname(...)");
   }
   else
     Log::println("WLAN", "WiFi disabled");
